@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="MetaJhim 100: дневник Дмитрия Мухина, 16-недельный план, прогресс и ежедневный трекер.">
+  <title>MetaJhim 100 — Дмитрий Мухин</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-alt: #273549;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); line-height: 1.5; padding: 20px; max-width: 1240px; margin: 0 auto; }
+    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    h1 { font-size: 1.45rem; font-weight: 700; color: var(--text); }
+    .subtitle { color: var(--muted); font-size: 0.88rem; margin-top: 4px; }
+    .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .card-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+    .card-value { font-size: 1.50rem; font-weight: 700; color: var(--accent); }
+    .card-sub { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+    .controls-bar { display: flex; flex-wrap: wrap; gap: 16px; background: var(--card); padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 24px; align-items: flex-end; }
+    .control-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 190px; }
+    label { font-size: 0.82rem; color: var(--muted); font-weight: 600; }
+    select, input, textarea { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.92rem; width: 100%; }
+    select:focus, input:focus, textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    .btn { background: var(--accent); color: #0f172a; font-weight: 700; border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; font-size: 0.88rem; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.9; }
+    .btn-secondary { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); }
+    .btn-success { background: var(--success); color: #052e16; }
+    .section-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .badge { padding: 4px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 700; }
+    .badge-info { background: rgba(56, 189, 248, 0.15); color: var(--accent); }
+    .badge-warn { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .badge-ok { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+    .workout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .day-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .day-header { border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .day-title { font-weight: 700; color: var(--accent); }
+    .ex-item { background: var(--card-alt); border-radius: 8px; padding: 12px; font-size: 0.88rem; }
+    .ex-name { font-weight: 700; margin-bottom: 4px; color: var(--text); }
+    .ex-plan { color: var(--warning); font-weight: 600; margin-bottom: 8px; font-size: 0.85rem; }
+    .progress-bar-wrap { background: var(--bg); border-radius: 999px; height: 10px; width: 100%; overflow: hidden; margin-top: 8px; border: 1px solid var(--border); }
+    .progress-bar-fill { background: linear-gradient(90deg, var(--accent), var(--success)); height: 100%; transition: width 0.3s ease; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; background: var(--card-alt); }
+    tr.active-row { background: rgba(56, 189, 248, 0.12); }
+    .bio-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .supp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
+    .supp-item { background: var(--card-alt); padding: 10px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; }
+    .toast { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: #052e16; padding: 12px 20px; border-radius: 8px; font-weight: 700; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 100; }
+
+    :root{color-scheme:dark;--muted:#acbcd0}h2{font-size:1.1rem}.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px}.charts svg{width:100%;height:auto;display:block;margin-top:12px}.charts text{font:11px system-ui;fill:var(--muted)}.table-wrap{overflow-x:auto}.supp-table{min-width:760px}.supp-table th,.supp-table td{text-align:center;padding:10px 6px}.supp-table th:first-child{text-align:left;min-width:240px}.supp-table input{width:20px;height:20px;accent-color:var(--accent);cursor:pointer}.supp-table small{display:block;color:var(--muted);font-weight:400}.today{background:#143c50}.actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.notice{background:var(--card-alt);border-radius:8px;padding:12px;margin:12px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.85rem}.error{color:#fda4af}.notice[hidden]{display:none}dialog{width:min(760px,calc(100% - 24px));max-height:90vh;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:20px}dialog::backdrop{background:#000b}dialog .modal-box{padding:0!important;border:0!important;max-width:none!important}#patchPreview{max-height:240px;overflow:auto}a,summary{color:var(--accent)}summary{cursor:pointer}details,footer{margin-top:16px}footer{font-size:12px;color:var(--muted);padding:16px 0}textarea{resize:vertical}button:disabled,input:disabled{opacity:.45;cursor:not-allowed}input:invalid{border-color:var(--danger)}:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.day-header{flex-wrap:wrap;gap:8px}
+    @media(max-width:800px){.charts{grid-template-columns:1fr}}@media(max-width:540px){body{padding:12px}.workout-grid{grid-template-columns:minmax(0,1fr)}.control-group{min-width:0;flex-basis:100%}.modal-box{padding:12px}dialog{padding:14px}}
+    #cycleTableBody{vertical-align:top}table:has(#cycleTableBody){min-width:1050px}.supp-table th:first-child{position:sticky;left:0;background:var(--card-alt);z-index:1}.supp-table thead th:first-child{z-index:2}
+  </style>
+</head>
+<body>
+  <div id="storageWarning" class="notice error" role="alert" hidden></div>
+  <div id="appRoot"></div>
+  <div class="toast" id="toastBox" role="status"></div>
+
+  <script>
+    const defaultPlan = [
+  {
+    "w": 1,
+    "phase": "Блок 1: База и стабилизация левого плеча",
+    "isDeload": false,
+    "target100": 15,
+    "d1_main": "100 кг × 15 (RIR 2) + 3×5 с паузой в локауте 3 сек (Выполнено 19.10)",
+    "d1_acc": "Горизонтальный жим гантелей нейтральным хватом (ладони друг к другу, без нагрузки на переднюю дельту): 3×10 | Трицепс на блоке (канат): 3×15 | Y-подъемы на наклонной (нижняя трапеция): 2×15",
+    "d2_all": "Приседания или Жим ногами: 3×8-10 (RIR 3, без становой!) | Ягодичный мост в тренажере: 3×12-15 (пауза 2с вверху) | Гориз. тяга блока (акцент на сведение и опускание левой лопатки): 4×12 | Верт. тяга паралл. хватом: 3×12 | Face Pull (канат ко лбу): 4×20 + Обратный Пек-дек (задняя дельта): 3×15",
+    "d3_main": "Кластеры 100 кг: 3 серии × (10 + 4 повт. через 20 сек отдыха на стойках)",
+    "d3_acc": "Темповый жим 82.5 кг: 2×18 (прижим левой лопатки!) | Удержание в локауте 115 кг: 2×30 сек | L-Fly (внешняя ротация, 3 подхода на левую, 2 на правую): по 15-20 | Молотки: 3×12"
+  },
+  {
+    "w": 2,
+    "phase": "Блок 1: База и стабилизация левого плеча",
+    "isDeload": false,
+    "target100": 16,
+    "d1_main": "110 кг × 4×6 (RIR 2, жесткая фиксация левой лопатки)",
+    "d1_acc": "Горизонтальный жим гантелей нейтральным хватом: 3×10 | Дожим с бруса 5 см (средний хват): 3×8 | Трицепс блок: 3×15 | Y-подъемы: 2×15",
+    "d2_all": "Приседания / Жим ногами: 3×10 (RIR 3) | Ягодичный мост в тренажере: 3×15 | Гориз. тяга: 4×12 | Верт. тяга: 3×12 | Face Pull: 4×20 + Махи на заднюю дельту лежа на скамье 30°: 3×15",
+    "d3_main": "Кластеры 100 кг: 3 серии × (11 + 4 повт. через 20 сек)",
+    "d3_acc": "Темповый жим 85 кг: 2×18 | Удержание в локауте 117.5 кг: 2×30 сек | L-Fly ротаторы: 3×20 | Молотки: 3×12 (L-Fly: акцент на левое плечо)"
+  },
+  {
+    "w": 3,
+    "phase": "Блок 1: База и стабилизация левого плеча",
+    "isDeload": false,
+    "target100": 17,
+    "d1_main": "112.5 кг × 4×6 (RIR 2)",
+    "d1_acc": "Горизонтальный жим гантелей нейтральным хватом: 3×12 | Дожим с бруса 5 см: 3×8 | Трицепс блок: 3×15 | Y-подъемы: 2×15",
+    "d2_all": "Приседания / Жим ногами: 3×10 (RIR 3) | Ягодичный мост в тренажере: 3×15 | Гориз. тяга: 4×12 | Верт. тяга: 3×12 | Face Pull: 4×20 + Обратный Пек-дек: 3×15",
+    "d3_main": "Кластеры 100 кг: 3 серии × (11 + 5 повт. через 20 сек)",
+    "d3_acc": "Темповый жим 85 кг: 2×20 | Удержание в локауте 120 кг: 2×35 сек | L-Fly ротаторы: 3×20 | Молотки: 3×15 (L-Fly: акцент на левое плечо)"
+  },
+  {
+    "w": 4,
+    "phase": "Блок 1: РАЗГРУЗКА (Deload связок)",
+    "isDeload": true,
+    "target100": 18,
+    "d1_main": "100 кг × 2×8 (Легко, RIR 5 — контроль симметрии лопаток)",
+    "d1_acc": "Горизонтальный жим гантелей нейтральным хватом: 2×10 | Трицепс блок: 2×15 | L-Fly + Y-подъемы: 2×15",
+    "d2_all": "Ягодичный мост в тренажере: 2×15 | Гориз. тяга: 3×12 | Face Pull + Обратный Пек-дек: по 3×20 (Присед убираем на разгрузке)",
+    "d3_main": "Технический подход 100 кг с локаутом: 1×(12 + пауза 4с вверху + 3 + пауза 4с + 3) с запасом",
+    "d3_acc": "Без кластеров и отказов — полная регенерация левого плеча"
+  },
+  {
+    "w": 5,
+    "phase": "Блок 2: Силовая выносливость (Лактатный буфер)",
+    "isDeload": false,
+    "target100": 19,
+    "d1_main": "115 кг × 5×5 (RIR 2)",
+    "d1_acc": "Горизонтальный жим гантелей нейтральным хватом: 3×10 | Дожим с бруса 5 см: 3×8 | Трицепс блок: 3×15 | Y-подъемы: 2×15",
+    "d2_all": "Приседания / Жим ногами: 3×8 (RIR 3) | Ягодичный мост в тренажере: 3×15 | Гориз. тяга: 4×10 | Верт. тяга: 3×12 | Face Pull: 4×20 + Махи на наклонной скамье (задняя дельта): 3×15",
+    "d3_main": "Кластеры 100 кг: 3 серии × (12 + 4 + 3 повт. через 15 сек)",
+    "d3_acc": "Темповый жим 87.5 кг: 2×18 | Удержание в локауте 122.5 кг: 2×35 сек | L-Fly: 3×20 | Молотки: 3×12 (L-Fly: акцент на левое плечо)"
+  },
+  {
+    "w": 6,
+    "phase": "Блок 2: Силовая выносливость",
+    "isDeload": false,
+    "target100": 20,
+    "d1_main": "117.5 кг × 5×5 (RIR 2)",
+    "d1_acc": "Горизонтальный жим гантелей нейтральным хватом: 3×10 | Дожим с бруса 5 см: 3×8 | Трицепс: 3×15 | Y-подъемы: 2×15",
+    "d2_all": "Приседания / Жим ногами: 3×8 (RIR 3) | Ягодичный мост в тренажере: 3×15 | Гориз. тяга: 4×10 | Верт. тяга: 3×12 | Face Pull: 4×20 + Обратный Пек-дек: 3×15",
+    "d3_main": "Кластеры 100 кг: 3 серии × (12 + 5 + 3 повт. через 15 сек)",
+    "d3_acc": "Темповый жим 87.5 кг: 2×20 | Удержание в локауте 125 кг: 2×40 сек | L-Fly: 3×20 | Молотки: 3×12 (L-Fly: акцент на левое плечо)"
+  },
+  {
+    "w": 7,
+    "phase": "Блок 2: Силовая выносливость",
+    "isDeload": false,
+    "target100": 21,
+    "d1_main": "120 кг × 5×5 (RIR 1-2)",
+    "d1_acc": "Горизонтальный жим гантелей нейтральным хватом: 3×10 | Дожим с бруса: 3×8 | Трицепс: 3×15 | Y-подъемы: 2×15",
+    "d2_all": "Приседания / Жим ногами: 3×8 (RIR 3) | Ягодичный мост в тренажере: 3×15 | Гориз. тяга: 4×10 | Верт. тяга: 3×12 | Face Pull: 4×20 + Обратный Пек-дек: 3×15",
+    "d3_main": "Кластеры 100 кг: 3 серии × (13 + 5 + 4 повт. через 15 сек)",
+    "d3_acc": "Темповый жим 90 кг: 2×18 | Удержание в локауте 127.5 кг: 2×40 сек | L-Fly: 3×20 | Молотки: 3×15 (L-Fly: акцент на левое плечо)"
+  },
+  {
+    "w": 8,
+    "phase": "Блок 2: РАЗГРУЗКА + Экватор-прикидка",
+    "isDeload": true,
+    "target100": 21,
+    "d1_main": "105 кг × 2×6 (RIR 4)",
+    "d1_acc": "Горизонтальный жим гантелей нейтральным хватом: 2×10 | Трицепс: 2×15 | Ротаторы: 2×20 | Y-разведения на нижнюю трапецию: 2×15",
+    "d2_all": "Ягодичный мост в тренажере: 2×15 | Гориз. тяга: 3×12 | Face Pull + Обратный Пек-дек: 3×20",
+    "d3_main": "Контрольный подход 100 кг с отдыхом в локауте (Цель: 20-21 повтор с RIR 1-2)",
+    "d3_acc": "Сверка прогресса экватора и корректировка второй половины цикла"
+  },
+  {
+    "w": 9,
+    "phase": "Блок 3: Специализация и Локаут",
+    "isDeload": false,
+    "target100": 22,
+    "d1_main": "122.5 кг × 4×4 (RIR 2)",
+    "d1_acc": "Горизонтальный жим гантелей нейтральным хватом: 3×10 | Дожим с бруса: 3×6-8 | Трицепс: 3×15 | Y-разведения на нижнюю трапецию: 2×15",
+    "d2_all": "Присед / Жим ногами: 3×8 (RIR 3) | Ягодичный мост в тренажере: 3×15 | Гориз. тяга: 4×10 | Верт. тяга: 3×12 | Face Pull + Обратный Пек-дек: по 4×15-20",
+    "d3_main": "Подход с отдыхом на прямых руках 100 кг (14 + 3 + 3 + 2) + 2 кластера",
+    "d3_acc": "Каскад 100 кг×12 -> 85 кг×10 | Локаут 130 кг: 2×40 сек | L-Fly: 3×20 | Молотки: 3×12 (L-Fly: акцент на левое плечо)"
+  },
+  {
+    "w": 10,
+    "phase": "Блок 3: Специализация и Локаут",
+    "isDeload": false,
+    "target100": 23,
+    "d1_main": "125 кг × 4×4 (RIR 2)",
+    "d1_acc": "Горизонтальный жим гантелей нейтральным хватом: 3×10 | Дожим с бруса: 3×6-8 | Трицепс: 3×15 | Y-разведения на нижнюю трапецию: 2×15",
+    "d2_all": "Присед / Жим ногами: 3×8 (RIR 3) | Ягодичный мост в тренажере: 3×15 | Гориз. тяга: 4×10 | Верт. тяга: 3×12 | Face Pull + Обратный Пек-дек: 4×15-20",
+    "d3_main": "Подход с локаутом 100 кг (15 + 3 + 3 + 2) + 2 кластера",
+    "d3_acc": "Темповый жим 90 кг: 2×20 | Локаут 130 кг: 2×45 сек | L-Fly: 3×20 | Молотки: 3×12 (L-Fly: акцент на левое плечо)"
+  },
+  {
+    "w": 11,
+    "phase": "Блок 3: Специализация и Локаут",
+    "isDeload": false,
+    "target100": 24,
+    "d1_main": "127.5 кг × 4×3-4 (RIR 1-2)",
+    "d1_acc": "Горизонтальный жим гантелей нейтральным хватом: 3×8-10 | Дожим с бруса: 3×6 | Трицепс: 3×15 | Y-разведения на нижнюю трапецию: 2×15",
+    "d2_all": "Присед / Жим ногами: 3×8 (RIR 3) | Ягодичный мост в тренажере: 3×15 | Гориз. тяга: 4×10 | Face Pull + Обратный Пек-дек: 4×20 | Вертикальная тяга: 3×12",
+    "d3_main": "Подход с локаутом 100 кг (15 + 4 + 3 + 2) + 1 кластер",
+    "d3_acc": "Темповый жим 92.5 кг: 2×18 | Локаут 132.5 кг: 2×45 сек | L-Fly: 3×20 | Молотки: 3×12 (L-Fly: акцент на левое плечо)"
+  },
+  {
+    "w": 12,
+    "phase": "Блок 3: РАЗГРУЗКА (Deload)",
+    "isDeload": true,
+    "target100": 24,
+    "d1_main": "105 кг × 2×6 (RIR 4)",
+    "d1_acc": "Легкая прокачка трицепса и ротаторов, 2 подхода",
+    "d2_all": "Ягодичный мост в тренажере: 2×15 | Гориз. тяга: 3×12 | Face Pull: 3×20 + Обратный Пек-дек: 2×15",
+    "d3_main": "100 кг × 2×12 (Отработка ритма дыхания и локаута без закисления)",
+    "d3_acc": "Снятие усталости перед выходом на пик"
+  },
+  {
+    "w": 13,
+    "phase": "Блок 4: Пик и Подводка",
+    "isDeload": false,
+    "target100": 25,
+    "d1_main": "122.5 кг × 3×4 (Скорость и жесткость моста)",
+    "d1_acc": "Горизонтальный жим гантелей нейтральным хватом: 2×10 | Трицепс: 3×12 | Y-разведения на нижнюю трапецию: 2×15",
+    "d2_all": "Ягодичный мост в тренажере: 3×12 | Гориз. тяга: 3×10 | Жим ногами: 2×8 (RIR 3) | Face Pull: 3×20 | Вертикальная тяга: 3×12 + Обратный Пек-дек: 2×15",
+    "d3_main": "Генеральная прикидка 100 кг по правилам турнира (RIR 1)",
+    "d3_acc": "Добивка 90 кг × 15 | Локаут 130 кг: 1×45 сек | L-Fly: 3×15–20 | Молотки: 3×12 (L-Fly: акцент на левое плечо)"
+  },
+  {
+    "w": 14,
+    "phase": "Блок 4: Пик и Подводка",
+    "isDeload": false,
+    "target100": 26,
+    "d1_main": "115 кг × 3×5 (Взрывной срыв)",
+    "d1_acc": "Подсобка снижена на 40% для суперкомпенсации",
+    "d2_all": "Ягодичный мост в тренажере: 2×12 | Гориз. тяга: 3×10 | Face Pull: 3×20 + Обратный Пек-дек: 2×15",
+    "d3_main": "Кластеры 100 кг: 2 серии × (16 + 5 + 4 через 15 сек)",
+    "d3_acc": "Сохранение гликогена и свежести левого плеча"
+  },
+  {
+    "w": 15,
+    "phase": "Блок 4: Предстартовая разгрузка",
+    "isDeload": true,
+    "target100": 26,
+    "d1_main": "100 кг × 3×8 (Скорость, RIR 6)",
+    "d1_acc": "Только разминка ротаторов и Y-подъемы",
+    "d2_all": "Легкая тяга блока и Face Pull 2×20",
+    "d3_main": "100 кг × 2×8 (Тонус ЦНС)",
+    "d3_acc": "Подводка собственного веса ровно под 97.5-98.0 кг"
+  },
+  {
+    "w": 16,
+    "phase": "Блок 4: ТУРНИР / ПРОХОДКА НА КМС",
+    "isDeload": false,
+    "target100": 27,
+    "d1_main": "Разминка: 20×15, 50×8, 70×5, 85×3, 95×1",
+    "d1_acc": "Полный отдых до выхода на помост",
+    "d2_all": "Отдых и углеводная загрузка",
+    "d3_main": "ВЫХОД НА ПОМОСТ: 100 кг на КМС (25-27+ повторений)",
+    "d3_acc": "Выполнение норматива КМС без травм!"
+  }
+];
+
+    let state = {
+      version: 4,
+      cycleStart: "2026-10-19",
+      targetReps: 27,
+      compDate: "2027-02-21",
+      activeWeek: 1,
+      lastInjectDate: "2026-10-18",
+      ferritin: "",
+      iron: "",
+      suppChecks: {},
+      customPlan: null,
+      weeks: {}
+    };
+
+    const supplementsConfig = [
+      {id:'zinc',name:'Цинк (глицинат / пиколинат)',dose:'25–30 мг',timing:'на ночь'},
+      {id:'d3',name:'Витамин D3',dose:'2000–5000 МЕ',timing:'утром с жиросодержащей пищей'},
+      {id:'magnesium',name:'Магний (цитрат / глицинат)',dose:'300–400 мг',timing:'на ночь'},
+      {id:'omega',name:'Омега-3 (EPA/DHA)',dose:'2000–3000 мг',timing:'во время еды'},
+      {id:'creatine',name:'Креатин моногидрат',dose:'5 г',timing:'ежедневно'},
+      {id:'clomid',name:'Кломид · пользовательский график',dose:'по дате',timing:'утром'}
+    ];
+
+    function buildLayout() {
+      const root = document.getElementById("appRoot");
+      root.innerHTML = `
+        <header>
+          <div>
+            <h1>MetaJhim 100 · подготовка к КМС</h1>
+            <div class="subtitle">Дмитрий Мухин · жим 100 кг · план, факт и восстановление</div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-success" onclick="copyWeeklyReport()">Скопировать JSON-отчет для тренера</button>
+            <button class="btn btn-secondary" onclick="openImportModal()">Импорт JSON / Патч от тренера</button>
+            <button class="btn btn-secondary" onclick="exportJSON()">Скачать JSON-архив</button>
+          </div>
+        </header>
+
+        <div class="card" style="margin-bottom: 24px; border-color: var(--accent);">
+          <div class="section-title">
+            <span>Статус ПКТ / Выход с курса · 18.10.2026</span>
+            <span class="badge badge-info" id="pctStatusBadge">Календарь ПКТ</span>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 10px; font-size: 0.9rem;">
+            <div style="background:var(--card-alt); padding:12px; border-radius:8px;">
+              <div style="color:var(--muted); font-size:0.78rem;">Дней с последнего укола:</div>
+              <div id="pctDaysCount" style="font-size:1.3rem; font-weight:700; color:var(--accent);">—</div>
+              <div style="font-size:0.78rem; color:var(--muted); margin-top:2px;">Enanthate clearance takes 2—s</div>
+            </div>
+            <div style="background:var(--card-alt); padding:12px; border-radius:8px;">
+              <div style="color:var(--muted); font-size:0.78rem;">Дата старта в вашем графике:</div>
+              <div style="font-size:1.3rem; font-weight:700; color:var(--success);">8 ноября 2026</div>
+              <div style="font-size:0.78rem; color:var(--muted); margin-top:2px;">График из ТЗ: 50 мг (2 недели) → 25 мг (2 недели)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:24px"><p class="subtitle">Дозировки и даты перенесены из вашего ТЗ как личная запись. Приложение не назначает ПКТ; согласуйте схему с врачом. <a href="https://medlineplus.gov/druginfo/meds/a682704.html" target="_blank" rel="noopener">Информация о кломифене</a></p><div id="pctSchedule"></div></div>
+        <div class="charts" style="margin-bottom:24px"><div class="card"><h2>Повторения на 100 кг</h2><div id="repsChart"></div><p class="subtitle" id="repsLegend"></p></div><div class="card"><h2>Вес и левое плечо</h2><div id="healthChart"></div><p class="subtitle">Вес (голубой) — слева, плечо 0–10 (розовый) — справа. Зелёная зона: 97.5–98.0 кг.</p></div></div>
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="section-title">
+            <span>Ежедневный стек добавок и нутриентов</span>
+            <span class="badge badge-ok">Отметки по датам</span>
+          </div>
+          <div style="margin-bottom: 10px; display:flex; align-items:center; gap:10px;">
+            <label for="suppDateInput">Дата в неделе:</label>
+            <input type="date" id="suppDateInput" style="width: auto;" onchange="renderSupplements()" />
+          </div>
+          <div class="actions"><button class="btn btn-secondary" onclick="shiftSuppWeek(-7)">← Неделя</button><button class="btn btn-secondary" onclick="suppToday()">Сегодня</button><button class="btn btn-secondary" onclick="shiftSuppWeek(7)">Неделя →</button></div>
+          <p class="subtitle" id="suppRange"></p><div class="table-wrap" id="supplementsContainer"></div><p class="subtitle" id="suppSaveStatus" role="status"></p>
+        </div>
+
+        <div class="controls-bar">
+          <div class="control-group">
+            <label>Целевой норматив КМС, повторений:</label>
+            <select id="divisionSelect" onchange="saveSettings()">
+              <option value="24">24 повторения</option>
+              <option value="26">26 повторений</option>
+              <option value="27">27 повторений</option>
+              <option value="29">29 повторений</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Дата соревнований:</label>
+            <input type="date" id="compDate" onchange="saveSettings()" />
+          </div>
+          <div class="control-group">
+            <label>Просмотр тренировочной недели (1–16):</label>
+            <select id="weekSelect" onchange="changeWeek()"></select>
+          </div>
+        </div>
+
+        <div class="grid-cards">
+          <div class="card">
+            <div class="card-title">Жим 100 кг · лучший факт / цель</div>
+            <div class="card-value" id="metricReps">—</div>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" id="repsProgress" style="width: 55%;"></div></div>
+            <div class="card-sub" id="metricKAResult"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Расчётный 1ПМ · ориентир</div>
+            <div class="card-value" id="metric1RM">156.7 kg</div>
+            <div class="card-sub" id="metricIntensity"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Собственный вес · цель 97.5–98 кг</div>
+            <div class="card-value" id="metricWeight">100.0 kg</div>
+            <div class="card-sub" id="metricBarbell">Barbell weight: 100.0 kg</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Плечи: левое / правое (0–10)</div>
+            <div class="card-value" id="metricShoulder" style="color: var(--success);">—</div>
+            <div class="card-sub" id="daysToComp"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="section-title">
+            <span id="currentWeekHeader">План недели</span>
+            <span class="badge badge-info" id="phaseBadge">Block 1</span>
+          </div>
+          <div class="controls-bar" style="background: var(--card-alt); margin-bottom: 0;">
+            <div class="control-group">
+              <label>Утренний вес, кг:</label>
+              <input type="number" step="0.1" min="30" max="300" id="factWeight" oninput="saveWeekData()" />
+            </div>
+            <div class="control-group">
+              <label>Лучший подход 100 кг, повторы:</label>
+              <input type="number" min="0" max="100" step="1" id="factReps100" oninput="saveWeekData()" />
+            </div>
+            <div class="control-group">
+              <label>Запас повторений (RIR):</label>
+              <input type="number" min="0" max="20" step="1" id="factRIR" oninput="saveWeekData()" />
+            </div>
+            <div class="control-group">
+              <label for="factShoulder">Левое плечо (0–10):</label>
+              <input type="number" min="0" max="10" step="1" id="factShoulder" oninput="saveWeekData()" />
+            </div><div class="control-group"><label for="factShoulderRight">Правое плечо (0–10):</label><input type="number" min="0" max="10" step="1" id="factShoulderRight" oninput="saveWeekData()" />
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <span>Тренировки недели · план и факт</span>
+          <span class="subtitle">Горизонтальный нейтральный жим · без становой тяги · мост в тренажёре</span>
+        </div>
+        <div class="workout-grid" id="workoutContainer"></div>
+
+        <div class="card" style="margin-bottom: 24px;">
+          <label for="weekNotes" style="display:block; margin-bottom:8px;">Заметки недели: левое плечо, самочувствие, сон, добавки и ПКТ:</label>
+          <textarea id="weekNotes" rows="3" oninput="saveWeekData()"></textarea>
+        </div>
+
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="section-title">
+            <span>Анализы · исходные показатели 18.10.2026</span>
+            <span class="badge badge-warn">Данные для отчёта</span>
+          </div>
+          <div class="bio-panel">
+            <div class="ex-item">
+              <div class="ex-name">Гормоны · исходные значения</div>
+              <div>Тестостерон: <b>10.570 мкг/л</b> (исходная запись)</div>
+              <div>ГСПГ: <b>19.3 нмоль/л</b> | Пролактин: <b>10.0 мкг/л</b></div>
+              <div>Эстрадиол: <b>64.2 пг/мл</b></div>
+              <div style="color: var(--warning);">Календарь ПКТ указан отдельно</div>
+            </div>
+            <div class="ex-item">
+              <div class="ex-name">Общий анализ крови и железо</div>
+              <div>Гемоглобин: <b>136 г/л</b> | Гематокрит: <b>44.3%</b></div>
+              <div style="color: var(--warning);">Эритроциты: <b>6.52</b> | MCV: <b>68.0 фл</b> | MCH: <b>20.8 пг</b></div>
+              <div style="margin-top:6px; display:flex; gap:8px;">
+                <input type="text" id="ferritinInput" placeholder="Ферритин, нг/мл" oninput="saveSettings()" />
+                <input type="text" id="ironInput" placeholder="Железо сывороточное, мкмоль/л" oninput="saveSettings()" />
+              </div>
+            </div>
+            <div class="ex-item">
+              <div class="ex-name">Липиды и печёночные показатели</div>
+              <div>ЛПВП: <b>0.90</b> | ЛПНП: <b>3.32</b> | AIP: <b>0.22</b></div>
+              <div>АЛТ: <b>33 Ед/л</b> | АСТ: <b>87 Ед/л</b></div>
+              <div>Лейкоциты: <b>10.86</b> | Креатинин: <b>89 мкмоль/л</b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">
+            <span>Весь 16-недельный цикл · план и факт</span><span class="subtitle">На телефоне прокручивайте таблицу вбок →</span>
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Нед.</th>
+                  <th>Этап</th>
+                  <th>ПН · основной жим</th>
+                  <th>ПТ · специальный жим</th>
+                  <th>Цель</th>
+                  <th>Факт / RIR</th>
+                  <th>Вес</th>
+                  <th>Плечи Л / П</th>
+                </tr>
+              </thead>
+              <tbody id="cycleTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <dialog id="importModal" aria-label="Импорт JSON">
+          <div class="modal-box" style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; max-width:640px; width:100%;">
+            <div class="section-title">
+              <span>Импорт JSON / Патч от тренера</span>
+              <button class="btn btn-secondary" onclick="closeImportModal()">Закрыть</button>
+            </div>
+            <p class="subtitle" style="margin-bottom:12px;">Вставьте JSON, проверьте изменения и примените патч. История и отметки добавок сохранятся.</p>
+            <textarea id="importJsonArea" rows="8" maxlength="500000" oninput="invalidatePatch()"></textarea>
+            <div class="notice" id="patchPreview" role="status">Сначала проверьте JSON.</div><details><summary>Восстановить полный JSON-архив</summary><p class="subtitle">Эта операция заменяет весь дневник и отметки добавок. Сначала скачайте текущий архив.</p><button class="btn btn-secondary" onclick="restoreBackup()">Восстановить архив</button></details><div style="margin-top:12px; display:flex; justify-content:flex-end; gap:10px;">
+              <button class="btn btn-secondary" onclick="previewPatch()">Проверить патч</button><button id="applyPatchButton" class="btn btn-success" disabled onclick="applyImportedJson()">Применить патч</button>
+            </div>
+          </div>
+        </dialog><dialog id="reportModal" aria-label="Отчёт тренеру"><button class="btn btn-secondary" onclick="document.getElementById('reportModal').close()">Закрыть</button><p class="subtitle">Автокопирование недоступно. Текст выделен — нажмите Ctrl+C или скопируйте вручную.</p><textarea id="reportArea" rows="15" readonly aria-label="Текст отчёта"></textarea></dialog><footer>Данные хранятся в этом браузере. Скачивайте JSON-архив для резервной копии.</footer>
+      `;
+    }
+
+    const STORAGE_KEY='metajhim_dmitry_v2', LAST_INJECT='2026-10-18', PCT_START='2026-11-08', PCT_END='2026-12-05';
+    const PLAN_KEYS=['phase','isDeload','target100','d1_main','d1_acc','d2_all','d3_main','d3_acc'];
+    const $=id=>document.getElementById(id),clone=v=>JSON.parse(JSON.stringify(v));
+    const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k),obj=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
+    const has=v=>v!==''&&v!==undefined&&v!==null;
+    const num=v=>has(v)&&['number','string'].includes(typeof v)&&String(v).trim()!==''&&Number.isFinite(Number(v))?Number(v):null;
+    const show=(v,s='')=>has(v)?`${v}${s}`:'—';
+    const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const DAY=86400000,INITIAL_STATE=clone(state);
+    const BASELINE_BIO={date:'2026-10-18',testosterone:'10.570 мкг/л',SHBG:'19.3 нмоль/л',prolactin:'10.0 мкг/л',estradiol:'64.2 пг/мл',hemoglobin:'136 г/л',hematocrit:'44.3%',RBC:6.52,MCV:'68.0 фл',MCH:'20.8 пг',HDL:0.90,LDL:3.32,AIP:0.22,ALT:'33 Ед/л',AST:'87 Ед/л',WBC:10.86,creatinine:'89 мкмоль/л'};
+    let storageProblem='',pendingPatch=null,toastTimer,lastToday='',migrationSource='';
+    function validDate(v){return typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v))&&new Date(v+'T00:00:00Z').toISOString().slice(0,10)===v;}
+    const epoch=d=>Date.parse(d+'T00:00:00Z');
+    const addDays=(d,n)=>new Date(epoch(d)+n*DAY).toISOString().slice(0,10);
+    function todayDate(){const p=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Moscow',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const v=k=>p.find(x=>x.type===k).value;return `${v('year')}-${v('month')}-${v('day')}`;}
+    const dateLabel=d=>new Intl.DateTimeFormat('ru-RU',{timeZone:'UTC',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date(epoch(d)));
+    function pctForDate(date){
+      const since=Math.floor((epoch(date)-epoch(LAST_INJECT))/DAY),offset=Math.floor((epoch(date)-epoch(PCT_START))/DAY);
+      if(offset<0)return {stage:'before',week:0,dose:null,daysSince:since,daysToStart:-offset};
+      if(offset>=28)return {stage:'after',week:0,dose:null,daysSince:since,daysToStart:0};
+      const week=Math.floor(offset/7)+1;return {stage:'active',week,dose:week<=2?50:25,daysSince:since,daysToStart:0};
+    }
+    function validatePlan(p,partial=false){
+      if(!obj(p)||!Number.isInteger(p.w)||p.w<1||p.w>16)throw Error('w должен быть целым числом от 1 до 16.');
+      for(const k of Object.keys(p))if(k!=='w'&&!PLAN_KEYS.includes(k))throw Error(`Неизвестное поле плана: ${k}.`);
+      for(const k of PLAN_KEYS){if(!own(p,k)){if(!partial)throw Error(`Неделя ${p.w}: отсутствует ${k}.`);continue;}
+        if(k==='isDeload'){if(typeof p[k]!=='boolean')throw Error('isDeload должен быть true или false.');}
+        else if(k==='target100'){if(!Number.isInteger(p[k])||p[k]<1||p[k]>100)throw Error('target100: целое 1–100.');}
+        else if(typeof p[k]!=='string'||!p[k].trim()||p[k].length>10000)throw Error(`${k}: непустая строка до 10000 символов.`);
+      }
+      if(partial&&Object.keys(p).length===1)throw Error(`В неделе ${p.w} не указаны изменения.`);
+    }
+    function normalizeState(raw){
+      if(!obj(raw)||!obj(raw.weeks))throw Error('Сохранение должно содержать объект weeks.');
+      const next={...clone(INITIAL_STATE),...raw,weeks:clone(raw.weeks),lastInjectDate:LAST_INJECT};
+      if(![24,26,27,29].includes(next.targetReps))next.targetReps=27;
+      if(!Number.isInteger(next.activeWeek)||next.activeWeek<1||next.activeWeek>16)next.activeWeek=1;
+      if(!validDate(next.cycleStart))next.cycleStart='2026-10-19';
+      if(next.compDate!==''&&!validDate(next.compDate))throw Error('Некорректная дата соревнований.');
+      if(next.customPlan!==null){if(!Array.isArray(next.customPlan)||next.customPlan.length!==16)throw Error('customPlan должен содержать 16 недель.');const seen=new Set();for(const p of next.customPlan){validatePlan(p);if(seen.has(p.w))throw Error('Повтор номера недели.');seen.add(p.w);}}
+      if(!obj(next.suppChecks))throw Error('suppChecks должен быть объектом.');
+      for(const [key,value] of Object.entries(next.suppChecks)){
+        const match=key.match(/^(\d{4}-\d{2}-\d{2})_(zinc|d3|magnesium|omega|creatine|clomid)$/);
+        if(!match||!validDate(match[1])||typeof value!=='boolean')throw Error('Некорректная отметка добавки: '+key);
+      }
+      const ranges={weight:[30,300,false],reps100:[0,100,true],rir:[0,20,true],shoulder:[0,10,true],shoulderLeft:[0,10,true],shoulderRight:[0,10,true]};
+      for(const [w,d] of Object.entries(next.weeks)){
+        if(!/^(?:[1-9]|1[0-6])$/.test(w)||!obj(d))throw Error('Некорректная запись недели.');
+        if(!own(d,'shoulderLeft')&&own(d,'shoulder'))d.shoulderLeft=d.shoulder;
+        for(const [k,[lo,hi,integer]] of Object.entries(ranges)){if(!has(d[k]))continue;const value=num(d[k]);if(value===null||value<lo||value>hi||(integer&&!Number.isInteger(value)))throw Error(`Неделя ${w}: неверное значение ${k}.`);}
+        if(d.planSnapshot){validatePlan(d.planSnapshot);if(d.planSnapshot.w!==Number(w))throw Error('Номер снимка плана не совпадает с неделей.');}
+      }
+      return next;
+    }
+    function storageWarning(message){$('storageWarning').hidden=false;$('storageWarning').textContent=message;}
+    function saveToStorage(next=state){
+      if(storageProblem){storageWarning(storageProblem);return false;}
+      try{localStorage.setItem(STORAGE_KEY,JSON.stringify(next));$('storageWarning').hidden=true;return true;}
+      catch(e){storageWarning('Сохранение недоступно. Скачайте JSON-архив перед закрытием страницы. '+e.message);return false;}
+    }
+    function getActivePlan(){return state.customPlan||defaultPlan;}
+    function getWeekPlan(w){return state.weeks[w]?.planSnapshot||getActivePlan().find(p=>p.w===w);}
+    function hasFact(d){return Object.entries(d).some(([k,v])=>!['planSnapshot','updatedAt','biochemistry'].includes(k)&&has(v)&&v!==false);}
+    function protectedThrough(){const current=Math.max(0,Math.min(16,Math.floor((epoch(todayDate())-epoch(state.cycleStart))/(7*DAY))+1));return Math.max(current,0,...Object.entries(state.weeks).filter(([,d])=>hasFact(d)).map(([w])=>Number(w)));}
+    function initApp(){
+      buildLayout();
+      try{let saved=localStorage.getItem(STORAGE_KEY);if(saved===null){saved=localStorage.getItem('metajhim_dmitry_v4');if(saved!==null)migrationSource='metajhim_dmitry_v4';}if(saved!==null)state=normalizeState(JSON.parse(saved));else state=normalizeState(state);}
+      catch(e){storageProblem='Не удалось прочитать сохранение. Оригинал не перезаписан. Скачайте его кнопкой архива. '+e.message;state=normalizeState(clone(INITIAL_STATE));}
+      if(!own(state.weeks,'1')&&Object.keys(state.weeks).length===0&&!storageProblem){state.weeks[1]={weight:100,reps100:15,rir:2,shoulder:2,shoulderLeft:2,shoulderRight:'',d1_fact:'100 кг × 15 (RIR 2) + 3×5',d2_fact:'',d3_fact:'',notes:'19.10.2026: 100 кг × 15, запас 2 повтора. Контроль левого плеча.'};}
+      fillSettings();$('suppDateInput').value=todayDate();lastToday=todayDate();renderAll();renderSupplements();updatePctCountdown();
+      if(storageProblem)storageWarning(storageProblem);else if(migrationSource)showToast('Найден дневник v4. Дальнейшие изменения сохранятся под ключом v2.');
+      $('supplementsContainer').addEventListener('change',e=>{if(e.target.matches('input[data-supp-key]'))toggleSupp(e.target.dataset.suppKey,e.target.checked);});
+      // Calendar refresh on midnight in Moscow, including tabs that were suspended overnight.
+      setInterval(refreshDate,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDate();});
+      for(const id of ['divisionSelect','compDate','weekSelect','factWeight','factReps100','factRIR','factShoulder','factShoulderRight','weekNotes','importJsonArea']){const label=$(id).previousElementSibling;if(label?.tagName==='LABEL')label.htmlFor=id;}
+    }
+    function refreshDate(){const today=todayDate();if(today!==lastToday){if($('suppDateInput').value===lastToday)$('suppDateInput').value=today;lastToday=today;renderSupplements();updatePctCountdown();updateSummaryCards();}}
+    function fillSettings(){
+      $('weekSelect').innerHTML=getActivePlan().slice().sort((a,b)=>a.w-b.w).map(p=>`<option value="${p.w}">Неделя ${p.w} · ${p.isDeload?'разгрузка':p.target100+' повторений'}</option>`).join('');
+      $('weekSelect').value=state.activeWeek;$('divisionSelect').value=state.targetReps;$('compDate').value=state.compDate;$('ferritinInput').value=state.ferritin??'';$('ironInput').value=state.iron??'';
+      for(const [id,label] of [['ferritinInput','Ферритин, нг/мл'],['ironInput','Сывороточное железо, мкмоль/л']])$(id).setAttribute('aria-label',label);
+    }
+    function saveSettings(){state.targetReps=Number($('divisionSelect').value);state.compDate=$('compDate').value;state.ferritin=$('ferritinInput').value;state.iron=$('ironInput').value;saveToStorage();updateSummaryCards();renderCharts();}
+    function changeWeek(){state.activeWeek=Number($('weekSelect').value);saveToStorage();renderAll();}
+    function updatePctCountdown(){
+      const p=pctForDate(todayDate());$('pctDaysCount').textContent=p.daysSince<0?'Дата ещё не наступила':`${p.daysSince} дн. · календарный ориентир 21 день`;
+      const badge=$('pctStatusBadge');badge.className='badge badge-info';
+      badge.textContent=p.stage==='before'?`До 08.11: ${p.daysToStart} дн.`:p.stage==='after'?'Внесённый график завершён 05.12.2026':`Неделя ${p.week} ПКТ · по записи ${p.dose} мг/сутки`;
+      $('pctSchedule').innerHTML=[1,2,3,4].map(w=>{const start=addDays(PCT_START,(w-1)*7),end=addDays(start,6);return `<div class="notice ${p.week===w?'today':''}">Неделя ${w} ПКТ · ${dateLabel(start)}–${dateLabel(end)} · Кломид ${w<=2?'50':'25'} мг/сутки${w>=3?' (полтаблетки 50 мг)':''}${p.week===w?' · текущая':''}</div>`;}).join('');
+    }
+    function suppToday(){$('suppDateInput').value=todayDate();renderSupplements();}
+    function shiftSuppWeek(days){const d=$('suppDateInput').value;if(!validDate(d))return;$('suppDateInput').value=addDays(d,days);renderSupplements();}
+    function renderSupplements(){
+      const selected=$('suppDateInput').value;if(!validDate(selected)){$('suppRange').textContent='Выберите корректную дату.';$('supplementsContainer').innerHTML='';return;}
+      const weekday=(new Date(epoch(selected)).getUTCDay()+6)%7,monday=addDays(selected,-weekday),dates=Array.from({length:7},(_,i)=>addDays(monday,i)),names=['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'];
+      $('suppRange').textContent=`${dateLabel(dates[0])} — ${dateLabel(dates[6])} · каждая отметка сохраняется отдельно по дате`;
+      let html='<table class="supp-table"><caption class="subtitle" style="text-align:left">Ваш стек из ТЗ · отметки приёма</caption><thead><tr><th scope="col">Добавка / время</th>'+dates.map((d,i)=>`<th scope="col" class="${d===todayDate()?'today':''}">${names[i]}<small>${dateLabel(d).slice(0,5)}</small></th>`).join('')+'</tr></thead><tbody>';
+      for(const s of supplementsConfig){html+=`<tr><th scope="row">${esc(s.name)}<small>${s.id==='clomid'?'Доза по дате · утром':esc(s.dose+' · '+s.timing)}</small></th>`;
+        for(const d of dates){const key=d+'_'+s.id,p=pctForDate(d),checked=state.suppChecks[key]===true,scheduled=s.id!=='clomid'||p.stage==='active';
+          html+=`<td class="${d===todayDate()?'today':''}"><input type="checkbox" data-supp-key="${key}" aria-label="${esc(s.name+' · '+dateLabel(d))}" ${checked?'checked':''} ${!scheduled?'disabled':''}><small>${s.id==='clomid'?(p.dose===null?'вне графика':p.dose+' мг'):''}${checked&&!scheduled?' · запись из архива':''}</small></td>`;
+        }html+='</tr>';
+      }$('supplementsContainer').innerHTML=html+'</tbody></table>';
+    }
+    function toggleSupp(key,checked){
+      const match=key.match(/^(\d{4}-\d{2}-\d{2})_(zinc|d3|magnesium|omega|creatine|clomid)$/);if(!match||!validDate(match[1]))return;
+      if(match[2]==='clomid'&&pctForDate(match[1]).stage!=='active')return;
+      state.suppChecks[key]=checked;const saved=saveToStorage();$('suppSaveStatus').textContent=saved?'Отметка сохранена на этом устройстве.':'Отметка только в памяти — скачайте архив.';
+    }
+    function renderAll(){
+      const w=state.activeWeek,p=getWeekPlan(w),d=state.weeks[w]||{};$('weekSelect').value=w;
+      $('currentWeekHeader').textContent=`Неделя ${w} · цель ${p.target100} повторений`;$('phaseBadge').textContent=p.phase;$('phaseBadge').className='badge '+(p.isDeload?'badge-ok':'badge-info');
+      for(const [id,k] of [['factWeight','weight'],['factReps100','reps100'],['factRIR','rir'],['factShoulder','shoulderLeft'],['factShoulderRight','shoulderRight'],['weekNotes','notes']])$(id).value=d[k]??'';
+      const days=[['ПН · Соревновательный жим',p.d1_main,p.d1_acc],['СР · Ноги, мост и спина','Ноги: RIR 3 · без становой тяги',p.d2_all],['ПТ · Специальный жим 100 кг',p.d3_main,p.d3_acc]];
+      $('workoutContainer').innerHTML=days.map(([title,main,acc],i)=>`<article class="day-card"><div class="day-header"><h3 class="day-title">${title}</h3><span class="badge badge-info">День ${i+1}</span></div><div class="ex-item"><div class="ex-name">План</div><div class="ex-plan">${esc(main)}</div><div>${acc.split(' | ').map(esc).join('<br>')}</div></div><label for="d${i+1}FactInput">Факт: веса, подходы, повторы</label><textarea id="d${i+1}FactInput" rows="3" maxlength="10000" oninput="saveWeekData()">${esc(d['d'+(i+1)+'_fact']||'')}</textarea></article>`).join('');
+      updateSummaryCards();renderTable();renderCharts();
+    }
+    function saveWeekData(){
+      const ids=['factWeight','factReps100','factRIR','factShoulder','factShoulderRight'];for(const id of ids)if(!$(id).checkValidity()){$(id).reportValidity();return;}
+      const w=state.activeWeek,d=state.weeks[w]||{};if(!d.planSnapshot)d.planSnapshot=clone(getWeekPlan(w));
+      for(const [id,k] of [['factWeight','weight'],['factReps100','reps100'],['factRIR','rir'],['factShoulder','shoulderLeft'],['factShoulderRight','shoulderRight']])d[k]=$(id).value===''?'':Number($(id).value);
+      d.shoulder=d.shoulderLeft;d.notes=$('weekNotes').value;for(let n=1;n<=3;n++)d['d'+n+'_fact']=$('d'+n+'FactInput').value;
+      d.updatedAt=new Date().toISOString();d.biochemistry=getBio();state.weeks[w]=d;saveToStorage();updateSummaryCards();renderTable();renderCharts();
+    }
+    function getLatestMetrics(){let latestWeight=null,bestReps=null,latestRir=null,latestShoulder=null,right=null;for(let w=1;w<=16;w++){const d=state.weeks[w]||{};if(num(d.weight)!==null)latestWeight=Number(d.weight);if(num(d.reps100)!==null&&(bestReps===null||Number(d.reps100)>=bestReps)){bestReps=Number(d.reps100);latestRir=num(d.rir);}if(num(d.shoulderLeft)!==null)latestShoulder=Number(d.shoulderLeft);if(num(d.shoulderRight)!==null)right=Number(d.shoulderRight);}return {latestWeight,bestReps,latestRir,latestShoulder,right};}
+    function updateSummaryCards(){
+      const {latestWeight:weight,bestReps:best,latestRir:rir,latestShoulder:left,right}=getLatestMetrics(),target=state.targetReps;
+      $('metricReps').textContent=`${show(best)} / ${target} повт.`;$('repsProgress').style.width=`${best===null?0:Math.min(100,best/target*100)}%`;
+      $('metricKAResult').textContent=best===null?'Внесите результат':`До цели: +${Math.max(0,target-best)} повт.`;
+      const estimate=best===null?null:100*(1+(best+(rir??0))/30);$('metric1RM').textContent=estimate===null?'—':estimate.toFixed(1)+' кг';$('metricIntensity').textContent=estimate===null?'Нет результата':`100 кг ≈ ${(100/estimate*100).toFixed(1)}% · RIR ${show(rir)}`;
+      $('metricWeight').textContent=weight===null?'—':weight.toFixed(1)+' кг';$('metricBarbell').textContent='Соревновательный вес штанги: 100 кг';
+      $('metricShoulder').textContent=`${show(left)} / ${show(right)}`;$('metricShoulder').style.color=left===null?'var(--muted)':left>4?'var(--danger)':left>2?'var(--warning)':'var(--success)';
+      let text='Дата соревнований не задана';if(state.compDate){const days=Math.round((epoch(state.compDate)-epoch(todayDate()))/DAY);text=days>0?`До старта: ${days} дн.`:days===0?'Сегодня день старта':`После даты старта: ${-days} дн.`;}$('daysToComp').textContent=text;
+    }
+    function renderTable(){
+      $('cycleTableBody').innerHTML=getActivePlan().slice().sort((a,b)=>a.w-b.w).map(p=>{p=getWeekPlan(p.w);const d=state.weeks[p.w]||{};return `<tr class="${p.w===state.activeWeek?'active-row':''}"><td><button class="btn btn-secondary" onclick="selectWeek(${p.w})" aria-label="Открыть неделю ${p.w}">${p.w}</button></td><td>${esc(p.phase)}</td><td>${esc(p.d1_main)}</td><td>${esc(p.d3_main)}</td><td>${p.target100}</td><td>${esc(show(d.reps100))} / ${esc(show(d.rir))}</td><td>${esc(show(d.weight,' кг'))}</td><td>${esc(show(d.shoulderLeft))} / ${esc(show(d.shoulderRight))}</td></tr>`;}).join('');
+    }
+    function selectWeek(w){$('weekSelect').value=w;changeWeek();$('currentWeekHeader').scrollIntoView({block:'center'});}
+    function chartBase(title,ticks,right=[]){
+      const x=w=>48+(w-1)*32.8;let svg=`<svg viewBox="0 0 600 272" role="img" aria-label="${esc(title)}"><title>${esc(title)}</title>`;
+      for(const [value,y] of ticks)svg+=`<line x1="48" x2="540" y1="${y}" y2="${y}" stroke="#334155" stroke-dasharray="3 4"/><text x="40" y="${y+4}" text-anchor="end">${esc(value)}</text>`;
+      for(const [v,y] of right)svg+=`<text x="551" y="${y+4}">${v}</text>`;
+      for(let w=1;w<=16;w++)svg+=`<text x="${x(w)}" y="247" text-anchor="middle">${w}</text>`;
+      return {svg:svg+'<text x="294" y="267" text-anchor="middle">Неделя</text>',x};
+    }
+    function plot(values,x,y,color,label,dashed=false){
+      let out='',points=[];const flush=()=>{if(points.length>1)out+=`<polyline fill="none" stroke="${color}" stroke-width="2.5" ${dashed?'stroke-dasharray="6 4"':''} points="${points.join(' ')}"/>`;points=[];};
+      values.forEach((v,i)=>{if(v===null){flush();return;}points.push(`${x(i+1)},${y(v)}`);});flush();
+      values.forEach((v,i)=>{if(v!==null)out+=`<circle cx="${x(i+1)}" cy="${y(v)}" r="3.5" fill="${color}"><title>${esc(label)} · неделя ${i+1}: ${v}</title></circle>`;});return out;
+    }
+    function renderCharts(){
+      const plan=Array.from({length:16},(_,i)=>getWeekPlan(i+1).target100),fact=Array.from({length:16},(_,i)=>num(state.weeks[i+1]?.reps100));
+      const max=Math.ceil(Math.max(30,state.targetReps,...plan,...fact.filter(v=>v!==null))/5)*5,y=v=>226-v/max*204;
+      const a=chartBase('Повторения на 100 кг: план и факт по неделям',Array.from({length:7},(_,i)=>[(i*max/6).toFixed(0),y(i*max/6)]));
+      a.svg+=`<line x1="48" x2="540" y1="${y(state.targetReps)}" y2="${y(state.targetReps)}" stroke="#fbbf24" stroke-width="2" stroke-dasharray="7 4"/>`;
+      a.svg+=plot(plan,a.x,y,'#38bdf8','План',true)+plot(fact,a.x,y,'#4ade80','Факт');$('repsChart').innerHTML=a.svg+'</svg>';$('repsLegend').textContent=`Голубой — план · зелёный — факт · жёлтый — цель КМС ${state.targetReps}. Пропуски не считаются нулём.`;
+      const weights=Array.from({length:16},(_,i)=>num(state.weeks[i+1]?.weight)),shoulder=Array.from({length:16},(_,i)=>num(state.weeks[i+1]?.shoulderLeft)),numbers=weights.filter(v=>v!==null);
+      const lo=Math.floor(Math.min(97,...numbers)-1),hi=Math.ceil(Math.max(101,...numbers)+1),wy=v=>226-(v-lo)/(hi-lo)*204,sy=v=>226-v/10*204;
+      const b=chartBase('Собственный вес, кг, и левое плечо, 0–10',Array.from({length:5},(_,i)=>[(lo+(hi-lo)*i/4).toFixed(1),226-i*51]),[0,2,4,6,8,10].map(v=>[v,sy(v)]));
+      b.svg+=`<rect x="48" y="${wy(98)}" width="492" height="${wy(97.5)-wy(98)}" fill="#4ade80" fill-opacity=".2"/><line x1="48" x2="540" y1="${wy(98)}" y2="${wy(98)}" stroke="#4ade80" stroke-dasharray="4 4"/>`;
+      b.svg+=plot(weights,b.x,wy,'#38bdf8','Вес, кг')+plot(shoulder,b.x,sy,'#fb7185','Левое плечо');$('healthChart').innerHTML=b.svg+'</svg>';
+    }
+    function getBio(){return {baseline:clone(BASELINE_BIO),ferritin:has(state.ferritin)?state.ferritin:null,iron:has(state.iron)?state.iron:null,units:{ferritin:'нг/мл',iron:'мкмоль/л'}};}
+    function weeklyPayload(){
+      const w=state.activeWeek,start=addDays(state.cycleStart,(w-1)*7),end=addDays(start,6),checks={};
+      for(const [key,value] of Object.entries(state.suppChecks))if(key.slice(0,10)>=start&&key.slice(0,10)<=end)checks[key]=value;
+      return {schema:'metajhim.weekly-report.v1',athlete:'Дмитрий Мухин',week:w,weekStart:start,weekEnd:end,phase:getWeekPlan(w).phase,targetRepsKMS:state.targetReps,compDate:state.compDate,plan:clone(getWeekPlan(w)),fact:clone(state.weeks[w]||{}),biochemistry:getBio(),recordedBiochemistry:state.weeks[w]?.biochemistry||null,pct:{lastInjectDate:LAST_INJECT,startDate:PCT_START,endDate:PCT_END,userProvidedSchedule:true,today:pctForDate(todayDate())},suppChecks:checks,protectedThrough:protectedThrough()};
+    }
+    function reportText(){
+      const p=weeklyPayload(),d=p.fact;
+      return [`Дмитрий Мухин · неделя ${p.week} (${dateLabel(p.weekStart)}–${dateLabel(p.weekEnd)})`,`${p.phase}\n100 кг: план ${p.plan.target100} / факт ${show(d.reps100)} повт.; RIR ${show(d.rir)}`,`Утренний вес ${show(d.weight,' кг')} · левое плечо ${show(d.shoulderLeft,'/10')} · правое ${show(d.shoulderRight,'/10')}`,
+        ...[1,2,3].flatMap(n=>[`День ${n} · план: ${n===1?p.plan.d1_main+' | '+p.plan.d1_acc:n===2?p.plan.d2_all:p.plan.d3_main+' | '+p.plan.d3_acc}`,`День ${n} · факт: ${show(d['d'+n+'_fact'])}`]),
+        `Биохимия: ферритин ${show(state.ferritin,' нг/мл')}, железо ${show(state.iron,' мкмоль/л')}. Исходные показатели 18.10.2026 включены в JSON.`,
+        `ПКТ: последний укол 18.10.2026, пользовательский график 08.11–05.12.2026. Отметок приёма за неделю: ${Object.values(p.suppChecks).filter(Boolean).length}.`,
+        `Заметки: ${show(d.notes)}`,'--- JSON для тренера ---',JSON.stringify(p)].join('\n');
+    }
+    async function copyWeeklyReport(){const text=reportText();try{await navigator.clipboard.writeText(text);showToast('Сводка и компактный JSON скопированы.');}catch{$('reportArea').value=text;$('reportModal').showModal();$('reportArea').focus();$('reportArea').select();}}
+    function showToast(message){clearTimeout(toastTimer);$('toastBox').textContent=message;$('toastBox').style.display='block';toastTimer=setTimeout(()=>$('toastBox').style.display='none',4000);}
+    function openImportModal(){invalidatePatch();$('importModal').showModal();$('importJsonArea').focus();}
+    function closeImportModal(){$('importModal').close();}
+    function invalidatePatch(){pendingPatch=null;$('applyPatchButton').disabled=true;$('patchPreview').className='notice';$('patchPreview').textContent=`Патч меняет только недели после ${protectedThrough()}-й и настройки цели / даты старта. Сначала проверьте JSON.`;}
+    function readImport(){const text=$('importJsonArea').value.trim();if(!text)throw Error('Вставьте JSON.');if(text.length>500000)throw Error('Максимальный размер — 500 КБ.');let p;try{p=JSON.parse(text);}catch{throw Error('Некорректный JSON: проверьте запятые, скобки и кавычки.');}if(!obj(p))throw Error('Ожидается JSON-объект.');return p;}
+    function preparePatch(parsed){
+      const allowed=['schema','version','targetReps','compDate','plan','customPlan','settings','weeks','activeWeek','ferritin','iron','lastInjectDate','suppChecks','cycleStart','exportedAt'];
+      for(const k of Object.keys(parsed))if(!allowed.includes(k))throw Error('Неизвестное поле: '+k);
+      if(parsed.schema&&!['metajhim.coach-patch.v1','metajhim.backup.v2'].includes(parsed.schema))throw Error('Нужен патч тренера или JSON-архив; отчёт недели не является патчем.');
+      if(own(parsed,'plan')&&own(parsed,'customPlan'))throw Error('Укажите только plan или customPlan.');
+      const settings=parsed.settings??{};if(!obj(settings))throw Error('settings должен быть объектом.');for(const k of Object.keys(settings))if(!['targetReps','compDate'].includes(k))throw Error('Настройка не поддерживается: '+k);
+      const next=clone(state),changes=[],skipped=[],boundary=protectedThrough(),merged={};
+      for(const k of ['targetReps','compDate']){if(own(parsed,k))merged[k]=parsed[k];if(own(settings,k))merged[k]=settings[k];}
+      if(own(merged,'targetReps')){if(![24,26,27,29].includes(merged.targetReps))throw Error('targetReps: 24, 26, 27 или 29.');if(merged.targetReps!==state.targetReps){changes.push(`Цель: ${state.targetReps} → ${merged.targetReps}`);next.targetReps=merged.targetReps;}}
+      if(own(merged,'compDate')){if(merged.compDate!==''&&!validDate(merged.compDate))throw Error('compDate: существующая дата YYYY-MM-DD или пустая строка.');if(merged.compDate!==state.compDate){changes.push(`Дата соревнований: ${show(state.compDate)} → ${show(merged.compDate)}`);next.compDate=merged.compDate;}}
+      const entries=own(parsed,'plan')?parsed.plan:parsed.customPlan;
+      if(entries!==undefined&&entries!==null){
+        if(!Array.isArray(entries)||!entries.length||entries.length>16)throw Error('plan / customPlan: массив из 1–16 недель.');
+        const seen=new Set();for(const p of entries){validatePlan(p,true);if(seen.has(p.w))throw Error(`Неделя ${p.w} повторяется.`);seen.add(p.w);}
+        const plan=clone(getActivePlan());let planChanged=false;
+        for(const p of entries){if(p.w<=boundary){skipped.push(p.w);continue;}const i=plan.findIndex(x=>x.w===p.w),old=plan[i],keys=PLAN_KEYS.filter(k=>own(p,k)&&p[k]!==old[k]);if(keys.length){plan[i]={...old,...p};planChanged=true;for(const k of keys)changes.push(`Неделя ${p.w} · ${k}: ${old[k]} → ${p[k]}`);}}
+        if(planChanged)next.customPlan=plan;
+      }
+      return {next,changes,skipped,boundary,ignored:['weeks','suppChecks','lastInjectDate','cycleStart','activeWeek','ferritin','iron'].filter(k=>own(parsed,k))};
+    }
+    function previewPatch(){
+      pendingPatch=null;$('applyPatchButton').disabled=true;
+      try{const p=preparePatch(readImport());pendingPatch=p;$('patchPreview').className='notice';$('patchPreview').textContent=[`Защищены недели 1–${p.boundary}: текущая по календарю и все до последней с фактом.`,p.skipped.length?`Пропущены недели: ${p.skipped.join(', ')}.`:'',p.ignored.length?`Сохраняются без изменений: ${p.ignored.join(', ')}.`:'',p.changes.length?p.changes.join('\n\n'):'Нет применимых изменений.'].filter(Boolean).join('\n\n');$('applyPatchButton').disabled=!p.changes.length;}
+      catch(e){$('patchPreview').className='notice error';$('patchPreview').textContent=e.message;}
+    }
+    function applyImportedJson(){
+      if(!pendingPatch)return;
+      try{const p=preparePatch(readImport());if(!p.changes.length)throw Error('Нет изменений. Проверьте патч заново.');if(JSON.stringify(p.changes)!==JSON.stringify(pendingPatch.changes)){previewPatch();throw Error('Предпросмотр обновился. Проверьте его перед применением.');}if(!saveToStorage(p.next))throw Error('Патч не применён: недоступно сохранение.');state=p.next;closeImportModal();fillSettings();renderAll();renderSupplements();updatePctCountdown();showToast('Патч применён. История и отметки добавок сохранены.');}
+      catch(e){$('patchPreview').className='notice error';$('patchPreview').textContent=e.message;}
+    }
+    function downloadJSON(payload,name){const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+    function exportJSON(){
+      if(storageProblem){try{downloadJSON({unreadableOriginal:localStorage.getItem(STORAGE_KEY)??localStorage.getItem('metajhim_dmitry_v4')},'metajhim_unreadable_original.json');return;}catch{}}
+      downloadJSON({...clone(state),customPlan:clone(getActivePlan()),schema:'metajhim.backup.v2',exportedAt:new Date().toISOString()},`metajhim_week_${state.activeWeek}.json`);
+    }
+    function restoreBackup(){
+      try{const p=readImport();if(p.schema!=='metajhim.backup.v2'&&!(p.version&&obj(p.weeks)))throw Error('Вставьте JSON-архив MetaJhim.');const restored=normalizeState(p);delete restored.schema;delete restored.exportedAt;
+        if(!confirm('Заменить весь дневник и отметки добавок данными архива? Сначала скачайте текущий архив.'))return;
+        try{localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));}catch(e){throw Error('Не удалось восстановить архив: '+e.message);}state=restored;storageProblem='';$('storageWarning').hidden=true;closeImportModal();fillSettings();renderAll();renderSupplements();updatePctCountdown();showToast('Дневник и трекер восстановлены из архива.');
+      }catch(e){$('patchPreview').className='notice error';$('patchPreview').textContent=e.message;}
+    }
+    initApp();
+  </script>
+</body>
+</html>
