@@ -28,7 +28,9 @@ const server = http.createServer((req,res) => {
     assert.equal(await page.locator('#cycleTableBody tr').count(),16);
     assert.equal(await page.locator('.charts svg').count(),2);
     assert.equal(await page.locator('.supp-table input').count(),42);
-    assert.match(await page.locator('#pctDaysCount').innerText(),/^1 дн/);
+    assert.equal(await page.locator('#pctDaysCount').innerText(),'1 день');
+    assert.equal(await page.locator('.pct-details').getAttribute('open'),null);
+    assert.equal(await page.locator('#pctStatusBadge').innerText(),'Через 20 дней');
     assert.equal(await page.locator('#suppDateInput').inputValue(),'2026-10-19');
     assert.equal(await page.evaluate(()=>protectedThrough()),1);
     const dates = [
@@ -42,7 +44,13 @@ const server = http.createServer((req,res) => {
     for(const [date,stage,week,dose,since] of dates){
       const p=await page.evaluate(d=>pctForDate(d),date);
       assert.deepEqual([p.stage,p.week,p.dose,p.daysSince],[stage,week,dose,since],date);
+      await page.clock.setSystemTime(new Date(date+'T12:00:00Z'));
+      await page.evaluate(()=>updatePctCountdown());
+      assert.equal(await page.locator('#pctHeading').innerText(),stage==='before'?'Подготовка к ПКТ':stage==='active'?`ПКТ · неделя ${week} из 4`:'График ПКТ завершён');
+      if(stage==='active')assert.equal(await page.locator('#pctNextDate').innerText(),`${dose} мг в день`);
     }
+    await page.clock.setSystemTime(new Date('2026-10-19T12:00:00Z'));
+    await page.evaluate(()=>updatePctCountdown());
     console.log('PASS: UTF-8, 16 weeks, SVG charts, PCT boundary dates');
 
     await page.locator('[data-supp-key="2026-10-19_zinc"]').check();
@@ -112,6 +120,15 @@ const server = http.createServer((req,res) => {
     await page.screenshot({path:path.join(root,'test-results','mobile.png'),fullPage:true});
     await page.setViewportSize({width:1440,height:1000});
     await page.screenshot({path:path.join(root,'test-results','desktop.png'),fullPage:true});
+    await page.clock.setSystemTime(new Date('2026-10-20T12:00:00Z'));
+    await page.evaluate(()=>updatePctCountdown());
+    await page.locator('.pct-card').screenshot({path:path.join(root,'test-results','pct-desktop.png')});
+    await page.locator('.pct-details summary').click();
+    assert(await page.locator('#pctSchedule').isVisible());
+    await page.locator('.pct-card').screenshot({path:path.join(root,'test-results','pct-expanded.png')});
+    await page.locator('.pct-details summary').click();
+    await page.setViewportSize({width:390,height:844});
+    await page.locator('.pct-card').screenshot({path:path.join(root,'test-results','pct-mobile.png')});
     console.log('PASS: storage failure protection, mobile layout');
 
     const legacy=await browser.newContext();const legacyPage=await legacy.newPage();

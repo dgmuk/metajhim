@@ -64,6 +64,12 @@
     :root{color-scheme:dark;--muted:#acbcd0}h2{font-size:1.1rem}.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px}.charts svg{width:100%;height:auto;display:block;margin-top:12px}.charts text{font:11px system-ui;fill:var(--muted)}.table-wrap{overflow-x:auto}.supp-table{min-width:760px}.supp-table th,.supp-table td{text-align:center;padding:10px 6px}.supp-table th:first-child{text-align:left;min-width:240px}.supp-table input{width:20px;height:20px;accent-color:var(--accent);cursor:pointer}.supp-table small{display:block;color:var(--muted);font-weight:400}.today{background:#143c50}.actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.notice{background:var(--card-alt);border-radius:8px;padding:12px;margin:12px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.85rem}.error{color:#fda4af}.notice[hidden]{display:none}dialog{width:min(760px,calc(100% - 24px));max-height:90vh;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:20px}dialog::backdrop{background:#000b}dialog .modal-box{padding:0!important;border:0!important;max-width:none!important}#patchPreview{max-height:240px;overflow:auto}a,summary{color:var(--accent)}summary{cursor:pointer}details,footer{margin-top:16px}footer{font-size:12px;color:var(--muted);padding:16px 0}textarea{resize:vertical}button:disabled,input:disabled{opacity:.45;cursor:not-allowed}input:invalid{border-color:var(--danger)}:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.day-header{flex-wrap:wrap;gap:8px}
     @media(max-width:800px){.charts{grid-template-columns:1fr}}@media(max-width:540px){body{padding:12px}.workout-grid{grid-template-columns:minmax(0,1fr)}.control-group{min-width:0;flex-basis:100%}.modal-box{padding:12px}dialog{padding:14px}}
     #cycleTableBody{vertical-align:top}table:has(#cycleTableBody){min-width:1050px}.supp-table th:first-child{position:sticky;left:0;background:var(--card-alt);z-index:1}.supp-table thead th:first-child{z-index:2}
+    .pct-card{margin-bottom:24px;padding:26px 28px;background:linear-gradient(125deg,#1c2c40 0%,#182438 70%);border:1px solid #35485f;border-radius:18px;overflow:hidden}
+    .pct-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.pct-eyebrow{font-size:10px;letter-spacing:.13em;font-weight:700;color:#9cb5d0;margin-bottom:8px}.pct-title{font-size:23px;line-height:1.25;letter-spacing:-.025em;font-weight:700}.pct-description{font-size:13px;color:#acbcd0;margin-top:7px;max-width:540px}.pct-status{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;background:#243e51;border:1px solid #36566d;color:#bcdef3;font-size:12px;font-weight:600;padding:7px 11px;border-radius:999px}.pct-status::before{content:'';width:6px;height:6px;border-radius:50%;background:#79c8f3}
+    .pct-facts{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:26px}.pct-label{font-size:12px;color:#a6b9ce;margin-bottom:6px}.pct-number{font-size:29px;line-height:1.25;letter-spacing:-.025em;font-weight:650;color:#f4f8fc}.pct-note{font-size:12px;color:#a6b9ce;margin-top:6px}.pct-facts>div+div{border-left:1px solid #35475e;padding-left:24px}
+    .pct-timeline{margin-top:23px}.pct-progress{display:block;width:100%;height:5px;border:0;border-radius:8px;overflow:hidden;background:#314359;appearance:none}.pct-progress::-webkit-progress-bar{background:#314359;border-radius:8px}.pct-progress::-webkit-progress-value{background:#87c5e9;border-radius:8px}.pct-progress::-moz-progress-bar{background:#87c5e9;border-radius:8px}.pct-timeline-labels{display:flex;justify-content:space-between;gap:16px;color:#97adc5;font-size:11px;margin-top:8px}.pct-timeline-labels span:last-child{text-align:right}
+    .pct-details{margin-top:21px;border-top:1px solid #35475e;padding-top:16px}.pct-details>summary{display:flex;align-items:center;justify-content:space-between;list-style:none;color:#d4e4f3;font-size:13px;font-weight:600;cursor:pointer;padding:3px 0}.pct-details>summary::-webkit-details-marker{display:none}.pct-details>summary::after{content:'+';font-size:20px;color:#9fb8d1;line-height:1}.pct-details[open]>summary::after{content:'−'}.pct-schedule{margin-top:14px;display:grid;gap:1px;background:#35475e;border:1px solid #35475e;border-radius:10px;overflow:hidden}.pct-week{display:grid;grid-template-columns:90px 1fr auto;gap:12px;align-items:center;padding:12px 14px;background:#1c2c40;font-size:12px}.pct-week time{color:#acbcd0}.pct-week strong{font-weight:600}.pct-week.is-current{background:#294154}.pct-med-note{color:#9fb2c9;font-size:11px;margin-top:13px;max-width:580px}.pct-med-note a{color:#bacfe3;text-underline-offset:2px}
+    @media(max-width:540px){.pct-card{padding:20px 18px;border-radius:14px}.pct-top{flex-direction:column;gap:12px}.pct-title{font-size:22px}.pct-facts{gap:16px;margin-top:22px}.pct-facts>div+div{padding-left:16px}.pct-number{font-size:25px}.pct-week{grid-template-columns:75px 1fr;padding:11px 12px;gap:5px 8px}.pct-week strong:last-child{grid-column:2}.pct-description{font-size:12px}}
   </style>
 </head>
 <body>
@@ -289,26 +295,18 @@
           </div>
         </header>
 
-        <div class="card" style="margin-bottom: 24px; border-color: var(--accent);">
-          <div class="section-title">
-            <span>Статус ПКТ / Выход с курса · 18.10.2026</span>
-            <span class="badge badge-info" id="pctStatusBadge">Календарь ПКТ</span>
+        <section class="pct-card" aria-labelledby="pctHeading">
+          <div class="pct-top">
+            <div><div class="pct-eyebrow">ЛИЧНЫЙ КАЛЕНДАРЬ</div><h2 class="pct-title" id="pctHeading">Подготовка к ПКТ</h2><p class="pct-description" id="pctDescription"></p></div>
+            <span class="pct-status" id="pctStatusBadge"></span>
           </div>
-          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 10px; font-size: 0.9rem;">
-            <div style="background:var(--card-alt); padding:12px; border-radius:8px;">
-              <div style="color:var(--muted); font-size:0.78rem;">Дней с последнего укола:</div>
-              <div id="pctDaysCount" style="font-size:1.3rem; font-weight:700; color:var(--accent);">—</div>
-              <div style="font-size:0.78rem; color:var(--muted); margin-top:2px;">Enanthate clearance takes 2—s</div>
-            </div>
-            <div style="background:var(--card-alt); padding:12px; border-radius:8px;">
-              <div style="color:var(--muted); font-size:0.78rem;">Дата старта в вашем графике:</div>
-              <div style="font-size:1.3rem; font-weight:700; color:var(--success);">8 ноября 2026</div>
-              <div style="font-size:0.78rem; color:var(--muted); margin-top:2px;">График из ТЗ: 50 мг (2 недели) → 25 мг (2 недели)</div>
-            </div>
+          <div class="pct-facts">
+            <div><div class="pct-label">С последнего укола</div><div class="pct-number" id="pctDaysCount">—</div><div class="pct-note">Последний укол · 18 октября 2026</div></div>
+            <div><div class="pct-label" id="pctNextLabel">Начало ПКТ</div><div class="pct-number" id="pctNextDate">8 ноября</div><div class="pct-note" id="pctNextNote">2026 год · по вашему графику</div></div>
           </div>
-        </div>
-
-        <div class="card" style="margin-bottom:24px"><p class="subtitle">Дозировки и даты перенесены из вашего ТЗ как личная запись. Приложение не назначает ПКТ; согласуйте схему с врачом. <a href="https://medlineplus.gov/druginfo/meds/a682704.html" target="_blank" rel="noopener">Информация о кломифене</a></p><div id="pctSchedule"></div></div>
+          <div class="pct-timeline"><progress class="pct-progress" id="pctProgress" max="21" value="0" aria-label="Дни между последним уколом и началом ПКТ"></progress><div class="pct-timeline-labels"><span id="pctTimelineStart">18 октября · последний укол</span><span id="pctTimelineEnd">8 ноября · начало ПКТ</span></div></div>
+          <details class="pct-details"><summary>Посмотреть график</summary><div class="pct-schedule" id="pctSchedule"></div><p class="pct-med-note">Это ваш личный график. Даты и дозировки согласуйте с врачом. Шкала показывает только прошедшее время. <a href="https://medlineplus.gov/druginfo/meds/a682704.html" target="_blank" rel="noopener">О препарате</a></p></details>
+        </section>
         <div class="charts" style="margin-bottom:24px"><div class="card"><h2>Повторения на 100 кг</h2><div id="repsChart"></div><p class="subtitle" id="repsLegend"></p></div><div class="card"><h2>Вес и левое плечо</h2><div id="healthChart"></div><p class="subtitle">Вес (голубой) — слева, плечо 0–10 (розовый) — справа. Зелёная зона: 97.5–98.0 кг.</p></div></div>
         <div class="card" style="margin-bottom: 24px;">
           <div class="section-title">
@@ -559,10 +557,21 @@
     function saveSettings(){state.targetReps=Number($('divisionSelect').value);state.compDate=$('compDate').value;state.ferritin=$('ferritinInput').value;state.iron=$('ironInput').value;saveToStorage();updateSummaryCards();renderCharts();}
     function changeWeek(){state.activeWeek=Number($('weekSelect').value);saveToStorage();renderAll();}
     function updatePctCountdown(){
-      const p=pctForDate(todayDate());$('pctDaysCount').textContent=p.daysSince<0?'Дата ещё не наступила':`${p.daysSince} дн. · календарный ориентир 21 день`;
-      const badge=$('pctStatusBadge');badge.className='badge badge-info';
-      badge.textContent=p.stage==='before'?`До 08.11: ${p.daysToStart} дн.`:p.stage==='after'?'Внесённый график завершён 05.12.2026':`Неделя ${p.week} ПКТ · по записи ${p.dose} мг/сутки`;
-      $('pctSchedule').innerHTML=[1,2,3,4].map(w=>{const start=addDays(PCT_START,(w-1)*7),end=addDays(start,6);return `<div class="notice ${p.week===w?'today':''}">Неделя ${w} ПКТ · ${dateLabel(start)}–${dateLabel(end)} · Кломид ${w<=2?'50':'25'} мг/сутки${w>=3?' (полтаблетки 50 мг)':''}${p.week===w?' · текущая':''}</div>`;}).join('');
+      const today=todayDate(),p=pctForDate(today),dayWord=n=>{const a=n%10,b=n%100;return a===1&&b!==11?'день':a>=2&&a<=4&&(b<12||b>14)?'дня':'дней';};
+      const longDate=d=>new Intl.DateTimeFormat('ru-RU',{timeZone:'UTC',day:'numeric',month:'long'}).format(new Date(epoch(d)));
+      $('pctDaysCount').textContent=p.daysSince<0?'Ещё впереди':`${p.daysSince} ${dayWord(p.daysSince)}`;
+      $('pctHeading').textContent=p.stage==='before'?'Подготовка к ПКТ':p.stage==='active'?`ПКТ · неделя ${p.week} из 4`:'График ПКТ завершён';
+      $('pctDescription').textContent=p.stage==='before'?'Следующий этап — начало ПКТ по вашему графику.':p.stage==='active'?'Сейчас идёт приём по вашему графику. Отметки — в трекере добавок ниже.':'Последний день в вашем графике — 5 декабря 2026 года.';
+      $('pctStatusBadge').textContent=p.stage==='before'?`Через ${p.daysToStart} ${dayWord(p.daysToStart)}`:p.stage==='active'?'По графику':'Завершено';
+      $('pctNextLabel').textContent=p.stage==='before'?'Начало ПКТ':p.stage==='active'?'Текущая неделя':'Последний день графика';
+      $('pctNextDate').textContent=p.stage==='before'?'8 ноября':p.stage==='active'?`${p.dose} мг в день`:'5 декабря';
+      $('pctNextNote').textContent=p.stage==='active'?`${longDate(addDays(PCT_START,(p.week-1)*7))} — ${longDate(addDays(PCT_START,p.week*7-1))} · Кломид`:'2026 год · по вашему графику';
+      const active=p.stage!=='before',elapsed=active?Math.floor((epoch(today)-epoch(PCT_START))/DAY)+1:p.daysSince,max=active?28:21;
+      $('pctProgress').max=max;$('pctProgress').value=Math.max(0,Math.min(max,elapsed));
+      $('pctProgress').setAttribute('aria-label',active?'Прошедшие дни по графику ПКТ':'Дни между последним уколом и началом ПКТ');
+      $('pctProgress').setAttribute('aria-valuetext',`${Math.max(0,Math.min(max,elapsed))} из ${max} дней`);
+      $('pctTimelineStart').textContent=active?'8 ноября · начало ПКТ':'18 октября · последний укол';$('pctTimelineEnd').textContent=active?'5 декабря · конец графика':'8 ноября · начало ПКТ';
+      $('pctSchedule').innerHTML=[1,2,3,4].map(w=>{const start=addDays(PCT_START,(w-1)*7),end=addDays(start,6);return `<div class="pct-week${p.week===w?' is-current':''}"><strong>Неделя ${w}${p.week===w?' · сейчас':''}</strong><time datetime="${start}">${longDate(start)} — ${longDate(end)}</time><strong>Кломид · ${w<=2?'50':'25'} мг/день</strong></div>`;}).join('');
     }
     function suppToday(){$('suppDateInput').value=todayDate();renderSupplements();}
     function shiftSuppWeek(days){const d=$('suppDateInput').value;if(!validDate(d))return;$('suppDateInput').value=addDays(d,days);renderSupplements();}
