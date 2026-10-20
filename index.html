@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#0d0f0d">
   <meta name="description" content="MetaJhim 100: дневник Дмитрия Мухина, 16-недельный план, прогресс и ежедневный трекер.">
   <title>MetaJhim 100 — Дмитрий Мухин</title>
   <style>
@@ -56,7 +56,6 @@
     th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
     th { color: var(--muted); font-weight: 600; background: var(--card-alt); }
     tr.active-row { background: rgba(56, 189, 248, 0.12); }
-    .bio-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
     .supp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
     .supp-item { background: var(--card-alt); padding: 10px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; }
     .toast { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: #052e16; padding: 12px 20px; border-radius: 8px; font-weight: 700; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 100; }
@@ -70,6 +69,20 @@
     .pct-timeline{margin-top:23px}.pct-progress{display:block;width:100%;height:5px;border:0;border-radius:8px;overflow:hidden;background:#314359;appearance:none}.pct-progress::-webkit-progress-bar{background:#314359;border-radius:8px}.pct-progress::-webkit-progress-value{background:#87c5e9;border-radius:8px}.pct-progress::-moz-progress-bar{background:#87c5e9;border-radius:8px}.pct-timeline-labels{display:flex;justify-content:space-between;gap:16px;color:#97adc5;font-size:11px;margin-top:8px}.pct-timeline-labels span:last-child{text-align:right}
     .pct-details{margin-top:21px;border-top:1px solid #35475e;padding-top:16px}.pct-details>summary{display:flex;align-items:center;justify-content:space-between;list-style:none;color:#d4e4f3;font-size:13px;font-weight:600;cursor:pointer;padding:3px 0}.pct-details>summary::-webkit-details-marker{display:none}.pct-details>summary::after{content:'+';font-size:20px;color:#9fb8d1;line-height:1}.pct-details[open]>summary::after{content:'−'}.pct-schedule{margin-top:14px;display:grid;gap:1px;background:#35475e;border:1px solid #35475e;border-radius:10px;overflow:hidden}.pct-week{display:grid;grid-template-columns:90px 1fr auto;gap:12px;align-items:center;padding:12px 14px;background:#1c2c40;font-size:12px}.pct-week time{color:#acbcd0}.pct-week strong{font-weight:600}.pct-week.is-current{background:#294154}.pct-med-note{color:#9fb2c9;font-size:11px;margin-top:13px;max-width:580px}.pct-med-note a{color:#bacfe3;text-underline-offset:2px}
     @media(max-width:540px){.pct-card{padding:20px 18px;border-radius:14px}.pct-top{flex-direction:column;gap:12px}.pct-title{font-size:22px}.pct-facts{gap:16px;margin-top:22px}.pct-facts>div+div{padding-left:16px}.pct-number{font-size:25px}.pct-week{grid-template-columns:75px 1fr;padding:11px 12px;gap:5px 8px}.pct-week strong:last-child{grid-column:2}.pct-description{font-size:12px}}
+    .diary{margin:0 auto 24px;max-width:920px;--diary-accent:#c4dc83;color:#f4f5f3}.diary-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}.diary-head h2{font-size:23px;letter-spacing:-.025em}.diary-sub{color:#9ba6a6;font-size:12px;margin-top:5px}.diary-week-nav{display:flex;gap:7px;align-items:center}.diary-week-nav select{width:auto;min-width:128px;background:#151c21}.diary-week-nav button{width:36px;height:40px;border:1px solid #354044;border-radius:9px;background:#151c21;color:#dce3df;font-size:18px}.diary-week-nav button:disabled{opacity:.3;cursor:default}
+    .diary-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:20px}.diary-tab{background:#182025;border:1px solid #333e43;border-radius:12px;padding:12px 16px;text-align:left;color:#b8c2c2}.diary-tab[aria-selected="true"]{background:#263126;border-color:#859e57;color:#e1edc6}.diary-tab strong{display:block;font-size:14px;font-weight:650}.diary-tab span{display:block;font-size:11px;margin-top:3px;opacity:.8}.diary-day-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:4px 0 16px}.diary-day-heading h3{font-size:17px}.diary-save{font-size:11px;color:#a2b88a}.diary-exercises{display:grid;gap:14px}.exercise-card{background:#141918;border:1px solid #303832;border-radius:17px;overflow:hidden}.exercise-toggle{display:flex;align-items:flex-start;gap:12px;width:100%;background:none;color:#f2f4ef;border:0;text-align:left;padding:20px 22px;cursor:pointer}.exercise-number{display:grid;place-items:center;flex-shrink:0;width:28px;height:28px;margin-top:2px;background:#343e20;color:#d8ed90;border-radius:50%;font-size:13px;font-weight:700}.exercise-heading{flex:1;min-width:0}.exercise-heading h4{font-size:18px;line-height:1.35;letter-spacing:-.02em;margin:0;font-weight:700}.exercise-prescription{display:block;color:#acb8ac;font-size:12px;font-weight:400;margin-top:5px;line-height:1.6}.exercise-chevron{font-size:18px;color:#94a28e;transition:transform .15s}.exercise-toggle[aria-expanded="false"] .exercise-chevron{transform:rotate(180deg)}.exercise-body{padding:0 22px 20px}.exercise-body[hidden]{display:none}
+    .set-grid{display:grid;grid-template-columns:40px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 26px;gap:9px;align-items:center}.set-head{font-size:11px;color:#a5afa4;margin-bottom:9px}.set-row{margin-bottom:9px}.set-row>span{font-size:13px;font-weight:650;color:#d4ddd0}.set-row input{font:500 16px/1.4 system-ui;text-align:center;background:#1c221e;border:1px solid #333d33;border-radius:11px;padding:12px 8px;color:#f0f6eb}.set-row input::placeholder{color:#596554;opacity:1}.set-delete{border:0;background:none;color:#7f8c78;padding:0;font-size:20px}.set-delete:hover{color:#e5b6a7}.add-set{width:100%;margin:7px 0 14px;padding:9px;border:1px dashed #617452;border-radius:10px;background:transparent;color:#cad6c2;font-size:12px;font-weight:650}.exercise-comment{background:#1c221e;border:1px solid #333d33;border-radius:11px;min-height:48px;padding:12px;font-size:13px}.exercise-comment::placeholder{color:#7c8876}.legacy-note{border:1px solid #354044;border-radius:12px;padding:13px 16px;margin-top:16px;font-size:12px}.legacy-note summary{color:#aebdba}.legacy-note textarea{margin-top:12px;font-size:13px}.diary-plan-note{font-size:12px;line-height:1.7;color:#aab6aa;border-left:2px solid #5e7150;padding-left:12px;margin-bottom:14px}
+    @media(max-width:540px){.diary-head h2{font-size:21px}.diary-week-nav{width:100%}.diary-week-nav select{flex:1}.diary-tab{padding:11px 10px}.diary-tab strong{font-size:12px}.diary-tab span{font-size:10px}.exercise-toggle{padding:17px 14px;gap:9px}.exercise-heading h4{font-size:16px}.exercise-body{padding:0 14px 16px}.set-grid{grid-template-columns:28px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 20px;gap:6px}.set-row input{padding:11px 4px}.set-head{font-size:10px}.diary-day-heading{align-items:flex-start}.diary-save{max-width:125px;text-align:right}}
+    /* Shared graphite theme for every section, dialog, chart and input. */
+    :root{--bg:#0d0d0d;--card:#151515;--card-alt:#1d1d1d;--text:#f1f4ed;--muted:#a5aaa3;--accent:#c4dc83;--success:#b9d783;--warning:#dbc485;--danger:#e69c91;--border:#303030}
+    body{background:var(--bg);color:var(--text)}.card,.day-card{border-radius:16px}.card-value{color:var(--text)}input,select,textarea{background:#1a1a1a;border-color:var(--border);border-radius:10px}.btn{color:#151a10;border-radius:10px}.btn-success{background:var(--accent);color:#151a10}.btn-secondary{background:var(--card-alt);color:var(--text);border:1px solid var(--border)}.badge-info,.badge-ok,.badge-warn{background:#2a3422;color:#d3e5aa}.today,tr.active-row{background:#253020}.toast{background:var(--accent);color:#17200e}.progress-bar-fill{background:var(--accent)}.error{color:var(--danger)}
+    .pct-card{background:var(--card);border-color:var(--border)}.pct-eyebrow,.pct-description,.pct-label,.pct-note,.pct-timeline-labels,.pct-week time{color:var(--muted)}.pct-status{background:#293520;border-color:#414f32;color:#d7e8ae}.pct-status::before{background:var(--accent)}.pct-number,.pct-details>summary{color:var(--text)}.pct-facts>div+div,.pct-details,.pct-schedule{border-color:var(--border)}.pct-schedule{background:var(--border)}.pct-details>summary::after{color:var(--muted)}.pct-week{background:var(--card-alt)}.pct-week.is-current{background:#2a3523}.pct-progress,.pct-progress::-webkit-progress-bar{background:#303b29}.pct-progress::-webkit-progress-value{background:var(--accent)}.pct-progress::-moz-progress-bar{background:var(--accent)}
+    .diary-week-nav select,.diary-week-nav button,.diary-tab{background:var(--card);border-color:var(--border);color:var(--muted)}.diary-tab[aria-selected="true"]{background:#293520;border-color:#829951;color:#e1edc6}.legacy-note{border-color:var(--border)}.exercise-card{background:var(--card);border-color:var(--border)}.set-row input,.exercise-comment{background:var(--card-alt);border-color:var(--border)}
+    @media(max-width:540px){.set-head>span:first-child{font-size:0}.set-head>span:first-child::after{content:'№';font-size:10px}}
+    .progress-card{padding:22px;display:flex;flex-direction:column;min-width:0}.progress-card h2{font-size:18px;letter-spacing:-.02em}.progress-intro{color:var(--muted);font-size:12px;margin-top:5px}.progress-headline{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-top:19px}.progress-value{font-size:30px;line-height:1.2;letter-spacing:-.035em;font-weight:700}.progress-value small{font-size:14px;font-weight:500;color:var(--muted);letter-spacing:0}.progress-context{font-size:12px;color:var(--muted)}.progress-meta{font-size:12px;color:var(--muted);margin-top:7px;min-height:19px}.progress-meta strong{font-weight:600;color:var(--text)}
+    .chart-legend{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px;min-height:32px}.legend-button,.legend-label{display:inline-flex;align-items:center;gap:7px;padding:6px 9px;border-radius:8px;border:1px solid var(--border);background:#1c1c1c;color:#e0e5dc;font-size:11px;line-height:1.4}.legend-button{cursor:pointer}.legend-button[aria-pressed="false"]{opacity:.45;text-decoration:line-through}.legend-swatch{width:17px;height:0;border-top:3px solid var(--line);flex-shrink:0}.legend-swatch.dashed{border-top-style:dashed}.legend-swatch.dot{height:8px;width:8px;border:0;background:var(--line);border-radius:50%}.chart-shell{position:relative;flex:1;margin-top:4px}.chart-shell svg{margin-top:0}.charts .chart-axis-title{font-size:12px;fill:#b1b9aa}.charts .chart-hit{cursor:pointer;outline:none}.chart-hit rect{fill:transparent}.chart-hit:hover rect,.chart-hit:focus rect{fill:#ffffff08}.chart-hit:focus rect{stroke:var(--accent);stroke-width:1}.chart-selected{stroke:#c4dc83;stroke-width:1;stroke-dasharray:3 4;opacity:.5;pointer-events:none}
+    .chart-readout{display:grid;grid-template-columns:1fr auto;gap:9px 16px;background:var(--card-alt);border:1px solid var(--border);border-radius:11px;padding:12px 14px;margin-top:2px;min-height:77px;font-size:12px}.chart-readout-title{color:#b5beb0;grid-column:1/-1}.chart-readout-values{display:flex;flex-wrap:wrap;gap:6px 18px}.chart-readout-values span{color:var(--muted)}.chart-readout-values b{color:var(--text);font-weight:650}.chart-readout-diff{font-size:11px;color:var(--accent);align-self:center;text-align:right}.chart-help{color:#929d8c;font-size:11px;margin-top:11px;line-height:1.65}.health-tabs{display:flex;gap:3px;padding:3px;background:#0e100d;border:1px solid var(--border);border-radius:10px;margin-top:17px}.health-tab{flex:1;border:0;background:none;padding:8px;border-radius:7px;color:#9da795;font-size:12px;font-weight:600}.health-tab[aria-selected="true"]{background:#293323;color:#d9e8bc}.health-card .progress-headline{margin-top:15px}.health-card .chart-legend{margin-top:10px}
+    @media(max-width:540px){.progress-card{padding:17px}.progress-card h2{font-size:17px}.progress-value{font-size:27px}.chart-readout{padding:11px;font-size:11px;gap:7px}.chart-readout-diff{grid-column:1/-1;text-align:left}.charts .chart-tick-minor{display:none}.chart-help{font-size:10px}.legend-button,.legend-label{font-size:11px}}
   </style>
 </head>
 <body>
@@ -305,9 +318,12 @@
             <div><div class="pct-label" id="pctNextLabel">Начало ПКТ</div><div class="pct-number" id="pctNextDate">8 ноября</div><div class="pct-note" id="pctNextNote">2026 год · по вашему графику</div></div>
           </div>
           <div class="pct-timeline"><progress class="pct-progress" id="pctProgress" max="21" value="0" aria-label="Дни между последним уколом и началом ПКТ"></progress><div class="pct-timeline-labels"><span id="pctTimelineStart">18 октября · последний укол</span><span id="pctTimelineEnd">8 ноября · начало ПКТ</span></div></div>
-          <details class="pct-details"><summary>Посмотреть график</summary><div class="pct-schedule" id="pctSchedule"></div><p class="pct-med-note">Это ваш личный график. Даты и дозировки согласуйте с врачом. Шкала показывает только прошедшее время. <a href="https://medlineplus.gov/druginfo/meds/a682704.html" target="_blank" rel="noopener">О препарате</a></p></details>
+          <details class="pct-details"><summary>Посмотреть график</summary><div class="pct-schedule" id="pctSchedule"></div></details>
         </section>
-        <div class="charts" style="margin-bottom:24px"><div class="card"><h2>Повторения на 100 кг</h2><div id="repsChart"></div><p class="subtitle" id="repsLegend"></p></div><div class="card"><h2>Вес и левое плечо</h2><div id="healthChart"></div><p class="subtitle">Вес (голубой) — слева, плечо 0–10 (розовый) — справа. Зелёная зона: 97.5–98.0 кг.</p></div></div>
+        <section class="charts" style="margin-bottom:24px" aria-label="Ваш прогресс">
+          <article class="card progress-card"><h2>Ваш прогресс · жим 100 кг</h2><p class="progress-intro">План подготовки и результаты из дневника</p><div class="progress-headline"><div class="progress-value" id="repsBestValue"></div><span class="progress-context">лучший подход</span></div><p class="progress-meta" id="repsTargetSummary"></p><div class="chart-legend" id="repsLegend" aria-label="Линии графика"></div><div class="chart-shell" id="repsChart"></div><div class="chart-readout" id="repsReadout" aria-live="polite"></div><p class="chart-help" id="repsChartHelp"></p></article>
+          <article class="card progress-card health-card"><h2>Вес и самочувствие</h2><p class="progress-intro">Два показателя — каждый на своей шкале</p><div class="health-tabs" role="tablist" aria-label="Показатель самочувствия" onkeydown="healthTabKeys(event)"><button type="button" role="tab" id="healthWeightTab" class="health-tab" aria-controls="healthChart" aria-selected="true" onclick="selectHealthMode('weight')">Вес тела</button><button type="button" role="tab" id="healthShoulderTab" class="health-tab" aria-controls="healthChart" aria-selected="false" tabindex="-1" onclick="selectHealthMode('shoulder')">Левое плечо</button></div><div class="progress-headline"><div class="progress-value" id="healthLatestValue"></div><span class="progress-context" id="healthLatestCaption"></span></div><p class="progress-meta" id="healthSummary"></p><div class="chart-legend" id="healthLegend"></div><div class="chart-shell" id="healthChart" role="tabpanel" aria-labelledby="healthWeightTab"></div><div class="chart-readout" id="healthReadout" aria-live="polite"></div><p class="chart-help" id="healthChartHelp"></p></article>
+        </section>
         <div class="card" style="margin-bottom: 24px;">
           <div class="section-title">
             <span>Ежедневный стек добавок и нутриентов</span>
@@ -391,46 +407,16 @@
           </div>
         </div>
 
-        <div class="section-title">
-          <span>Тренировки недели · план и факт</span>
-          <span class="subtitle">Горизонтальный нейтральный жим · без становой тяги · мост в тренажёре</span>
-        </div>
-        <div class="workout-grid" id="workoutContainer"></div>
+        <section class="diary" aria-labelledby="diaryTitle">
+          <div class="diary-head"><div><h2 id="diaryTitle">Дневник тренировок</h2><p class="diary-sub" id="diaryWeekRange"></p></div><div class="diary-week-nav"><button id="diaryPrevWeek" type="button" aria-label="Предыдущая неделя" onclick="moveDiaryWeek(-1)">‹</button><select id="diaryWeekSelect" aria-label="Неделя дневника" onchange="selectDiaryWeek(Number(this.value))"></select><button id="diaryNextWeek" type="button" aria-label="Следующая неделя" onclick="moveDiaryWeek(1)">›</button></div></div>
+          <div class="diary-tabs" id="diaryDays" role="tablist" aria-label="Тренировочные дни" onkeydown="diaryDayKeys(event)"></div>
+          <div class="diary-day-heading"><h3 id="diaryDayTitle"></h3><span class="diary-save" id="diarySaveStatus" role="status">Сохраняется автоматически</span></div>
+          <div id="workoutContainer" role="tabpanel" tabindex="0" aria-labelledby="diaryDay1"></div>
+        </section>
 
         <div class="card" style="margin-bottom: 24px;">
           <label for="weekNotes" style="display:block; margin-bottom:8px;">Заметки недели: левое плечо, самочувствие, сон, добавки и ПКТ:</label>
           <textarea id="weekNotes" rows="3" oninput="saveWeekData()"></textarea>
-        </div>
-
-        <div class="card" style="margin-bottom: 24px;">
-          <div class="section-title">
-            <span>Анализы · исходные показатели 18.10.2026</span>
-            <span class="badge badge-warn">Данные для отчёта</span>
-          </div>
-          <div class="bio-panel">
-            <div class="ex-item">
-              <div class="ex-name">Гормоны · исходные значения</div>
-              <div>Тестостерон: <b>10.570 мкг/л</b> (исходная запись)</div>
-              <div>ГСПГ: <b>19.3 нмоль/л</b> | Пролактин: <b>10.0 мкг/л</b></div>
-              <div>Эстрадиол: <b>64.2 пг/мл</b></div>
-              <div style="color: var(--warning);">Календарь ПКТ указан отдельно</div>
-            </div>
-            <div class="ex-item">
-              <div class="ex-name">Общий анализ крови и железо</div>
-              <div>Гемоглобин: <b>136 г/л</b> | Гематокрит: <b>44.3%</b></div>
-              <div style="color: var(--warning);">Эритроциты: <b>6.52</b> | MCV: <b>68.0 фл</b> | MCH: <b>20.8 пг</b></div>
-              <div style="margin-top:6px; display:flex; gap:8px;">
-                <input type="text" id="ferritinInput" placeholder="Ферритин, нг/мл" oninput="saveSettings()" />
-                <input type="text" id="ironInput" placeholder="Железо сывороточное, мкмоль/л" oninput="saveSettings()" />
-              </div>
-            </div>
-            <div class="ex-item">
-              <div class="ex-name">Липиды и печёночные показатели</div>
-              <div>ЛПВП: <b>0.90</b> | ЛПНП: <b>3.32</b> | AIP: <b>0.22</b></div>
-              <div>АЛТ: <b>33 Ед/л</b> | АСТ: <b>87 Ед/л</b></div>
-              <div>Лейкоциты: <b>10.86</b> | Креатинин: <b>89 мкмоль/л</b></div>
-            </div>
-          </div>
         </div>
 
         <div class="card">
@@ -473,7 +459,7 @@
     }
 
     const STORAGE_KEY='metajhim_dmitry_v2', LAST_INJECT='2026-10-18', PCT_START='2026-11-08', PCT_END='2026-12-05';
-    const PLAN_KEYS=['phase','isDeload','target100','d1_main','d1_acc','d2_all','d3_main','d3_acc'];
+    const PLAN_KEYS=['phase','isDeload','target100','d1_main','d1_acc','d2_all','d3_main','d3_acc','days'];
     const $=id=>document.getElementById(id),clone=v=>JSON.parse(JSON.stringify(v));
     const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k),obj=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
     const has=v=>v!==''&&v!==undefined&&v!==null;
@@ -497,12 +483,34 @@
     function validatePlan(p,partial=false){
       if(!obj(p)||!Number.isInteger(p.w)||p.w<1||p.w>16)throw Error('w должен быть целым числом от 1 до 16.');
       for(const k of Object.keys(p))if(k!=='w'&&!PLAN_KEYS.includes(k))throw Error(`Неизвестное поле плана: ${k}.`);
-      for(const k of PLAN_KEYS){if(!own(p,k)){if(!partial)throw Error(`Неделя ${p.w}: отсутствует ${k}.`);continue;}
-        if(k==='isDeload'){if(typeof p[k]!=='boolean')throw Error('isDeload должен быть true или false.');}
+      for(const k of PLAN_KEYS){if(!own(p,k)){if(!partial&&k!=='days')throw Error(`Неделя ${p.w}: отсутствует ${k}.`);continue;}
+        if(k==='days'){validateTrainingDays(p[k]);}
+        else if(k==='isDeload'){if(typeof p[k]!=='boolean')throw Error('isDeload должен быть true или false.');}
         else if(k==='target100'){if(!Number.isInteger(p[k])||p[k]<1||p[k]>100)throw Error('target100: целое 1–100.');}
         else if(typeof p[k]!=='string'||!p[k].trim()||p[k].length>10000)throw Error(`${k}: непустая строка до 10000 символов.`);
       }
       if(partial&&Object.keys(p).length===1)throw Error(`В неделе ${p.w} не указаны изменения.`);
+    }
+    function validateTrainingDays(days){
+      if(!obj(days)||Object.keys(days).some(k=>!['d1','d2','d3'].includes(k)))throw Error('days: ожидаются d1, d2, d3.');
+      for(const key of ['d1','d2','d3']){
+        if(!Array.isArray(days[key])||days[key].length>30)throw Error(`${key}: массив до 30 упражнений.`);
+        const seen=new Set();for(const e of days[key]){
+          if(!obj(e)||typeof e.id!=='string'||!/^[a-zA-Z0-9_-]{1,80}$/.test(e.id)||seen.has(e.id))throw Error('Упражнению нужен уникальный id.');seen.add(e.id);
+          if(typeof e.name!=='string'||!e.name.trim()||e.name.length>300||typeof e.prescription!=='string'||e.prescription.length>10000)throw Error('Неверное название или план упражнения.');
+          if(!Number.isInteger(e.setCount)||e.setCount<1||e.setCount>30||!['reps','seconds'].includes(e.unit))throw Error('Неверные подходы или единица упражнения.');
+        }
+      }
+    }
+    function validateWorkouts(workouts){
+      if(!obj(workouts)||Object.keys(workouts).some(k=>!['d1','d2','d3'].includes(k)))throw Error('Неверные дни дневника.');
+      for(const day of Object.values(workouts)){
+        if(!obj(day)||!validDate(day.date)||!Array.isArray(day.exercises)||day.exercises.length>30)throw Error('Неверная запись тренировки.');
+        const seen=new Set();for(const e of day.exercises){
+          if(!obj(e)||typeof e.id!=='string'||!/^[a-zA-Z0-9_-]{1,80}$/.test(e.id)||seen.has(e.id)||typeof e.name!=='string'||e.name.length>300||typeof e.prescription!=='string'||e.prescription.length>10000||!['reps','seconds'].includes(e.unit)||typeof e.comment!=='string'||e.comment.length>10000||!Array.isArray(e.sets)||!e.sets.length||e.sets.length>30)throw Error('Неверная запись упражнения.');seen.add(e.id);
+          for(const set of e.sets){if(!obj(set))throw Error('Неверная запись подхода.');for(const [key,max] of [['weight',500],['reps',e.unit==='seconds'?3600:200],['rir',20]]){const v=set[key];if(v!==null&&(typeof v!=='number'||!Number.isFinite(v)||v<0||v>max||(key!=='weight'&&!Number.isInteger(v))))throw Error(`Неверное значение подхода: ${key}.`);}}
+        }
+      }
     }
     function normalizeState(raw){
       if(!obj(raw)||!obj(raw.weeks))throw Error('Сохранение должно содержать объект weeks.');
@@ -523,6 +531,7 @@
         if(!own(d,'shoulderLeft')&&own(d,'shoulder'))d.shoulderLeft=d.shoulder;
         for(const [k,[lo,hi,integer]] of Object.entries(ranges)){if(!has(d[k]))continue;const value=num(d[k]);if(value===null||value<lo||value>hi||(integer&&!Number.isInteger(value)))throw Error(`Неделя ${w}: неверное значение ${k}.`);}
         if(d.planSnapshot){validatePlan(d.planSnapshot);if(d.planSnapshot.w!==Number(w))throw Error('Номер снимка плана не совпадает с неделей.');}
+        if(own(d,'workouts'))validateWorkouts(d.workouts);
       }
       return next;
     }
@@ -551,10 +560,9 @@
     function refreshDate(){const today=todayDate();if(today!==lastToday){if($('suppDateInput').value===lastToday)$('suppDateInput').value=today;lastToday=today;renderSupplements();updatePctCountdown();updateSummaryCards();}}
     function fillSettings(){
       $('weekSelect').innerHTML=getActivePlan().slice().sort((a,b)=>a.w-b.w).map(p=>`<option value="${p.w}">Неделя ${p.w} · ${p.isDeload?'разгрузка':p.target100+' повторений'}</option>`).join('');
-      $('weekSelect').value=state.activeWeek;$('divisionSelect').value=state.targetReps;$('compDate').value=state.compDate;$('ferritinInput').value=state.ferritin??'';$('ironInput').value=state.iron??'';
-      for(const [id,label] of [['ferritinInput','Ферритин, нг/мл'],['ironInput','Сывороточное железо, мкмоль/л']])$(id).setAttribute('aria-label',label);
+      $('weekSelect').value=state.activeWeek;$('divisionSelect').value=state.targetReps;$('compDate').value=state.compDate;
     }
-    function saveSettings(){state.targetReps=Number($('divisionSelect').value);state.compDate=$('compDate').value;state.ferritin=$('ferritinInput').value;state.iron=$('ironInput').value;saveToStorage();updateSummaryCards();renderCharts();}
+    function saveSettings(){state.targetReps=Number($('divisionSelect').value);state.compDate=$('compDate').value;saveToStorage();updateSummaryCards();renderCharts();}
     function changeWeek(){state.activeWeek=Number($('weekSelect').value);saveToStorage();renderAll();}
     function updatePctCountdown(){
       const today=todayDate(),p=pctForDate(today),dayWord=n=>{const a=n%10,b=n%100;return a===1&&b!==11?'день':a>=2&&a<=4&&(b<12||b>14)?'дня':'дней';};
@@ -579,7 +587,7 @@
       const selected=$('suppDateInput').value;if(!validDate(selected)){$('suppRange').textContent='Выберите корректную дату.';$('supplementsContainer').innerHTML='';return;}
       const weekday=(new Date(epoch(selected)).getUTCDay()+6)%7,monday=addDays(selected,-weekday),dates=Array.from({length:7},(_,i)=>addDays(monday,i)),names=['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'];
       $('suppRange').textContent=`${dateLabel(dates[0])} — ${dateLabel(dates[6])} · каждая отметка сохраняется отдельно по дате`;
-      let html='<table class="supp-table"><caption class="subtitle" style="text-align:left">Ваш стек из ТЗ · отметки приёма</caption><thead><tr><th scope="col">Добавка / время</th>'+dates.map((d,i)=>`<th scope="col" class="${d===todayDate()?'today':''}">${names[i]}<small>${dateLabel(d).slice(0,5)}</small></th>`).join('')+'</tr></thead><tbody>';
+      let html='<table class="supp-table"><caption class="subtitle" style="text-align:left">Отметки приёма за неделю</caption><thead><tr><th scope="col">Добавка / время</th>'+dates.map((d,i)=>`<th scope="col" class="${d===todayDate()?'today':''}">${names[i]}<small>${dateLabel(d).slice(0,5)}</small></th>`).join('')+'</tr></thead><tbody>';
       for(const s of supplementsConfig){html+=`<tr><th scope="row">${esc(s.name)}<small>${s.id==='clomid'?'Доза по дате · утром':esc(s.dose+' · '+s.timing)}</small></th>`;
         for(const d of dates){const key=d+'_'+s.id,p=pctForDate(d),checked=state.suppChecks[key]===true,scheduled=s.id!=='clomid'||p.stage==='active';
           html+=`<td class="${d===todayDate()?'today':''}"><input type="checkbox" data-supp-key="${key}" aria-label="${esc(s.name+' · '+dateLabel(d))}" ${checked?'checked':''} ${!scheduled?'disabled':''}><small>${s.id==='clomid'?(p.dose===null?'вне графика':p.dose+' мг'):''}${checked&&!scheduled?' · запись из архива':''}</small></td>`;
@@ -591,22 +599,80 @@
       if(match[2]==='clomid'&&pctForDate(match[1]).stage!=='active')return;
       state.suppChecks[key]=checked;const saved=saveToStorage();$('suppSaveStatus').textContent=saved?'Отметка сохранена на этом устройстве.':'Отметка только в памяти — скачайте архив.';
     }
+    let activeWorkoutDay=1;
+    const emptySet=()=>({weight:null,reps:null,rir:null});
+    function trainingDate(w,n){return addDays(state.cycleStart,(w-1)*7+[0,2,4][n-1]);}
+    function parseExercise(text,id,name){
+      let setCount=1;
+      const match=text.match(/(?:^|[^\d.])(\d{1,2})\s*[×xх]\s*(?:\d|\()/i),series=text.match(/(\d{1,2})\s+сери[йия]/i);
+      if(series)setCount=Number(series[1]);else if(match)setCount=Number(match[1]);
+      const top=text.match(/кг\s*[×xх]\s*\d+.*\+\s*(\d+)\s*[×xх]/i);if(top)setCount=1+Number(top[1]);
+      const unit=/(?:удержани|локаут\s+\d)/i.test(name||text)?'seconds':'reps';
+      const colon=text.indexOf(':'),title=name||(colon>=0?text.slice(0,colon):text).trim();
+      return {id,name:title,prescription:name?text:colon>=0?text.slice(colon+1).trim():text,setCount:Math.max(1,Math.min(30,setCount)),unit};
+    }
+    function trainingDays(plan){
+      if(plan.days)return clone(plan.days);
+      const split=text=>text.split(/\s*\|\s*|\s+\+\s+(?=[А-ЯЁA-Za-z])/).map(x=>x.trim()).filter(Boolean);
+      const accessory=(text,day)=>split(text).filter(t=>/:|L-Fly|Y-под|ротатор/i.test(t)).map((t,i)=>parseExercise(t,`d${day}-acc-${i}`));
+      return {d1:[parseExercise(plan.d1_main,'d1-main',/^Разминка:/.test(plan.d1_main)?'Разминка':'Соревновательный жим лёжа'),...accessory(plan.d1_acc,1)],d2:split(plan.d2_all).filter(t=>/:/.test(t)).map((t,i)=>parseExercise(t,`d2-acc-${i}`)),d3:[parseExercise(plan.d3_main,'d3-main','Специальный жим 100 кг'),...accessory(plan.d3_acc,3)]};
+    }
+    function dayExercises(w,n){
+      const planned=trainingDays(getWeekPlan(w))['d'+n],saved=state.weeks[w]?.workouts?.['d'+n]?.exercises||[];
+      const merged=planned.map(e=>saved.find(s=>s.id===e.id)||{...e,sets:Array.from({length:e.setCount},emptySet),comment:''});
+      // Entries restored from JSON remain visible even if the exercise was removed from a later plan.
+      return [...merged,...saved.filter(e=>!planned.some(p=>p.id===e.id))];
+    }
+    function selectDiaryWeek(w){if(!Number.isInteger(w)||w<1||w>16)return;$('weekSelect').value=w;activeWorkoutDay=1;changeWeek();}
+    function moveDiaryWeek(offset){selectDiaryWeek(state.activeWeek+offset);}
+    function selectWorkoutDay(n){if(n<1||n>3)return;activeWorkoutDay=n;renderDiary();}
+    function diaryDayKeys(event){const keys=['ArrowLeft','ArrowRight','Home','End'];if(!keys.includes(event.key))return;event.preventDefault();selectWorkoutDay(event.key==='Home'?1:event.key==='End'?3:(activeWorkoutDay+(event.key==='ArrowRight'?0:1))%3+1);$('diaryDay'+activeWorkoutDay).focus();}
+    function renderDiary(){
+      const w=state.activeWeek,n=activeWorkoutDay,plan=getWeekPlan(w),date=trainingDate(w,n),dateShort=d=>new Intl.DateTimeFormat('ru-RU',{timeZone:'UTC',day:'numeric',month:'short'}).format(new Date(epoch(d)));
+      $('diaryWeekSelect').innerHTML=Array.from({length:16},(_,i)=>`<option value="${i+1}">Неделя ${i+1}</option>`).join('');$('diaryWeekSelect').value=w;$('diaryPrevWeek').disabled=w===1;$('diaryNextWeek').disabled=w===16;
+      $('diaryWeekRange').textContent=`${dateShort(trainingDate(w,1))} — ${dateShort(addDays(trainingDate(w,1),6))} · сегодня ${dateShort(todayDate())}`;
+      const names=['Понедельник','Среда','Пятница'],titles=['Жим и трицепс','Ноги и спина','Специальный жим'];
+      $('diaryDays').innerHTML=names.map((name,i)=>`<button class="diary-tab" id="diaryDay${i+1}" role="tab" aria-controls="workoutContainer" aria-selected="${n===i+1}" tabindex="${n===i+1?0:-1}" onclick="selectWorkoutDay(${i+1})"><strong>${name}</strong><span>${dateShort(trainingDate(w,i+1))} · день ${i+1}</span></button>`).join('');
+      $('workoutContainer').setAttribute('aria-labelledby','diaryDay'+n);$('diaryDayTitle').textContent=titles[n-1];$('diarySaveStatus').textContent='Сохраняется автоматически';
+      const exercises=dayExercises(w,n),note=n===1?plan.d1_acc:n===2?plan.d2_all:plan.d3_acc;
+      $('workoutContainer').innerHTML=`${exercises.length?(n===3&&!/[:]|L-Fly|Молотки/.test(note)?`<p class="diary-plan-note">${esc(note)}</p>`:''):`<p class="diary-plan-note">${esc(note)}</p>`}<div class="diary-exercises">${exercises.map((e,i)=>renderExercise(e,i,n)).join('')}</div>${has(state.weeks[w]?.['d'+n+'_fact'])?`<details class="legacy-note"><summary>Прежняя запись дня</summary><textarea id="d${n}FactInput" rows="3" aria-label="Прежняя запись дня ${n}" oninput="saveLegacyDay(${n},this.value)">${esc(state.weeks[w]['d'+n+'_fact'])}</textarea></details>`:''}`;
+    }
+    function renderExercise(e,i,n){
+      const body=`exerciseBody-${n}-${i}`,isSeconds=e.unit==='seconds';
+      return `<article class="exercise-card" data-exercise-id="${esc(e.id)}"><button type="button" class="exercise-toggle" aria-expanded="true" aria-controls="${body}" onclick="toggleExercise(this)"><span class="exercise-number">${i+1}</span><span class="exercise-heading"><h4>${esc(e.name)}</h4><span class="exercise-prescription">${esc(e.prescription)}</span></span><span class="exercise-chevron" aria-hidden="true">⌃</span></button><div class="exercise-body" id="${body}"><div class="set-grid set-head" aria-hidden="true"><span>Подход</span><span>Вес, кг</span><span>${isSeconds?'Время, с':'Повторы'}</span><span>RIR</span><span></span></div>${e.sets.map((set,j)=>`<div class="set-grid set-row"><span>${j+1}</span>${['weight','reps','rir'].map(k=>`<input type="number" min="0" max="${k==='weight'?500:k==='rir'?20:isSeconds?3600:200}" step="${k==='weight'?'0.25':'1'}" inputmode="${k==='weight'?'decimal':'numeric'}" placeholder="—" value="${esc(set[k]??'')}" aria-label="${esc(e.name)} · подход ${j+1} · ${k==='weight'?'вес, кг':k==='reps'?(isSeconds?'время, секунды':'повторы'):'RIR, повторов в запасе'}" oninput="saveSetField(${n},${i},${j},'${k}',this)">`).join('')}<button type="button" class="set-delete" aria-label="Удалить подход ${j+1}" ${e.sets.length===1?'disabled':''} onclick="deleteSet(${n},${i},${j})">×</button></div>`).join('')}<button type="button" class="add-set" ${e.sets.length>=30?'disabled':''} onclick="addSet(${n},${i})">+ Добавить подход</button><textarea class="exercise-comment" rows="2" maxlength="10000" placeholder="Комментарий к упражнению…" aria-label="${esc(e.name)} · комментарий" oninput="saveExerciseComment(${n},${i},this.value)">${esc(e.comment)}</textarea></div></article>`;
+    }
+    function toggleExercise(button){const body=$(button.getAttribute('aria-controls'));body.hidden=!body.hidden;button.setAttribute('aria-expanded',String(!body.hidden));}
+    function commitWorkout(n,exercises){
+      const w=state.activeWeek,d=state.weeks[w]||{};
+      if(!d.planSnapshot){const p=getWeekPlan(w);d.planSnapshot={...clone(p),days:trainingDays(p)};}
+      if(!d.workouts)d.workouts={};d.workouts['d'+n]={date:trainingDate(w,n),exercises:clone(exercises)};d.updatedAt=new Date().toISOString();state.weeks[w]=d;
+      const saved=saveToStorage();$('diarySaveStatus').textContent=saved?'Сохранено':'Не сохранено · скачайте архив';updateSummaryCards();renderTable();renderCharts();
+    }
+    function saveSetField(n,i,j,key,input){if(!input.checkValidity()){$('diarySaveStatus').textContent='Проверьте значение';return;}const exercises=dayExercises(state.activeWeek,n);exercises[i].sets[j][key]=input.value===''?null:Number(input.value);commitWorkout(n,exercises);}
+    function saveExerciseComment(n,i,value){const exercises=dayExercises(state.activeWeek,n);exercises[i].comment=value;commitWorkout(n,exercises);}
+    function addSet(n,i){const exercises=dayExercises(state.activeWeek,n);if(exercises[i].sets.length>=30)return;exercises[i].sets.push(emptySet());commitWorkout(n,exercises);renderDiary();const rows=document.querySelectorAll(`[data-exercise-id="${exercises[i].id}"] .set-row`);rows[rows.length-1].querySelector('input').focus();}
+    function deleteSet(n,i,j){const exercises=dayExercises(state.activeWeek,n);if(exercises[i].sets.length<=1)return;const row=exercises[i].sets[j];if(Object.values(row).some(v=>v!==null)&&!confirm('Удалить этот подход с записанными значениями?'))return;exercises[i].sets.splice(j,1);commitWorkout(n,exercises);renderDiary();}
+    function saveLegacyDay(n,value){const w=state.activeWeek,d=state.weeks[w]||{};d['d'+n+'_fact']=value;d.updatedAt=new Date().toISOString();state.weeks[w]=d;saveToStorage();}
+    function workoutBest(d){
+      let reps=num(d.reps100),rir=num(d.rir);
+      for(const day of Object.values(d.workouts||{}))for(const e of day.exercises){if(e.unit!=='reps'||!(/жим/i.test(e.name)&&!/гантел/i.test(e.name)))continue;for(const set of e.sets){if(set.weight===100&&num(set.reps)!==null&&(reps===null||set.reps>=reps)){reps=set.reps;rir=set.rir;}}}
+      return {reps100:reps,rir};
+    }
     function renderAll(){
       const w=state.activeWeek,p=getWeekPlan(w),d=state.weeks[w]||{};$('weekSelect').value=w;
       $('currentWeekHeader').textContent=`Неделя ${w} · цель ${p.target100} повторений`;$('phaseBadge').textContent=p.phase;$('phaseBadge').className='badge '+(p.isDeload?'badge-ok':'badge-info');
       for(const [id,k] of [['factWeight','weight'],['factReps100','reps100'],['factRIR','rir'],['factShoulder','shoulderLeft'],['factShoulderRight','shoulderRight'],['weekNotes','notes']])$(id).value=d[k]??'';
-      const days=[['ПН · Соревновательный жим',p.d1_main,p.d1_acc],['СР · Ноги, мост и спина','Ноги: RIR 3 · без становой тяги',p.d2_all],['ПТ · Специальный жим 100 кг',p.d3_main,p.d3_acc]];
-      $('workoutContainer').innerHTML=days.map(([title,main,acc],i)=>`<article class="day-card"><div class="day-header"><h3 class="day-title">${title}</h3><span class="badge badge-info">День ${i+1}</span></div><div class="ex-item"><div class="ex-name">План</div><div class="ex-plan">${esc(main)}</div><div>${acc.split(' | ').map(esc).join('<br>')}</div></div><label for="d${i+1}FactInput">Факт: веса, подходы, повторы</label><textarea id="d${i+1}FactInput" rows="3" maxlength="10000" oninput="saveWeekData()">${esc(d['d'+(i+1)+'_fact']||'')}</textarea></article>`).join('');
+      renderDiary();
       updateSummaryCards();renderTable();renderCharts();
     }
     function saveWeekData(){
       const ids=['factWeight','factReps100','factRIR','factShoulder','factShoulderRight'];for(const id of ids)if(!$(id).checkValidity()){$(id).reportValidity();return;}
       const w=state.activeWeek,d=state.weeks[w]||{};if(!d.planSnapshot)d.planSnapshot=clone(getWeekPlan(w));
       for(const [id,k] of [['factWeight','weight'],['factReps100','reps100'],['factRIR','rir'],['factShoulder','shoulderLeft'],['factShoulderRight','shoulderRight']])d[k]=$(id).value===''?'':Number($(id).value);
-      d.shoulder=d.shoulderLeft;d.notes=$('weekNotes').value;for(let n=1;n<=3;n++)d['d'+n+'_fact']=$('d'+n+'FactInput').value;
+      d.shoulder=d.shoulderLeft;d.notes=$('weekNotes').value;
       d.updatedAt=new Date().toISOString();d.biochemistry=getBio();state.weeks[w]=d;saveToStorage();updateSummaryCards();renderTable();renderCharts();
     }
-    function getLatestMetrics(){let latestWeight=null,bestReps=null,latestRir=null,latestShoulder=null,right=null;for(let w=1;w<=16;w++){const d=state.weeks[w]||{};if(num(d.weight)!==null)latestWeight=Number(d.weight);if(num(d.reps100)!==null&&(bestReps===null||Number(d.reps100)>=bestReps)){bestReps=Number(d.reps100);latestRir=num(d.rir);}if(num(d.shoulderLeft)!==null)latestShoulder=Number(d.shoulderLeft);if(num(d.shoulderRight)!==null)right=Number(d.shoulderRight);}return {latestWeight,bestReps,latestRir,latestShoulder,right};}
+    function getLatestMetrics(){let latestWeight=null,bestReps=null,latestRir=null,latestShoulder=null,right=null;for(let w=1;w<=16;w++){const d=state.weeks[w]||{},result=workoutBest(d);if(num(d.weight)!==null)latestWeight=Number(d.weight);if(result.reps100!==null&&(bestReps===null||result.reps100>=bestReps)){bestReps=result.reps100;latestRir=result.rir;}if(num(d.shoulderLeft)!==null)latestShoulder=Number(d.shoulderLeft);if(num(d.shoulderRight)!==null)right=Number(d.shoulderRight);}return {latestWeight,bestReps,latestRir,latestShoulder,right};}
     function updateSummaryCards(){
       const {latestWeight:weight,bestReps:best,latestRir:rir,latestShoulder:left,right}=getLatestMetrics(),target=state.targetReps;
       $('metricReps').textContent=`${show(best)} / ${target} повт.`;$('repsProgress').style.width=`${best===null?0:Math.min(100,best/target*100)}%`;
@@ -617,48 +683,93 @@
       let text='Дата соревнований не задана';if(state.compDate){const days=Math.round((epoch(state.compDate)-epoch(todayDate()))/DAY);text=days>0?`До старта: ${days} дн.`:days===0?'Сегодня день старта':`После даты старта: ${-days} дн.`;}$('daysToComp').textContent=text;
     }
     function renderTable(){
-      $('cycleTableBody').innerHTML=getActivePlan().slice().sort((a,b)=>a.w-b.w).map(p=>{p=getWeekPlan(p.w);const d=state.weeks[p.w]||{};return `<tr class="${p.w===state.activeWeek?'active-row':''}"><td><button class="btn btn-secondary" onclick="selectWeek(${p.w})" aria-label="Открыть неделю ${p.w}">${p.w}</button></td><td>${esc(p.phase)}</td><td>${esc(p.d1_main)}</td><td>${esc(p.d3_main)}</td><td>${p.target100}</td><td>${esc(show(d.reps100))} / ${esc(show(d.rir))}</td><td>${esc(show(d.weight,' кг'))}</td><td>${esc(show(d.shoulderLeft))} / ${esc(show(d.shoulderRight))}</td></tr>`;}).join('');
+      $('cycleTableBody').innerHTML=getActivePlan().slice().sort((a,b)=>a.w-b.w).map(p=>{p=getWeekPlan(p.w);const d=state.weeks[p.w]||{},result=workoutBest(d);return `<tr class="${p.w===state.activeWeek?'active-row':''}"><td><button class="btn btn-secondary" onclick="selectWeek(${p.w})" aria-label="Открыть неделю ${p.w}">${p.w}</button></td><td>${esc(p.phase)}</td><td>${esc(p.d1_main)}</td><td>${esc(p.d3_main)}</td><td>${p.target100}</td><td>${esc(show(result.reps100))} / ${esc(show(result.rir))}</td><td>${esc(show(d.weight,' кг'))}</td><td>${esc(show(d.shoulderLeft))} / ${esc(show(d.shoulderRight))}</td></tr>`;}).join('');
     }
     function selectWeek(w){$('weekSelect').value=w;changeWeek();$('currentWeekHeader').scrollIntoView({block:'center'});}
-    function chartBase(title,ticks,right=[]){
-      const x=w=>48+(w-1)*32.8;let svg=`<svg viewBox="0 0 600 272" role="img" aria-label="${esc(title)}"><title>${esc(title)}</title>`;
-      for(const [value,y] of ticks)svg+=`<line x1="48" x2="540" y1="${y}" y2="${y}" stroke="#334155" stroke-dasharray="3 4"/><text x="40" y="${y+4}" text-anchor="end">${esc(value)}</text>`;
-      for(const [v,y] of right)svg+=`<text x="551" y="${y+4}">${v}</text>`;
-      for(let w=1;w<=16;w++)svg+=`<text x="${x(w)}" y="247" text-anchor="middle">${w}</text>`;
-      return {svg:svg+'<text x="294" y="267" text-anchor="middle">Неделя</text>',x};
+    const chartSeries={plan:true,fact:true,target:true};
+    let healthMode='weight',repsInspectWeek=null,healthInspectWeek=null;
+    const chartX=w=>48+(w-1)*32.8;
+    function chartBase(title,ticks,unit){
+      let svg=`<svg viewBox="0 0 600 272" role="group" aria-label="${esc(title)}"><title>${esc(title)}</title><text x="48" y="15" class="chart-axis-title">${esc(unit)}</text>`;
+      for(const [value,y] of ticks)svg+=`<line x1="48" x2="540" y1="${y}" y2="${y}" stroke="var(--border)" stroke-dasharray="3 4"/><text x="39" y="${y+4}" text-anchor="end">${esc(value)}</text>`;
+      for(let w=1;w<=16;w++)svg+=`<text class="${[1,4,8,12,16].includes(w)?'':'chart-tick-minor'}" x="${chartX(w)}" y="247" text-anchor="middle">${w}</text>`;
+      return svg+'<text x="294" y="267" text-anchor="middle">Неделя подготовки</text>';
     }
-    function plot(values,x,y,color,label,dashed=false){
-      let out='',points=[];const flush=()=>{if(points.length>1)out+=`<polyline fill="none" stroke="${color}" stroke-width="2.5" ${dashed?'stroke-dasharray="6 4"':''} points="${points.join(' ')}"/>`;points=[];};
-      values.forEach((v,i)=>{if(v===null){flush();return;}points.push(`${x(i+1)},${y(v)}`);});flush();
-      values.forEach((v,i)=>{if(v!==null)out+=`<circle cx="${x(i+1)}" cy="${y(v)}" r="3.5" fill="${color}"><title>${esc(label)} · неделя ${i+1}: ${v}</title></circle>`;});return out;
+    function plot(values,y,color,label,{dashed=false,actual=false}={}){
+      let out='',points=[];const flush=()=>{if(points.length>1)out+=`<polyline fill="none" stroke="${color}" stroke-width="${actual?3.5:2}" ${dashed?'stroke-dasharray="6 5"':''} stroke-linejoin="round" stroke-linecap="round" points="${points.join(' ')}"/>`;points=[];};
+      values.forEach((v,i)=>{if(v===null){flush();return;}points.push(`${chartX(i+1)},${y(v)}`);});flush();
+      values.forEach((v,i)=>{if(v!==null)out+=`<circle cx="${chartX(i+1)}" cy="${y(v)}" r="${actual?5.5:2.5}" fill="${color}" ${actual?'stroke="var(--card)" stroke-width="2"':''}><title>${esc(label)} · неделя ${i+1}: ${v}</title></circle>`;});return out;
     }
+    function chartInteractions(kind){
+      let out=`<line class="chart-selected" id="${kind}SelectedLine" x1="48" x2="48" y1="24" y2="226"/>`;
+      for(let w=1;w<=16;w++){
+        const result=workoutBest(state.weeks[w]||{}),v=healthMode==='weight'?num(state.weeks[w]?.weight):num(state.weeks[w]?.shoulderLeft);
+        const label=kind==='reps'?`Неделя ${w}. План ${getWeekPlan(w).target100}, результат ${result.reps100===null?'не записан':result.reps100}.`:`Неделя ${w}. ${healthMode==='weight'?'Вес':'Левое плечо'}: ${v===null?'нет записи':v}.`;
+        out+=`<g class="chart-hit" role="button" tabindex="0" id="${kind}Week${w}" aria-label="${esc(label)}" onpointerenter="inspectChart('${kind}',${w})" onfocus="inspectChart('${kind}',${w})" onclick="inspectChart('${kind}',${w})" onkeydown="chartWeekKey(event,'${kind}',${w})"><rect x="${Math.max(43,chartX(w)-16.4)}" y="23" width="${w===1||w===16?21.4:32.8}" height="211" rx="3"/></g>`;
+      }return out;
+    }
+    function chartWeekKey(event,kind,w){
+      if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();const next=event.key==='Home'?1:event.key==='End'?16:Math.max(1,Math.min(16,w+(event.key==='ArrowLeft'?-1:1)));$(kind+'Week'+next).focus();}
+      else if(event.key==='Enter'||event.key===' '){event.preventDefault();inspectChart(kind,w);}
+    }
+    function inspectChart(kind,w){
+      if(kind==='reps')repsInspectWeek=w;else healthInspectWeek=w;
+      const line=$(kind+'SelectedLine');if(line){line.setAttribute('x1',chartX(w));line.setAttribute('x2',chartX(w));}
+      const weekDate=new Intl.DateTimeFormat('ru-RU',{timeZone:'UTC',day:'numeric',month:'short'}).format(new Date(epoch(addDays(state.cycleStart,(w-1)*7))));
+      if(kind==='reps'){
+        const actual=workoutBest(state.weeks[w]||{}).reps100,plan=getWeekPlan(w).target100,diff=actual===null?null:actual-plan;
+        $('repsReadout').innerHTML=`<div class="chart-readout-title">Неделя ${w} · с ${weekDate}</div><div class="chart-readout-values"><span>План <b>${plan}</b></span><span>Мой результат <b>${actual===null?'нет записи':actual+' повт.'}</b></span></div><span class="chart-readout-diff">${diff===null?'':diff===0?'По плану':diff>0?'На '+diff+' выше плана':'На '+(-diff)+' ниже плана'}</span>`;
+      }else{
+        const v=healthMode==='weight'?num(state.weeks[w]?.weight):num(state.weeks[w]?.shoulderLeft);
+        $('healthReadout').innerHTML=`<div class="chart-readout-title">Неделя ${w} · с ${weekDate}</div><div class="chart-readout-values"><span>${healthMode==='weight'?'Вес тела':'Дискомфорт'} <b>${v===null?'нет записи':healthMode==='weight'?v.toFixed(1)+' кг':v+' / 10'}</b></span></div><span class="chart-readout-diff">${v===null?'':healthMode==='weight'?'Цель: 97.5–98.0 кг':v===0?'Без дискомфорта':''}</span>`;
+      }
+    }
+    function toggleChartSeries(key){if(!own(chartSeries,key))return;chartSeries[key]=!chartSeries[key];renderCharts();$('legend-'+key)?.focus();}
+    function selectHealthMode(mode){if(!['weight','shoulder'].includes(mode))return;healthMode=mode;healthInspectWeek=null;renderCharts();}
+    function healthTabKeys(event){if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();const mode=event.key==='Home'?'weight':event.key==='End'?'shoulder':healthMode==='weight'?'shoulder':'weight';selectHealthMode(mode);$(mode==='weight'?'healthWeightTab':'healthShoulderTab').focus();}}
     function renderCharts(){
-      const plan=Array.from({length:16},(_,i)=>getWeekPlan(i+1).target100),fact=Array.from({length:16},(_,i)=>num(state.weeks[i+1]?.reps100));
-      const max=Math.ceil(Math.max(30,state.targetReps,...plan,...fact.filter(v=>v!==null))/5)*5,y=v=>226-v/max*204;
-      const a=chartBase('Повторения на 100 кг: план и факт по неделям',Array.from({length:7},(_,i)=>[(i*max/6).toFixed(0),y(i*max/6)]));
-      a.svg+=`<line x1="48" x2="540" y1="${y(state.targetReps)}" y2="${y(state.targetReps)}" stroke="#fbbf24" stroke-width="2" stroke-dasharray="7 4"/>`;
-      a.svg+=plot(plan,a.x,y,'#38bdf8','План',true)+plot(fact,a.x,y,'#4ade80','Факт');$('repsChart').innerHTML=a.svg+'</svg>';$('repsLegend').textContent=`Голубой — план · зелёный — факт · жёлтый — цель КМС ${state.targetReps}. Пропуски не считаются нулём.`;
-      const weights=Array.from({length:16},(_,i)=>num(state.weeks[i+1]?.weight)),shoulder=Array.from({length:16},(_,i)=>num(state.weeks[i+1]?.shoulderLeft)),numbers=weights.filter(v=>v!==null);
-      const lo=Math.floor(Math.min(97,...numbers)-1),hi=Math.ceil(Math.max(101,...numbers)+1),wy=v=>226-(v-lo)/(hi-lo)*204,sy=v=>226-v/10*204;
-      const b=chartBase('Собственный вес, кг, и левое плечо, 0–10',Array.from({length:5},(_,i)=>[(lo+(hi-lo)*i/4).toFixed(1),226-i*51]),[0,2,4,6,8,10].map(v=>[v,sy(v)]));
-      b.svg+=`<rect x="48" y="${wy(98)}" width="492" height="${wy(97.5)-wy(98)}" fill="#4ade80" fill-opacity=".2"/><line x1="48" x2="540" y1="${wy(98)}" y2="${wy(98)}" stroke="#4ade80" stroke-dasharray="4 4"/>`;
-      b.svg+=plot(weights,b.x,wy,'#38bdf8','Вес, кг')+plot(shoulder,b.x,sy,'#fb7185','Левое плечо');$('healthChart').innerHTML=b.svg+'</svg>';
+      const plan=Array.from({length:16},(_,i)=>getWeekPlan(i+1).target100),fact=Array.from({length:16},(_,i)=>workoutBest(state.weeks[i+1]||{}).reps100),recorded=fact.filter(v=>v!==null),best=recorded.length?Math.max(...recorded):null;
+      $('repsBestValue').innerHTML=best===null?'—':`${best} <small>повторений</small>`;
+      $('repsTargetSummary').innerHTML=`Цель КМС: <strong>${state.targetReps} повторений</strong>${best===null?'':best>=state.targetReps?' · цель достигнута':' · осталось '+(state.targetReps-best)}`;
+      $('repsLegend').innerHTML=[['plan','План','#a4aca0','dashed'],['fact','Мой результат','#c4dc83',''],['target','Цель '+state.targetReps,'#d6c58e','dashed']].map(([key,label,color,style])=>`<button type="button" class="legend-button" id="legend-${key}" aria-pressed="${chartSeries[key]}" onclick="toggleChartSeries('${key}')"><span class="legend-swatch ${style}" style="--line:${color}" aria-hidden="true"></span>${label}</button>`).join('');
+      const max=Math.ceil(Math.max(30,state.targetReps,...plan,...recorded)/5)*5,y=v=>226-v/max*200;
+      let a=chartBase('Жим 100 кг. План и ваши фактические результаты за 16 недель',Array.from({length:max/5+1},(_,i)=>[i*5,y(i*5)]),'Повторения');
+      if(chartSeries.target)a+=`<line data-series="target" x1="48" x2="540" y1="${y(state.targetReps)}" y2="${y(state.targetReps)}" stroke="#d6c58e" stroke-width="2" stroke-dasharray="7 4"/>`;
+      if(chartSeries.plan)a+=`<g data-series="plan">${plot(plan,y,'#a4aca0','План',{dashed:true})}</g>`;
+      if(chartSeries.fact)a+=`<g data-series="fact">${plot(fact,y,'#c4dc83','Мой результат',{actual:true})}</g>`;
+      $('repsChart').innerHTML=a+chartInteractions('reps')+'</svg>';
+      $('repsChartHelp').textContent=(recorded.length===0?'Добавьте подход на 100 кг в дневник — здесь появится ваш результат.':recorded.length===1?'Пока записана одна неделя — ваш результат показан крупной точкой. По мере записей появится линия.':'Ваши результаты обновляются из дневника. Пустые недели остаются без точек.')+' Нажмите на неделю, чтобы увидеть значения. Кнопки легенды скрывают и показывают линии.';
+      const isWeight=healthMode==='weight',values=Array.from({length:16},(_,i)=>num(state.weeks[i+1]?.[isWeight?'weight':'shoulderLeft'])),numbers=values.filter(v=>v!==null),latestIndex=values.findLastIndex(v=>v!==null),latest=latestIndex<0?null:values[latestIndex];
+      $('healthLatestValue').innerHTML=latest===null?'—':isWeight?`${latest.toFixed(1)} <small>кг</small>`:`${latest} <small>/ 10</small>`;
+      $('healthLatestCaption').textContent=latest===null?'Пока нет записей':`последняя запись · неделя ${latestIndex+1}`;
+      $('healthSummary').innerHTML=isWeight?'Цель к старту: <strong>97.5–98.0 кг</strong>':'<strong>0</strong> — без дискомфорта · <strong>10</strong> — максимальный';
+      for(const [id,selected] of [['healthWeightTab',isWeight],['healthShoulderTab',!isWeight]]){$(id).setAttribute('aria-selected',String(selected));$(id).tabIndex=selected?0:-1;}
+      $('healthChart').setAttribute('aria-labelledby',isWeight?'healthWeightTab':'healthShoulderTab');
+      $('healthLegend').innerHTML=`<span class="legend-label"><span class="legend-swatch dot" style="--line:${isWeight?'#c4dc83':'#da9c90'}" aria-hidden="true"></span>${isWeight?'Мой вес':'Левое плечо'}</span>${isWeight?'<span class="legend-label"><span class="legend-swatch dashed" style="--line:#a5bb76" aria-hidden="true"></span>Целевой вес</span>':''}`;
+      const lo=isWeight?Math.floor(Math.min(97.5,...numbers)-1):0,hi=isWeight?Math.ceil(Math.max(100,...numbers)+1):10,hy=v=>226-(v-lo)/(hi-lo)*200;
+      let b=chartBase(isWeight?'Вес тела по неделям в килограммах':'Дискомфорт левого плеча по неделям от 0 до 10',Array.from({length:6},(_,i)=>[(lo+(hi-lo)*i/5).toFixed(isWeight?1:0),226-i*40]),isWeight?'Килограммы':'Дискомфорт, 0–10');
+      if(isWeight)b+=`<rect x="48" y="${hy(98)}" width="492" height="${hy(97.5)-hy(98)}" fill="#c4dc83" fill-opacity=".12"/><line x1="48" x2="540" y1="${hy(98)}" y2="${hy(98)}" stroke="#a5bb76" stroke-dasharray="4 4"/>`;
+      b+=plot(values,hy,isWeight?'#c4dc83':'#da9c90',isWeight?'Мой вес':'Левое плечо',{actual:true});$('healthChart').innerHTML=b+chartInteractions('health')+'</svg>';
+      $('healthChartHelp').textContent=isWeight?'Вес берётся из поля «Утренний вес» выбранной недели. Светлая полоса — ваш целевой диапазон.':'Оценка берётся из поля «Левое плечо» выбранной недели. Она помогает видеть, как меняется дискомфорт от недели к неделе.';
+      const lastFact=fact.findLastIndex(v=>v!==null)+1;inspectChart('reps',repsInspectWeek??(lastFact||state.activeWeek));inspectChart('health',healthInspectWeek??(latestIndex<0?state.activeWeek:latestIndex+1));
     }
     function getBio(){return {baseline:clone(BASELINE_BIO),ferritin:has(state.ferritin)?state.ferritin:null,iron:has(state.iron)?state.iron:null,units:{ferritin:'нг/мл',iron:'мкмоль/л'}};}
     function weeklyPayload(){
       const w=state.activeWeek,start=addDays(state.cycleStart,(w-1)*7),end=addDays(start,6),checks={};
       for(const [key,value] of Object.entries(state.suppChecks))if(key.slice(0,10)>=start&&key.slice(0,10)<=end)checks[key]=value;
-      return {schema:'metajhim.weekly-report.v1',athlete:'Дмитрий Мухин',week:w,weekStart:start,weekEnd:end,phase:getWeekPlan(w).phase,targetRepsKMS:state.targetReps,compDate:state.compDate,plan:clone(getWeekPlan(w)),fact:clone(state.weeks[w]||{}),biochemistry:getBio(),recordedBiochemistry:state.weeks[w]?.biochemistry||null,pct:{lastInjectDate:LAST_INJECT,startDate:PCT_START,endDate:PCT_END,userProvidedSchedule:true,today:pctForDate(todayDate())},suppChecks:checks,protectedThrough:protectedThrough()};
+      const plan=getWeekPlan(w),fact=clone(state.weeks[w]||{}),best=workoutBest(fact);
+      return {schema:'metajhim.weekly-report.v1',athlete:'Дмитрий Мухин',week:w,weekStart:start,weekEnd:end,phase:plan.phase,targetRepsKMS:state.targetReps,compDate:state.compDate,plan:{...clone(plan),days:trainingDays(plan)},fact:{...fact,...best},biochemistry:getBio(),recordedBiochemistry:state.weeks[w]?.biochemistry||null,pct:{lastInjectDate:LAST_INJECT,startDate:PCT_START,endDate:PCT_END,userProvidedSchedule:true,today:pctForDate(todayDate())},suppChecks:checks,protectedThrough:protectedThrough()};
     }
     function reportText(){
       const p=weeklyPayload(),d=p.fact;
       return [`Дмитрий Мухин · неделя ${p.week} (${dateLabel(p.weekStart)}–${dateLabel(p.weekEnd)})`,`${p.phase}\n100 кг: план ${p.plan.target100} / факт ${show(d.reps100)} повт.; RIR ${show(d.rir)}`,`Утренний вес ${show(d.weight,' кг')} · левое плечо ${show(d.shoulderLeft,'/10')} · правое ${show(d.shoulderRight,'/10')}`,
-        ...[1,2,3].flatMap(n=>[`День ${n} · план: ${n===1?p.plan.d1_main+' | '+p.plan.d1_acc:n===2?p.plan.d2_all:p.plan.d3_main+' | '+p.plan.d3_acc}`,`День ${n} · факт: ${show(d['d'+n+'_fact'])}`]),
+        ...[1,2,3].flatMap(n=>[`День ${n} · план: ${p.plan.days['d'+n].map(e=>e.name+': '+e.prescription).join(' | ')}`,`День ${n} · факт:\n${dayReport(d,n)}`]),
         `Биохимия: ферритин ${show(state.ferritin,' нг/мл')}, железо ${show(state.iron,' мкмоль/л')}. Исходные показатели 18.10.2026 включены в JSON.`,
         `ПКТ: последний укол 18.10.2026, пользовательский график 08.11–05.12.2026. Отметок приёма за неделю: ${Object.values(p.suppChecks).filter(Boolean).length}.`,
         `Заметки: ${show(d.notes)}`,'--- JSON для тренера ---',JSON.stringify(p)].join('\n');
     }
     async function copyWeeklyReport(){const text=reportText();try{await navigator.clipboard.writeText(text);showToast('Сводка и компактный JSON скопированы.');}catch{$('reportArea').value=text;$('reportModal').showModal();$('reportArea').focus();$('reportArea').select();}}
+    function dayReport(d,n){const day=d.workouts?.['d'+n],lines=[];if(day)for(const e of day.exercises){const sets=e.sets.map((s,i)=>`${i+1}) ${show(s.weight,' кг')} × ${show(s.reps,e.unit==='seconds'?' с':' повт.')} · RIR ${show(s.rir)}`).join('; ');lines.push(e.name+': '+sets+(e.comment?'\nКомментарий: '+e.comment:''));}if(has(d['d'+n+'_fact']))lines.push('Прежняя запись: '+d['d'+n+'_fact']);return lines.length?lines.join('\n'):'—';}
     function showToast(message){clearTimeout(toastTimer);$('toastBox').textContent=message;$('toastBox').style.display='block';toastTimer=setTimeout(()=>$('toastBox').style.display='none',4000);}
     function openImportModal(){invalidatePatch();$('importModal').showModal();$('importJsonArea').focus();}
     function closeImportModal(){$('importModal').close();}
@@ -697,7 +808,7 @@
     function downloadJSON(payload,name){const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
     function exportJSON(){
       if(storageProblem){try{downloadJSON({unreadableOriginal:localStorage.getItem(STORAGE_KEY)??localStorage.getItem('metajhim_dmitry_v4')},'metajhim_unreadable_original.json');return;}catch{}}
-      downloadJSON({...clone(state),customPlan:clone(getActivePlan()),schema:'metajhim.backup.v2',exportedAt:new Date().toISOString()},`metajhim_week_${state.activeWeek}.json`);
+      downloadJSON({...clone(state),customPlan:getActivePlan().map(p=>({...clone(p),days:trainingDays(p)})),schema:'metajhim.backup.v2',exportedAt:new Date().toISOString()},`metajhim_week_${state.activeWeek}.json`);
     }
     function restoreBackup(){
       try{const p=readImport();if(p.schema!=='metajhim.backup.v2'&&!(p.version&&obj(p.weeks)))throw Error('Вставьте JSON-архив MetaJhim.');const restored=normalizeState(p);delete restored.schema;delete restored.exportedAt;
