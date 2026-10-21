@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0d0f0d">
   <link rel="manifest" href="./manifest.webmanifest">
+  <script data-pwa-manifest>
+    // Opt-in recovery identity; existing installations keep their original manifest.
+    if(new URLSearchParams(location.search).get('install')==='repair'){
+      document.querySelector('link[rel="manifest"]').href='./manifest-repair.webmanifest';
+    }
+  </script>
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
   <meta name="mobile-web-app-capable" content="yes">
@@ -316,7 +322,7 @@
           </div>
         </header>
         <p id="pwaOfflineStatus" class="notice" role="status" hidden>Нет интернета. Записи сохраняются на этом устройстве.</p>
-        <dialog id="pwaInstallDialog" aria-labelledby="pwaInstallTitle"><div class="section-title"><span id="pwaInstallTitle">Установка на телефон</span><button class="btn btn-secondary" type="button" onclick="document.getElementById('pwaInstallDialog').close()">Закрыть</button></div><p id="pwaInstallHelp" class="subtitle"></p><p class="subtitle" style="margin-top:12px">Открывайте приложение с его иконки на главном экране. <a href="https://dgmuk.github.io/metajhim/" target="_blank" rel="noopener">Открыть сайт на телефоне</a></p></dialog>
+        <dialog id="pwaInstallDialog" aria-labelledby="pwaInstallTitle"><div class="section-title"><span id="pwaInstallTitle">Установка на телефон</span><button class="btn btn-secondary" type="button" onclick="document.getElementById('pwaInstallDialog').close()">Закрыть</button></div><p id="pwaInstallHelp" class="subtitle"></p><div id="pwaRepairHelp" class="notice"><p>Chrome пишет «Уже установлено», но приложение не открывается?</p><p class="subtitle" style="margin:8px 0 12px">Попробуйте повторную установку с отдельным идентификатором. Записи дневника и настройки не сбрасываются.</p><a id="pwaRepairLink" class="btn btn-secondary" style="display:inline-block;text-decoration:none" href="./?install=repair">Повторить установку</a></div><p class="subtitle" style="margin-top:12px">Открывайте приложение с его иконки на главном экране. <a href="https://dgmuk.github.io/metajhim/" target="_blank" rel="noopener">Открыть сайт на телефоне</a></p></dialog>
 
         <section class="pct-card" aria-labelledby="pctHeading">
           <div class="pct-top">
@@ -829,9 +835,11 @@
       }catch(e){$('patchPreview').className='notice error';$('patchPreview').textContent=e.message;}
     }
     let installPrompt=null;
+    const installRepairMode=new URLSearchParams(location.search).get('install')==='repair';
     const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
     function initPwa(){
       const button=$('installAppButton');button.hidden=isStandalone();
+      if(installRepairMode)button.textContent='Установить повторно';
       window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;button.hidden=isStandalone();});
       window.addEventListener('appinstalled',()=>{installPrompt=null;button.hidden=true;showToast('Приложение установлено. Открывайте его с главного экрана.');});
       const connection=()=>{$('pwaOfflineStatus').hidden=navigator.onLine;};connection();window.addEventListener('online',connection);window.addEventListener('offline',connection);
@@ -842,11 +850,13 @@
     }
     async function installPwa(){
       if(isStandalone())return;
-      if(installPrompt){const prompt=installPrompt;installPrompt=null;try{await prompt.prompt();const choice=await prompt.userChoice;if(choice.outcome==='accepted')$('installAppButton').hidden=true;}catch{showInstallHelp();}}
+      if(installPrompt){const prompt=installPrompt,button=$('installAppButton');installPrompt=null;button.disabled=true;try{await prompt.prompt();const choice=await prompt.userChoice;if(choice.outcome==='accepted'&&!isStandalone()&&!button.hidden)showToast('Запрос передан Android. Дождитесь завершения установки.');}catch{showInstallHelp();}finally{button.disabled=false;}}
       else showInstallHelp();
     }
     function showInstallHelp(){
       const apple=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+      $('pwaRepairHelp').hidden=apple||installRepairMode;
+      $('pwaInstallTitle').textContent=installRepairMode?'Повторная установка':'Установка на телефон';
       $('pwaInstallHelp').textContent=apple?'На iPhone откройте сайт в Safari. Нажмите «Поделиться» → «На экран Домой». Если доступен переключатель «Открывать как веб-приложение», включите его, затем нажмите «Добавить».':'На Android откройте сайт в Chrome. В меню ⋮ выберите «Установить приложение» или «Добавить на главный экран» → «Установить». Если уже добавлен обычный ярлык, сначала установите приложение, затем уберите старый ярлык.';
       $('pwaInstallDialog').showModal();
     }

@@ -217,6 +217,20 @@ const server = http.createServer((req,res) => {
       await pwa.reload();assert.equal(await card.locator('.exercise-toggle').getAttribute('aria-expanded'),'false');assert.equal(await card.locator('.set-row input').first().inputValue(),'100');
       await pwaContext.setOffline(false);await pwa.reload();assert.equal(await pwa.locator('#pwaOfflineStatus').isVisible(),false);
       await pwa.evaluate(()=>{installPrompt=null;showInstallHelp();});assert(await pwa.locator('#pwaInstallDialog').isVisible());await pwa.locator('#pwaInstallDialog button').click();
+      // Accepting a prompt is not proof of completed OS installation.
+      await pwa.evaluate(async()=>{installPrompt={prompt:async()=>{},userChoice:Promise.resolve({outcome:'accepted'})};await installPwa();});
+      assert(await pwa.locator('#installAppButton').isVisible());assert.equal(await pwa.locator('#installAppButton').isEnabled(),true);
+      const oldState=await pwa.evaluate(()=>localStorage.getItem('metajhim_dmitry_v2'));
+      await pwa.goto(url+prefix+'?install=repair');
+      assert.equal(await pwa.locator('link[rel="manifest"]').getAttribute('href'),'./manifest-repair.webmanifest');
+      const repairManifest=await pwa.evaluate(async()=>await (await fetch(document.querySelector('link[rel="manifest"]').href)).json());
+      assert.notEqual(repairManifest.id,manifest.id);assert.equal(repairManifest.start_url,'./?install=repair');
+      assert.equal(await pwa.evaluate(()=>localStorage.getItem('metajhim_dmitry_v2')),oldState);
+      assert.equal(await pwa.locator('#installAppButton').innerText(),'Установить повторно');
+      const repairErrors=await cdp.send('Page.getInstallabilityErrors');assert.deepEqual(repairErrors.installabilityErrors,[]);
+      await pwaContext.setOffline(true);await pwa.reload();assert.equal(await pwa.locator('link[rel="manifest"]').getAttribute('href'),'./manifest-repair.webmanifest');
+      await pwaContext.setOffline(false);
+      await pwa.evaluate(()=>window.dispatchEvent(new Event('appinstalled')));assert.equal(await pwa.locator('#installAppButton').isVisible(),false);
       }finally{await pwaContext.close();}
     }
     assert.deepEqual(errors,[]);console.log('PASS: collapsed on reopen, installability, manifest and icons, offline diary on / and /metajhim/');
