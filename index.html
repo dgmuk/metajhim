@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0d0f0d">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MetaJhim 100">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="description" content="MetaJhim 100: дневник Дмитрия Мухина, 16-недельный план, прогресс и ежедневный трекер.">
   <title>MetaJhim 100 — Дмитрий Мухин</title>
   <style>
@@ -302,11 +309,14 @@
             <div class="subtitle">Дмитрий Мухин · жим 100 кг · план, факт и восстановление</div>
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-secondary" id="installAppButton" type="button" hidden onclick="installPwa()">Установить приложение</button>
             <button class="btn btn-success" onclick="copyWeeklyReport()">Скопировать JSON-отчет для тренера</button>
             <button class="btn btn-secondary" onclick="openImportModal()">Импорт JSON / Патч от тренера</button>
             <button class="btn btn-secondary" onclick="exportJSON()">Скачать JSON-архив</button>
           </div>
         </header>
+        <p id="pwaOfflineStatus" class="notice" role="status" hidden>Нет интернета. Записи сохраняются на этом устройстве.</p>
+        <dialog id="pwaInstallDialog" aria-labelledby="pwaInstallTitle"><div class="section-title"><span id="pwaInstallTitle">Установка на телефон</span><button class="btn btn-secondary" type="button" onclick="document.getElementById('pwaInstallDialog').close()">Закрыть</button></div><p id="pwaInstallHelp" class="subtitle"></p><p class="subtitle" style="margin-top:12px">Открывайте приложение с его иконки на главном экране. <a href="https://dgmuk.github.io/metajhim/" target="_blank" rel="noopener">Открыть сайт на телефоне</a></p></dialog>
 
         <section class="pct-card" aria-labelledby="pctHeading">
           <div class="pct-top">
@@ -553,6 +563,7 @@
       fillSettings();$('suppDateInput').value=todayDate();lastToday=todayDate();renderAll();renderSupplements();updatePctCountdown();
       if(storageProblem)storageWarning(storageProblem);else if(migrationSource)showToast('Найден дневник v4. Дальнейшие изменения сохранятся под ключом v2.');
       $('supplementsContainer').addEventListener('change',e=>{if(e.target.matches('input[data-supp-key]'))toggleSupp(e.target.dataset.suppKey,e.target.checked);});
+      initPwa();
       // Calendar refresh on midnight in Moscow, including tabs that were suspended overnight.
       setInterval(refreshDate,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDate();});
       for(const id of ['divisionSelect','compDate','weekSelect','factWeight','factReps100','factRIR','factShoulder','factShoulderRight','weekNotes','importJsonArea']){const label=$(id).previousElementSibling;if(label?.tagName==='LABEL')label.htmlFor=id;}
@@ -600,6 +611,7 @@
       state.suppChecks[key]=checked;const saved=saveToStorage();$('suppSaveStatus').textContent=saved?'Отметка сохранена на этом устройстве.':'Отметка только в памяти — скачайте архив.';
     }
     let activeWorkoutDay=1;
+    const openExercises=new Set();
     const emptySet=()=>({weight:null,reps:null,rir:null});
     function trainingDate(w,n){return addDays(state.cycleStart,(w-1)*7+[0,2,4][n-1]);}
     function parseExercise(text,id,name){
@@ -638,10 +650,10 @@
       $('workoutContainer').innerHTML=`${exercises.length?(n===3&&!/[:]|L-Fly|Молотки/.test(note)?`<p class="diary-plan-note">${esc(note)}</p>`:''):`<p class="diary-plan-note">${esc(note)}</p>`}<div class="diary-exercises">${exercises.map((e,i)=>renderExercise(e,i,n)).join('')}</div>${has(state.weeks[w]?.['d'+n+'_fact'])?`<details class="legacy-note"><summary>Прежняя запись дня</summary><textarea id="d${n}FactInput" rows="3" aria-label="Прежняя запись дня ${n}" oninput="saveLegacyDay(${n},this.value)">${esc(state.weeks[w]['d'+n+'_fact'])}</textarea></details>`:''}`;
     }
     function renderExercise(e,i,n){
-      const body=`exerciseBody-${n}-${i}`,isSeconds=e.unit==='seconds';
-      return `<article class="exercise-card" data-exercise-id="${esc(e.id)}"><button type="button" class="exercise-toggle" aria-expanded="true" aria-controls="${body}" onclick="toggleExercise(this)"><span class="exercise-number">${i+1}</span><span class="exercise-heading"><h4>${esc(e.name)}</h4><span class="exercise-prescription">${esc(e.prescription)}</span></span><span class="exercise-chevron" aria-hidden="true">⌃</span></button><div class="exercise-body" id="${body}"><div class="set-grid set-head" aria-hidden="true"><span>Подход</span><span>Вес, кг</span><span>${isSeconds?'Время, с':'Повторы'}</span><span>RIR</span><span></span></div>${e.sets.map((set,j)=>`<div class="set-grid set-row"><span>${j+1}</span>${['weight','reps','rir'].map(k=>`<input type="number" min="0" max="${k==='weight'?500:k==='rir'?20:isSeconds?3600:200}" step="${k==='weight'?'0.25':'1'}" inputmode="${k==='weight'?'decimal':'numeric'}" placeholder="—" value="${esc(set[k]??'')}" aria-label="${esc(e.name)} · подход ${j+1} · ${k==='weight'?'вес, кг':k==='reps'?(isSeconds?'время, секунды':'повторы'):'RIR, повторов в запасе'}" oninput="saveSetField(${n},${i},${j},'${k}',this)">`).join('')}<button type="button" class="set-delete" aria-label="Удалить подход ${j+1}" ${e.sets.length===1?'disabled':''} onclick="deleteSet(${n},${i},${j})">×</button></div>`).join('')}<button type="button" class="add-set" ${e.sets.length>=30?'disabled':''} onclick="addSet(${n},${i})">+ Добавить подход</button><textarea class="exercise-comment" rows="2" maxlength="10000" placeholder="Комментарий к упражнению…" aria-label="${esc(e.name)} · комментарий" oninput="saveExerciseComment(${n},${i},this.value)">${esc(e.comment)}</textarea></div></article>`;
+      const body=`exerciseBody-${n}-${i}`,isSeconds=e.unit==='seconds',key=`${state.activeWeek}-${n}-${e.id}`,expanded=openExercises.has(key);
+      return `<article class="exercise-card" data-exercise-id="${esc(e.id)}" data-exercise-key="${esc(key)}"><button type="button" class="exercise-toggle" aria-expanded="${expanded}" aria-controls="${body}" onclick="toggleExercise(this)"><span class="exercise-number">${i+1}</span><span class="exercise-heading"><h4>${esc(e.name)}</h4><span class="exercise-prescription">${esc(e.prescription)}</span></span><span class="exercise-chevron" aria-hidden="true">⌃</span></button><div class="exercise-body" id="${body}" ${expanded?'':'hidden'}><div class="set-grid set-head" aria-hidden="true"><span>Подход</span><span>Вес, кг</span><span>${isSeconds?'Время, с':'Повторы'}</span><span>RIR</span><span></span></div>${e.sets.map((set,j)=>`<div class="set-grid set-row"><span>${j+1}</span>${['weight','reps','rir'].map(k=>`<input type="number" min="0" max="${k==='weight'?500:k==='rir'?20:isSeconds?3600:200}" step="${k==='weight'?'0.25':'1'}" inputmode="${k==='weight'?'decimal':'numeric'}" placeholder="—" value="${esc(set[k]??'')}" aria-label="${esc(e.name)} · подход ${j+1} · ${k==='weight'?'вес, кг':k==='reps'?(isSeconds?'время, секунды':'повторы'):'RIR, повторов в запасе'}" oninput="saveSetField(${n},${i},${j},'${k}',this)">`).join('')}<button type="button" class="set-delete" aria-label="Удалить подход ${j+1}" ${e.sets.length===1?'disabled':''} onclick="deleteSet(${n},${i},${j})">×</button></div>`).join('')}<button type="button" class="add-set" ${e.sets.length>=30?'disabled':''} onclick="addSet(${n},${i})">+ Добавить подход</button><textarea class="exercise-comment" rows="2" maxlength="10000" placeholder="Комментарий к упражнению…" aria-label="${esc(e.name)} · комментарий" oninput="saveExerciseComment(${n},${i},this.value)">${esc(e.comment)}</textarea></div></article>`;
     }
-    function toggleExercise(button){const body=$(button.getAttribute('aria-controls'));body.hidden=!body.hidden;button.setAttribute('aria-expanded',String(!body.hidden));}
+    function toggleExercise(button){const body=$(button.getAttribute('aria-controls')),key=button.closest('.exercise-card').dataset.exerciseKey;body.hidden=!body.hidden;button.setAttribute('aria-expanded',String(!body.hidden));if(body.hidden)openExercises.delete(key);else openExercises.add(key);}
     function commitWorkout(n,exercises){
       const w=state.activeWeek,d=state.weeks[w]||{};
       if(!d.planSnapshot){const p=getWeekPlan(w);d.planSnapshot={...clone(p),days:trainingDays(p)};}
@@ -815,6 +827,28 @@
         if(!confirm('Заменить весь дневник и отметки добавок данными архива? Сначала скачайте текущий архив.'))return;
         try{localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));}catch(e){throw Error('Не удалось восстановить архив: '+e.message);}state=restored;storageProblem='';$('storageWarning').hidden=true;closeImportModal();fillSettings();renderAll();renderSupplements();updatePctCountdown();showToast('Дневник и трекер восстановлены из архива.');
       }catch(e){$('patchPreview').className='notice error';$('patchPreview').textContent=e.message;}
+    }
+    let installPrompt=null;
+    const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+    function initPwa(){
+      const button=$('installAppButton');button.hidden=isStandalone();
+      window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;button.hidden=isStandalone();});
+      window.addEventListener('appinstalled',()=>{installPrompt=null;button.hidden=true;showToast('Приложение установлено. Открывайте его с главного экрана.');});
+      const connection=()=>{$('pwaOfflineStatus').hidden=navigator.onLine;};connection();window.addEventListener('online',connection);window.addEventListener('offline',connection);
+      const standaloneMedia=window.matchMedia('(display-mode: standalone)');standaloneMedia.addEventListener('change',()=>{button.hidden=isStandalone();});
+      if('serviceWorker' in navigator&&window.isSecureContext&&['http:','https:'].includes(location.protocol)){
+        navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'}).catch(error=>console.warn('Offline support unavailable:',error.message));
+      }
+    }
+    async function installPwa(){
+      if(isStandalone())return;
+      if(installPrompt){const prompt=installPrompt;installPrompt=null;try{await prompt.prompt();const choice=await prompt.userChoice;if(choice.outcome==='accepted')$('installAppButton').hidden=true;}catch{showInstallHelp();}}
+      else showInstallHelp();
+    }
+    function showInstallHelp(){
+      const apple=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+      $('pwaInstallHelp').textContent=apple?'На iPhone откройте сайт в Safari. Нажмите «Поделиться» → «На экран Домой». Если доступен переключатель «Открывать как веб-приложение», включите его, затем нажмите «Добавить».':'На Android откройте сайт в Chrome. В меню ⋮ выберите «Установить приложение» или «Добавить на главный экран» → «Установить». Если уже добавлен обычный ярлык, сначала установите приложение, затем уберите старый ярлык.';
+      $('pwaInstallDialog').showModal();
     }
     initApp();
   </script>

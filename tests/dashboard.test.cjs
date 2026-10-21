@@ -6,11 +6,17 @@ const { chromium } = require('playwright');
 
 const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+let documentRequests=0;
 new Function(html.split('<script>')[1].split('</script>')[0]);
 assert(!html.includes('\uFFFD'), 'UTF-8 replacement character');
 const server = http.createServer((req,res) => {
-  res.setHeader('Content-Type','text/html; charset=utf-8');
-  res.end(html);
+  let file=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
+  if(file.startsWith('/metajhim/'))file=file.slice('/metajhim'.length);
+  if(file==='/'||file==='/index.html'){documentRequests++;res.setHeader('Content-Type','text/html; charset=utf-8');res.end(html);return;}
+  const asset=path.resolve(root,'.'+file);
+  if(!asset.startsWith(root+path.sep)||!fs.existsSync(asset)||!fs.statSync(asset).isFile()){res.writeHead(404);res.end();return;}
+  const type={'.js':'application/javascript','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.png':'image/png'}[path.extname(asset)]||'text/plain';
+  res.setHeader('Content-Type',type);res.end(fs.readFileSync(asset));
 });
 
 (async () => {
@@ -147,7 +153,9 @@ const server = http.createServer((req,res) => {
     const diaryContext=await browser.newContext({viewport:{width:1440,height:1000}}),diary=await diaryContext.newPage();
     diary.on('pageerror',e=>errors.push(e.message));await diary.clock.install({time:new Date('2026-10-20T12:00:00Z')});await diary.goto(url);
     const first=()=>diary.locator('.exercise-card').first();
+    const openFirst=async()=>{if(await first().locator('.exercise-toggle').getAttribute('aria-expanded')==='false')await first().locator('.exercise-toggle').click();};
     assert.equal(await diary.locator('#diaryDays').getByRole('tab').count(),3);assert.equal(await first().locator('.set-row').count(),4);
+    assert.equal(await first().locator('.exercise-toggle').getAttribute('aria-expanded'),'false');assert.equal(await first().locator('.exercise-body').isVisible(),false);await openFirst();
     assert.equal(await diary.locator('input[type="file"]').count(),0);
     await first().locator('.set-row').first().locator('input').nth(0).fill('100');
     await first().locator('.set-row').first().locator('input').nth(1).fill('17');
@@ -160,9 +168,9 @@ const server = http.createServer((req,res) => {
     await diary.locator('#legend-plan').click();assert.equal(await diary.locator('#repsChart [data-series="plan"]').count(),0);assert.equal(await diary.locator('#repsChart [data-series="fact"]').count(),1);
     await diary.locator('#legend-plan').click();assert.equal(await diary.locator('#repsChart [data-series="plan"]').count(),1);
     await first().getByRole('button',{name:'+ Добавить подход',exact:true}).click();assert.equal(await first().locator('.set-row').count(),5);
-    await diary.getByRole('tab',{name:/Среда/}).click();await first().locator('.set-row').first().locator('input').nth(0).fill('80');
-    await diary.locator('#diaryWeekSelect').selectOption('2');await first().locator('.set-row').first().locator('input').nth(0).fill('90');
-    await diary.reload();assert.equal(await first().locator('.set-row').first().locator('input').nth(0).inputValue(),'90');
+    await diary.getByRole('tab',{name:/Среда/}).click();await openFirst();await first().locator('.set-row').first().locator('input').nth(0).fill('80');
+    await diary.locator('#diaryWeekSelect').selectOption('2');await openFirst();await first().locator('.set-row').first().locator('input').nth(0).fill('90');
+    await diary.reload();assert.equal(await first().locator('.set-row').first().locator('input').nth(0).inputValue(),'90');assert.equal(await first().locator('.exercise-toggle').getAttribute('aria-expanded'),'false');await openFirst();
     await first().locator('.set-row').first().locator('input').nth(0).fill('100');await first().locator('.set-row').first().locator('input').nth(1).fill('19');
     assert.equal(await diary.locator('#repsChart [data-series="fact"] polyline').count(),1);assert.match(await diary.locator('#repsBestValue').innerText(),/19/);
     await diary.locator('#factWeight').fill('98.2');await diary.locator('#factShoulder').fill('0');
@@ -180,6 +188,7 @@ const server = http.createServer((req,res) => {
     await diary.getByRole('tab',{name:/Среда/}).click();assert.equal(await first().locator('.set-row').first().locator('input').nth(0).inputValue(),'80');
     await diary.getByRole('tab',{name:/Понедельник/}).click();await diary.locator('#diaryDay1').press('ArrowRight');assert.equal(await diary.locator('#diaryDay2').getAttribute('aria-selected'),'true');
     await diary.getByRole('tab',{name:/Понедельник/}).click();
+    await openFirst();
     await first().locator('.exercise-comment').fill('Техника ровная, без дискомфорта.');
     await diary.evaluate(()=>{document.getElementById('toastBox').style.display='none';});
     await diary.locator('.diary').screenshot({path:path.join(root,'test-results','diary-desktop.png')});
@@ -191,6 +200,26 @@ const server = http.createServer((req,res) => {
     await first().screenshot({path:path.join(root,'test-results','diary-mobile.png')});
     assert.equal(await diary.locator('.bio-panel').count(),0);assert.deepEqual(errors,[]);
     console.log('PASS: structured diary, isolated days/weeks, added sets, derived 100 kg result, JSON restore, accessible tabs, mobile theme');
+    for(const prefix of ['/','/metajhim/']){
+      // A regular disposable profile is required: incognito intentionally blocks PWA installation.
+      const pwaContext=await chromium.launchPersistentContext(fs.mkdtempSync(path.join(root,'test-results','pwa-profile-')),{headless:true,...(process.env.TEST_BROWSER_CHANNEL?{channel:process.env.TEST_BROWSER_CHANNEL}:{})}),pwa=await pwaContext.newPage();pwa.on('pageerror',e=>errors.push(e.message));
+      try{
+      await pwa.goto(url+prefix);await pwa.evaluate(()=>navigator.serviceWorker.ready);await pwa.waitForFunction(()=>!!navigator.serviceWorker.controller);
+      const manifestURL=await pwa.locator('link[rel="manifest"]').getAttribute('href');
+      const manifest=await pwa.evaluate(async href=>await (await fetch(href)).json(),manifestURL);
+      assert.equal(manifest.display,'standalone');assert.equal(new URL(manifest.start_url,url+prefix+'manifest.webmanifest').pathname,prefix);
+      const cdp=await pwaContext.newCDPSession(pwa);const installation=await cdp.send('Page.getInstallabilityErrors');assert.deepEqual(installation.installabilityErrors,[],prefix);
+      for(const icon of manifest.icons){const info=await pwa.evaluate(async src=>{const response=await fetch(src);const image=await createImageBitmap(await response.blob());return {width:image.width,height:image.height};},icon.src);const size=Number(icon.sizes.split('x')[0]);assert.deepEqual(info,{width:size,height:size});}
+      const requestsBeforeOffline=documentRequests;await pwaContext.setOffline(true);await pwa.reload();assert.equal(await pwa.locator('h1').innerText(),'MetaJhim 100 · подготовка к КМС');
+      assert.equal(documentRequests,requestsBeforeOffline,'Offline reload must use cache, not the test server');
+      console.log('PWA offline state:',prefix,await pwa.evaluate(()=>({online:navigator.onLine,hidden:document.getElementById('pwaOfflineStatus').hidden})));
+      const card=pwa.locator('.exercise-card').first();assert.equal(await card.locator('.exercise-toggle').getAttribute('aria-expanded'),'false');await card.locator('.exercise-toggle').click();await card.locator('.set-row input').first().fill('100');
+      await pwa.reload();assert.equal(await card.locator('.exercise-toggle').getAttribute('aria-expanded'),'false');assert.equal(await card.locator('.set-row input').first().inputValue(),'100');
+      await pwaContext.setOffline(false);await pwa.reload();assert.equal(await pwa.locator('#pwaOfflineStatus').isVisible(),false);
+      await pwa.evaluate(()=>{installPrompt=null;showInstallHelp();});assert(await pwa.locator('#pwaInstallDialog').isVisible());await pwa.locator('#pwaInstallDialog button').click();
+      }finally{await pwaContext.close();}
+    }
+    assert.deepEqual(errors,[]);console.log('PASS: collapsed on reopen, installability, manifest and icons, offline diary on / and /metajhim/');
     console.log('ALL CHECKS PASSED');
   } finally {await browser.close();server.close();}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1;});
