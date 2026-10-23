@@ -104,7 +104,7 @@
   <div id="appRoot"></div>
   <div class="toast" id="toastBox" role="status"></div>
 
-  <script src="./cloud-sync.js"></script>
+  <script src="./cloud-sync.js?v=20261023-sync"></script>
   <script>
     const defaultPlan = [
   {
@@ -323,7 +323,7 @@
             <button class="btn btn-secondary" onclick="exportJSON()">Скачать JSON-архив</button>
           </div>
         </header>
-        <section class="cloud-bar" aria-label="Облачное сохранение"><span id="cloudStatus" role="status">Сохранение на этом устройстве</span><div class="actions"><button class="btn btn-secondary" id="cloudOpenButton" type="button" onclick="MetaJhimCloud.open()">Войти и синхронизировать</button><button class="btn btn-secondary" type="button" onclick="MetaJhimCloud.sync()">Обновить</button></div></section>
+        <section class="cloud-bar" aria-label="Облачное сохранение"><span id="cloudStatus" role="status">Сохранение на этом устройстве</span><div class="actions"><button class="btn" id="cloudOpenButton" type="button" onclick="MetaJhimCloud.manualSync()">Синхронизировать</button><button class="btn btn-secondary" id="cloudAccountButton" hidden type="button" onclick="MetaJhimCloud.open()">Аккаунт</button></div></section>
         <div class="notice" id="cloudConflict" hidden><p id="cloudConflictText"></p><div class="actions"><button class="btn" onclick="MetaJhimCloud.resolve('remote')">Использовать облачный дневник</button><button class="btn btn-secondary" onclick="MetaJhimCloud.resolve('local')">Загрузить дневник с этого устройства</button><button class="btn btn-secondary" onclick="MetaJhimCloud.downloadBackup()">Скачать обе версии</button></div></div>
         <dialog id="cloudDialog" aria-labelledby="cloudTitle"><div class="section-title"><h2 id="cloudTitle">Один дневник на всех устройствах</h2><button type="button" class="btn btn-secondary" onclick="document.getElementById('cloudDialog').close()">Закрыть</button></div><form id="cloudLoginForm" onsubmit="MetaJhimCloud.login(event)"><p class="subtitle">Войдите в один и тот же аккаунт на телефоне и компьютере.</p><label for="cloudEmail" style="display:block;margin-top:16px">Email</label><input id="cloudEmail" type="email" autocomplete="username" required><label for="cloudPassword" style="display:block;margin-top:12px">Пароль дневника</label><input id="cloudPassword" type="password" autocomplete="current-password" required><p id="cloudLoginError" class="error" role="alert" style="margin-top:12px"></p><button id="cloudLoginButton" class="btn" type="submit" style="margin-top:16px">Войти</button></form><div id="cloudAccount" hidden><p id="cloudAccountEmail"></p><p class="subtitle" style="margin:12px 0">Записи сохраняются автоматически. При отсутствии сети они остаются на устройстве.</p><button type="button" class="btn btn-secondary" onclick="MetaJhimCloud.logout()">Выйти из облака</button></div></dialog>
         <p id="pwaOfflineStatus" class="notice" role="status" hidden>Нет интернета. Записи сохраняются на этом устройстве.</p>
@@ -576,7 +576,7 @@
       if(storageProblem)storageWarning(storageProblem);else if(migrationSource)showToast('Найден дневник v4. Дальнейшие изменения сохранятся под ключом v2.');
       $('supplementsContainer').addEventListener('change',e=>{if(e.target.matches('input[data-supp-key]'))toggleSupp(e.target.dataset.suppKey,e.target.checked);});
       initPwa();
-      window.MetaJhimCloud?.init({read:()=>{if(storageProblem)throw Error('Сначала восстановите локальное сохранение из архива.');return clone(state);},validate:data=>normalizeState(data),apply:data=>{const next=normalizeState({...data,activeWeek:state.activeWeek});localStorage.setItem(STORAGE_KEY,JSON.stringify(next));state=next;fillSettings();renderAll();renderSupplements();updatePctCountdown();},download:downloadJSON});
+      window.MetaJhimCloud?.init({read:()=>{if(storageProblem)throw Error('Сначала восстановите локальное сохранение из архива.');return clone(state);},validate:data=>normalizeState(data),apply:(data,options={})=>{const markerChanged=data.planUpdate?.id&&data.planUpdate.id!==state.planUpdate?.id;const week=(options.focus||markerChanged)?cloudPlanWeek(data):state.activeWeek;const next=normalizeState({...data,activeWeek:week});localStorage.setItem(STORAGE_KEY,JSON.stringify(next));state=next;if(options.focus||markerChanged){activeWorkoutDay=1;openExercises.clear();}fillSettings();renderAll();renderSupplements();updatePctCountdown();},download:downloadJSON});
       // Calendar refresh on midnight in Moscow, including tabs that were suspended overnight.
       setInterval(refreshDate,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDate();});
       for(const id of ['divisionSelect','compDate','weekSelect','factWeight','factReps100','factRIR','factShoulder','factShoulderRight','weekNotes','importJsonArea']){const label=$(id).previousElementSibling;if(label?.tagName==='LABEL')label.htmlFor=id;}
@@ -824,7 +824,7 @@
         if(planChanged)next.customPlan=plan;
       }
       if(resets.length&&(!Array.isArray(entries)||!entries.length))throw Error('Для очистки нужен полный новый план недели.');
-      if(resets.length){next.activeWeek=Number.isInteger(parsed.activeWeek)&&resets.includes(parsed.activeWeek)?parsed.activeWeek:resets[0];}
+      if(resets.length){next.activeWeek=Number.isInteger(parsed.activeWeek)&&resets.includes(parsed.activeWeek)?parsed.activeWeek:resets[0];next.planUpdate={id:crypto.randomUUID(),week:next.activeWeek};}
       return {next,changes,skipped,boundary,resets,ignored:['weeks','suppChecks','lastInjectDate','cycleStart','ferritin','iron',...(resets.length?[]:['activeWeek'])].filter(k=>own(parsed,k))};
     }
     function previewPatch(){
@@ -877,7 +877,9 @@
       $('pwaInstallHelp').textContent=apple?'На iPhone откройте сайт в Safari. Нажмите «Поделиться» → «На экран Домой». Если доступен переключатель «Открывать как веб-приложение», включите его, затем нажмите «Добавить».':'На Android откройте сайт в Chrome. В меню ⋮ выберите «Установить приложение» или «Добавить на главный экран» → «Установить». Если уже добавлен обычный ярлык, сначала установите приложение, затем уберите старый ярлык.';
       $('pwaInstallDialog').showModal();
     }
+    function cloudPlanWeek(data){if(Number.isInteger(data.planUpdate?.week)&&data.planUpdate.week>=1&&data.planUpdate.week<=16)return data.planUpdate.week;const current=Math.max(1,Math.min(16,Math.floor((epoch(todayDate())-epoch(state.cycleStart))/(7*DAY))+1));const changed=(data.customPlan||[]).filter(p=>p.w>=current&&['phase','target100','d1_main','d3_main'].some(k=>p[k]!==defaultPlan.find(d=>d.w===p.w)?.[k]));return changed.find(p=>!data.weeks?.[p.w]?.workouts&&!data.weeks?.[p.w]?.d1_fact)?.w||changed[0]?.w||state.activeWeek;}
     initApp();
+    if(new URLSearchParams(location.search).get('sync')==='1')window.MetaJhimCloud?.manualSync();
     if(new URLSearchParams(location.search).get('plan')==='week-2')loadWeekTwoPlan();
   </script>
 </body>

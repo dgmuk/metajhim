@@ -273,8 +273,16 @@ const server = http.createServer((req,res) => {
     assert.equal(await a.evaluate(()=>trainingDays(getWeekPlan(2)).d2.length),7);assert.equal(await a.evaluate(()=>state.weeks[2].weight),99);
     assert.equal(await a.evaluate(()=>JSON.parse(localStorage.getItem('metajhim_plan_reset_backup_v1')).weeks[2].reps100),23);
     await a.evaluate(()=>MetaJhimCloud.sync());assert.equal(cloudRow.data.weeks[2].workouts,undefined);assert.equal(cloudRow.data.customPlan[1].days.d2.length,7);
+    // A phone with old local rows and no remembered cloud baseline needs one button, not a dead-end conflict.
+    await b.reload();await signIn(b);await b.waitForFunction(()=>!document.getElementById('cloudConflict').hidden);
+    await b.locator('#cloudOpenButton').click();await b.waitForFunction(()=>document.getElementById('cloudStatus').textContent.startsWith('Синхронизировано'));
+    assert.equal(await b.locator('#weekSelect').inputValue(),'2');assert.equal(await b.locator('#cloudConflict').isVisible(),false);
+    assert.match(await b.locator('.exercise-card').first().innerText(),/105 кг/);assert.equal(await b.evaluate(()=>dayExercises(2,1).every(e=>e.sets.every(s=>s.weight===null&&s.reps===null&&s.rir===null))),true);
+    assert(await b.evaluate(()=>!!localStorage.getItem('metajhim_cloud_backup_v1')));
+    // It also moves to the updated week when all data are already equal but week 1 is still selected.
+    await b.evaluate(()=>selectDiaryWeek(1));await b.locator('#cloudOpenButton').click();await b.waitForFunction(()=>document.getElementById('weekSelect').value==='2');
     assert.equal(await a.evaluate(()=>{const snapshot=JSON.stringify(state);try{preparePatch({resetWeeks:[2],plan:[{w:2,target100:1}]});return false;}catch{return JSON.stringify(state)===snapshot;}}),true);
-    await ca.close();await cb.close();assert.deepEqual(errors,[]);console.log('PASS: cloud login, first sync choice, cross-device pull, merge, conflict backup, offline queue, session restore, logout, targeted week reset');
+    await ca.close();await cb.close();assert.deepEqual(errors,[]);console.log('PASS: cloud login, first sync choice, cross-device pull, merge, conflict backup, offline queue, session restore, logout, targeted week reset, one-button phone refresh');
     console.log('ALL CHECKS PASSED');
   } finally {await browser.close();server.close();}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1;});

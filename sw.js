@@ -2,7 +2,7 @@
 
 const SCOPE = new URL(self.registration.scope);
 const CACHE_PREFIX = `metajhim-shell-${SCOPE.pathname}-`;
-const CACHE_NAME = CACHE_PREFIX + 'v4';
+const CACHE_NAME = CACHE_PREFIX + 'v5';
 const INDEX = new URL('index.html', SCOPE).href;
 const SHELL = ['./', './index.html', './cloud-sync.js', './plans/week-2.json', './manifest.webmanifest', './manifest-repair.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'].map(path => new URL(path, SCOPE).href);
 
@@ -49,6 +49,16 @@ self.addEventListener('fetch', event => {
   const documentPath = url.pathname === SCOPE.pathname || url.pathname === new URL(INDEX).pathname;
   if (request.mode === 'navigate' && documentPath) {
     event.respondWith(documentResponse(request));
+  } else if (url.pathname === new URL('cloud-sync.js', SCOPE).pathname) {
+    // Fetch sync fixes immediately, including clients still holding an older worker.
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE_NAME), key = new URL('cloud-sync.js', SCOPE).href;
+      try {
+        const response = await fetch(request, {cache:'no-store'});
+        if (response.ok) {await cache.put(key,response.clone());return response;}
+        return (await cache.match(key)) || response;
+      } catch(error) {const saved=await cache.match(key);if(saved)return saved;throw error;}
+    })());
   } else if (SHELL.includes(url.href)) {
     event.respondWith((async () => {
       const cache = await caches.open(CACHE_NAME);
