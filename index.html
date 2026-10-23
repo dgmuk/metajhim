@@ -471,6 +471,7 @@
             </div>
             <p class="subtitle" style="margin-bottom:12px;">Вставьте JSON, проверьте изменения и примените патч. История и отметки добавок сохранятся.</p>
             <textarea id="importJsonArea" rows="8" maxlength="500000" oninput="invalidatePatch()"></textarea>
+            <div class="actions"><label style="display:flex;align-items:center;gap:8px"><input id="patchResetWeek" type="checkbox" style="width:auto" onchange="invalidatePatch()">Заменить план и очистить подходы недели</label><select id="patchResetWeekNumber" aria-label="Неделя для замены" style="width:auto" onchange="invalidatePatch()">${Array.from({length:16},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('')}</select></div><p class="subtitle">Очистка применяется только по явному выбору. Другие недели сохраняются.</p><button class="btn btn-secondary" type="button" style="margin-top:10px" onclick="downloadPlanResetBackup()">Скачать копию до последней замены</button>
             <div class="notice" id="patchPreview" role="status">Сначала проверьте JSON.</div><details><summary>Восстановить полный JSON-архив</summary><p class="subtitle">Эта операция заменяет весь дневник и отметки добавок. Сначала скачайте текущий архив.</p><button class="btn btn-secondary" onclick="restoreBackup()">Восстановить архив</button></details><div style="margin-top:12px; display:flex; justify-content:flex-end; gap:10px;">
               <button class="btn btn-secondary" onclick="previewPatch()">Проверить патч</button><button id="applyPatchButton" class="btn btn-success" disabled onclick="applyImportedJson()">Применить патч</button>
             </div>
@@ -795,17 +796,19 @@
     async function copyWeeklyReport(){const text=reportText();try{await navigator.clipboard.writeText(text);showToast('Сводка и компактный JSON скопированы.');}catch{$('reportArea').value=text;$('reportModal').showModal();$('reportArea').focus();$('reportArea').select();}}
     function dayReport(d,n){const day=d.workouts?.['d'+n],lines=[];if(day)for(const e of day.exercises){const sets=e.sets.map((s,i)=>`${i+1}) ${show(s.weight,' кг')} × ${show(s.reps,e.unit==='seconds'?' с':' повт.')} · RIR ${show(s.rir)}`).join('; ');lines.push(e.name+': '+sets+(e.comment?'\nКомментарий: '+e.comment:''));}if(has(d['d'+n+'_fact']))lines.push('Прежняя запись: '+d['d'+n+'_fact']);return lines.length?lines.join('\n'):'—';}
     function showToast(message){clearTimeout(toastTimer);$('toastBox').textContent=message;$('toastBox').style.display='block';toastTimer=setTimeout(()=>$('toastBox').style.display='none',4000);}
-    function openImportModal(){invalidatePatch();$('importModal').showModal();$('importJsonArea').focus();}
+    function openImportModal(){invalidatePatch();$('patchResetWeekNumber').value=state.activeWeek;if(!$('importModal').open)$('importModal').showModal();$('importJsonArea').focus();}
     function closeImportModal(){$('importModal').close();}
     function invalidatePatch(){pendingPatch=null;$('applyPatchButton').disabled=true;$('patchPreview').className='notice';$('patchPreview').textContent=`Патч меняет только недели после ${protectedThrough()}-й и настройки цели / даты старта. Сначала проверьте JSON.`;}
     function readImport(){const text=$('importJsonArea').value.trim();if(!text)throw Error('Вставьте JSON.');if(text.length>500000)throw Error('Максимальный размер — 500 КБ.');let p;try{p=JSON.parse(text);}catch{throw Error('Некорректный JSON: проверьте запятые, скобки и кавычки.');}if(!obj(p))throw Error('Ожидается JSON-объект.');return p;}
     function preparePatch(parsed){
-      const allowed=['schema','version','targetReps','compDate','plan','customPlan','settings','weeks','activeWeek','ferritin','iron','lastInjectDate','suppChecks','cycleStart','exportedAt'];
+      const allowed=['schema','version','targetReps','compDate','plan','customPlan','settings','weeks','activeWeek','ferritin','iron','lastInjectDate','suppChecks','cycleStart','exportedAt','resetWeeks'];
       for(const k of Object.keys(parsed))if(!allowed.includes(k))throw Error('Неизвестное поле: '+k);
       if(parsed.schema&&!['metajhim.coach-patch.v1','metajhim.backup.v2'].includes(parsed.schema))throw Error('Нужен патч тренера или JSON-архив; отчёт недели не является патчем.');
       if(own(parsed,'plan')&&own(parsed,'customPlan'))throw Error('Укажите только plan или customPlan.');
       const settings=parsed.settings??{};if(!obj(settings))throw Error('settings должен быть объектом.');for(const k of Object.keys(settings))if(!['targetReps','compDate'].includes(k))throw Error('Настройка не поддерживается: '+k);
       const next=clone(state),changes=[],skipped=[],boundary=protectedThrough(),merged={};
+      const resets=parsed.resetWeeks??[];
+      if(!Array.isArray(resets)||resets.some(w=>!Number.isInteger(w)||w<1||w>16)||new Set(resets).size!==resets.length)throw Error('resetWeeks: уникальные номера недель от 1 до 16.');
       for(const k of ['targetReps','compDate']){if(own(parsed,k))merged[k]=parsed[k];if(own(settings,k))merged[k]=settings[k];}
       if(own(merged,'targetReps')){if(![24,26,27,29].includes(merged.targetReps))throw Error('targetReps: 24, 26, 27 или 29.');if(merged.targetReps!==state.targetReps){changes.push(`Цель: ${state.targetReps} → ${merged.targetReps}`);next.targetReps=merged.targetReps;}}
       if(own(merged,'compDate')){if(merged.compDate!==''&&!validDate(merged.compDate))throw Error('compDate: существующая дата YYYY-MM-DD или пустая строка.');if(merged.compDate!==state.compDate){changes.push(`Дата соревнований: ${show(state.compDate)} → ${show(merged.compDate)}`);next.compDate=merged.compDate;}}
@@ -813,23 +816,31 @@
       if(entries!==undefined&&entries!==null){
         if(!Array.isArray(entries)||!entries.length||entries.length>16)throw Error('plan / customPlan: массив из 1–16 недель.');
         const seen=new Set();for(const p of entries){validatePlan(p,true);if(seen.has(p.w))throw Error(`Неделя ${p.w} повторяется.`);seen.add(p.w);}
+        for(const w of resets){const replacement=entries.find(p=>p.w===w);if(!replacement)throw Error(`Для очистки недели ${w} нужен её полный новый план.`);validatePlan(replacement);}
         const plan=clone(getActivePlan());let planChanged=false;
-        for(const p of entries){if(p.w<=boundary){skipped.push(p.w);continue;}const i=plan.findIndex(x=>x.w===p.w),old=plan[i],keys=PLAN_KEYS.filter(k=>own(p,k)&&p[k]!==old[k]);if(keys.length){plan[i]={...old,...p};planChanged=true;for(const k of keys)changes.push(`Неделя ${p.w} · ${k}: ${old[k]} → ${p[k]}`);}}
+        for(const p of entries){if(p.w<=boundary&&!resets.includes(p.w)){skipped.push(p.w);continue;}const i=plan.findIndex(x=>x.w===p.w),old=plan[i],keys=PLAN_KEYS.filter(k=>own(p,k)&&JSON.stringify(p[k])!==JSON.stringify(old[k]));if(keys.length||resets.includes(p.w)){plan[i]={...old,...p};if(!own(p,'days'))delete plan[i].days;planChanged=true;for(const k of keys)changes.push(k==='days'?`Неделя ${p.w} · обновлён список упражнений и количество подходов`:`Неделя ${p.w} · ${k}: ${old[k]} → ${p[k]}`);}
+          if(resets.includes(p.w)){const d=next.weeks[p.w]||{};for(const k of ['workouts','planSnapshot','d1_fact','d2_fact','d3_fact','d1_done','d2_done','d3_done','reps100','rir'])delete d[k];d.updatedAt=new Date().toISOString();next.weeks[p.w]=d;changes.unshift(`НЕДЕЛЯ ${p.w}: заменить план и очистить все подходы, комментарии упражнений, прежние записи тренировок и результат 100 кг / RIR. Вес, плечи и заметки недели сохранятся.`);}
+        }
         if(planChanged)next.customPlan=plan;
       }
-      return {next,changes,skipped,boundary,ignored:['weeks','suppChecks','lastInjectDate','cycleStart','activeWeek','ferritin','iron'].filter(k=>own(parsed,k))};
+      if(resets.length&&(!Array.isArray(entries)||!entries.length))throw Error('Для очистки нужен полный новый план недели.');
+      if(resets.length){next.activeWeek=Number.isInteger(parsed.activeWeek)&&resets.includes(parsed.activeWeek)?parsed.activeWeek:resets[0];}
+      return {next,changes,skipped,boundary,resets,ignored:['weeks','suppChecks','lastInjectDate','cycleStart','ferritin','iron',...(resets.length?[]:['activeWeek'])].filter(k=>own(parsed,k))};
     }
     function previewPatch(){
       pendingPatch=null;$('applyPatchButton').disabled=true;
-      try{const p=preparePatch(readImport());pendingPatch=p;$('patchPreview').className='notice';$('patchPreview').textContent=[`Защищены недели 1–${p.boundary}: текущая по календарю и все до последней с фактом.`,p.skipped.length?`Пропущены недели: ${p.skipped.join(', ')}.`:'',p.ignored.length?`Сохраняются без изменений: ${p.ignored.join(', ')}.`:'',p.changes.length?p.changes.join('\n\n'):'Нет применимых изменений.'].filter(Boolean).join('\n\n');$('applyPatchButton').disabled=!p.changes.length;}
+      try{const p=preparePatch(importWithReset());pendingPatch=p;$('patchPreview').className='notice';$('patchPreview').textContent=[p.resets.length?`По вашему выбору будут заменены недели: ${p.resets.join(', ')}. Перед заменой сохранится полная резервная копия.`:`Защищены недели 1–${p.boundary}: текущая по календарю и все до последней с фактом.`,p.skipped.length?`Пропущены недели: ${p.skipped.join(', ')}.`:'',p.ignored.length?`Сохраняются без изменений: ${p.ignored.join(', ')}.`:'',p.changes.length?p.changes.join('\n\n'):'Нет применимых изменений.'].filter(Boolean).join('\n\n');$('applyPatchButton').disabled=!p.changes.length;}
       catch(e){$('patchPreview').className='notice error';$('patchPreview').textContent=e.message;}
     }
     function applyImportedJson(){
       if(!pendingPatch)return;
-      try{const p=preparePatch(readImport());if(!p.changes.length)throw Error('Нет изменений. Проверьте патч заново.');if(JSON.stringify(p.changes)!==JSON.stringify(pendingPatch.changes)){previewPatch();throw Error('Предпросмотр обновился. Проверьте его перед применением.');}if(!saveToStorage(p.next))throw Error('Патч не применён: недоступно сохранение.');state=p.next;closeImportModal();fillSettings();renderAll();renderSupplements();updatePctCountdown();showToast('Патч применён. История и отметки добавок сохранены.');}
+      try{const p=preparePatch(importWithReset());if(!p.changes.length)throw Error('Нет изменений. Проверьте патч заново.');if(JSON.stringify(p.changes)!==JSON.stringify(pendingPatch.changes)){previewPatch();throw Error('Предпросмотр обновился. Проверьте его перед применением.');}if(p.resets.length)localStorage.setItem('metajhim_plan_reset_backup_v1',JSON.stringify({...clone(state),customPlan:clone(getActivePlan()),schema:'metajhim.backup.v2'}));if(!saveToStorage(p.next))throw Error('Патч не применён: недоступно сохранение.');state=p.next;if(p.resets.length){activeWorkoutDay=1;openExercises.clear();}closeImportModal();fillSettings();renderAll();renderSupplements();updatePctCountdown();showToast(p.resets.length?'Неделя обновлена. Подходы пустые; изменения отправляются в облако.':'Патч применён. История и отметки добавок сохранены.');}
       catch(e){$('patchPreview').className='notice error';$('patchPreview').textContent=e.message;}
     }
     function downloadJSON(payload,name){const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+    function importWithReset(){const p=readImport();if($('patchResetWeek').checked)p.resetWeeks=[...new Set([...(p.resetWeeks||[]),Number($('patchResetWeekNumber').value)])];return p;}
+    function downloadPlanResetBackup(){try{const saved=localStorage.getItem('metajhim_plan_reset_backup_v1');if(!saved){showToast('Резервной копии замены ещё нет.');return;}downloadJSON(JSON.parse(saved),'metajhim_before_week_replace.json');}catch{showToast('Не удалось прочитать резервную копию.');}}
+    async function loadWeekTwoPlan(){openImportModal();try{const response=await fetch('./plans/week-2.json',{cache:'no-store'});if(!response.ok)throw Error('Не удалось загрузить план недели 2.');const p=await response.json();$('importJsonArea').value=JSON.stringify(p,null,2);$('patchResetWeek').checked=false;$('patchResetWeekNumber').value=2;previewPatch();}catch(e){$('patchPreview').textContent=e.message;}}
     function exportJSON(){
       if(storageProblem){try{downloadJSON({unreadableOriginal:localStorage.getItem(STORAGE_KEY)??localStorage.getItem('metajhim_dmitry_v4')},'metajhim_unreadable_original.json');return;}catch{}}
       downloadJSON({...clone(state),customPlan:getActivePlan().map(p=>({...clone(p),days:trainingDays(p)})),schema:'metajhim.backup.v2',exportedAt:new Date().toISOString()},`metajhim_week_${state.activeWeek}.json`);
@@ -867,6 +878,7 @@
       $('pwaInstallDialog').showModal();
     }
     initApp();
+    if(new URLSearchParams(location.search).get('plan')==='week-2')loadWeekTwoPlan();
   </script>
 </body>
 </html>

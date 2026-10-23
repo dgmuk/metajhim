@@ -263,7 +263,18 @@ const server = http.createServer((req,res) => {
     networkDown=true;await b.evaluate(()=>{state.weeks[1].notes='Запись без сети';saveToStorage();});await b.evaluate(()=>MetaJhimCloud.sync());assert.equal(await b.evaluate(()=>JSON.parse(localStorage.getItem('metajhim_dmitry_v2')).weeks[1].notes),'Запись без сети');assert.equal(cloudRow.data.weeks[1].notes,'Конфликт A');
     networkDown=false;await b.evaluate(()=>MetaJhimCloud.sync());assert.equal(cloudRow.data.weeks[1].notes,'Запись без сети');await b.reload();await b.waitForFunction(()=>document.getElementById('cloudStatus').textContent.startsWith('Синхронизировано'));assert.equal(await b.locator('#weekNotes').inputValue(),'Запись без сети');
     assert.equal(await b.evaluate(()=>localStorage.getItem('metajhim_dmitry_v2').includes('mock-access')),false);await b.evaluate(()=>MetaJhimCloud.logout());assert.equal(await b.evaluate(()=>localStorage.getItem('metajhim_cloud_session_v1')),null);assert(await b.evaluate(()=>!!localStorage.getItem('metajhim_dmitry_v2')));
-    await ca.close();await cb.close();assert.deepEqual(errors,[]);console.log('PASS: cloud login, first sync choice, cross-device pull, merge, conflict backup, offline queue, session restore, logout');
+    // Replace only week 2, including stale snapshots and renamed exercises with reused IDs.
+    await a.evaluate(()=>{const p=getWeekPlan(2);state.weeks[2]={weight:99,shoulderLeft:2,notes:'Сохранить заметку',reps100:23,rir:1,d1_fact:'Старый факт',planSnapshot:clone(p),workouts:{d1:{date:trainingDate(2,1),exercises:[{...trainingDays(p).d1[0],sets:[{weight:110,reps:6,rir:1}],comment:'Старый комментарий'}]}}};saveToStorage();});
+    await a.evaluate(()=>MetaJhimCloud.sync());
+    const weekOne=await a.evaluate(()=>JSON.stringify(state.weeks[1]));await a.goto(url+'/?plan=week-2');await a.waitForFunction(()=>!document.getElementById('applyPatchButton').disabled);
+    assert.match(await a.locator('#patchPreview').innerText(),/НЕДЕЛЯ 2/);await a.locator('#applyPatchButton').click();
+    assert.equal(await a.evaluate(()=>JSON.stringify(state.weeks[1])),weekOne);assert.equal(await a.locator('#weekSelect').inputValue(),'2');assert.match(await a.locator('.exercise-card').first().innerText(),/105 кг/);
+    assert.equal(await a.evaluate(()=>dayExercises(2,1).every(e=>e.comment===''&&e.sets.every(s=>s.weight===null&&s.reps===null&&s.rir===null))),true);
+    assert.equal(await a.evaluate(()=>trainingDays(getWeekPlan(2)).d2.length),7);assert.equal(await a.evaluate(()=>state.weeks[2].weight),99);
+    assert.equal(await a.evaluate(()=>JSON.parse(localStorage.getItem('metajhim_plan_reset_backup_v1')).weeks[2].reps100),23);
+    await a.evaluate(()=>MetaJhimCloud.sync());assert.equal(cloudRow.data.weeks[2].workouts,undefined);assert.equal(cloudRow.data.customPlan[1].days.d2.length,7);
+    assert.equal(await a.evaluate(()=>{const snapshot=JSON.stringify(state);try{preparePatch({resetWeeks:[2],plan:[{w:2,target100:1}]});return false;}catch{return JSON.stringify(state)===snapshot;}}),true);
+    await ca.close();await cb.close();assert.deepEqual(errors,[]);console.log('PASS: cloud login, first sync choice, cross-device pull, merge, conflict backup, offline queue, session restore, logout, targeted week reset');
     console.log('ALL CHECKS PASSED');
   } finally {await browser.close();server.close();}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1;});

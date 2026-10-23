@@ -2,9 +2,9 @@
 
 const SCOPE = new URL(self.registration.scope);
 const CACHE_PREFIX = `metajhim-shell-${SCOPE.pathname}-`;
-const CACHE_NAME = CACHE_PREFIX + 'v3';
+const CACHE_NAME = CACHE_PREFIX + 'v4';
 const INDEX = new URL('index.html', SCOPE).href;
-const SHELL = ['./', './index.html', './cloud-sync.js', './manifest.webmanifest', './manifest-repair.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'].map(path => new URL(path, SCOPE).href);
+const SHELL = ['./', './index.html', './cloud-sync.js', './plans/week-2.json', './manifest.webmanifest', './manifest-repair.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'].map(path => new URL(path, SCOPE).href);
 
 self.addEventListener('install', event => {
   // A new worker waits for old windows to close; it never reloads an open diary.
