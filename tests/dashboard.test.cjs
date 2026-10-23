@@ -234,6 +234,36 @@ const server = http.createServer((req,res) => {
       }finally{await pwaContext.close();}
     }
     assert.deepEqual(errors,[]);console.log('PASS: collapsed on reopen, installability, manifest and icons, offline diary on / and /metajhim/');
+    let cloudRow=null,networkDown=false;
+    const uid='11111111-1111-4111-8111-111111111111';
+    async function cloudMock(route){
+      if(networkDown){await route.abort('failed');return;}
+      const req=route.request(),target=new URL(req.url()),body=req.postDataJSON();
+      const reply=(status,data)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(data)});
+      if(target.pathname==='/auth/v1/token')return reply(200,{access_token:'mock-access',refresh_token:'mock-refresh',expires_in:3600,user:{id:uid,email:'owner@example.test'}});
+      if(target.pathname==='/auth/v1/logout')return reply(200,{});
+      assert.equal(req.headers().authorization,'Bearer mock-access');
+      if(req.method()==='GET')return reply(200,cloudRow?[cloudRow]:[]);
+      if(req.method()==='POST'){if(cloudRow)return reply(409,{code:'23505'});cloudRow=structuredClone(body);return reply(201,[cloudRow]);}
+      if(req.method()==='PATCH'){if(target.searchParams.get('revision')!=='eq.'+cloudRow.revision)return reply(200,[]);cloudRow={...cloudRow,...structuredClone(body)};return reply(200,[cloudRow]);}
+      return reply(404,{});
+    }
+    const ca=await browser.newContext(),cb=await browser.newContext();await ca.route('https://vybgmqjilhfsythiutnw.supabase.co/**',cloudMock);await cb.route('https://vybgmqjilhfsythiutnw.supabase.co/**',cloudMock);
+    const a=await ca.newPage(),b=await cb.newPage();for(const p of [a,b]){p.on('pageerror',e=>errors.push(e.message));await p.goto(url);}
+    async function signIn(p){await p.locator('#cloudOpenButton').click();await p.locator('#cloudEmail').fill('owner@example.test');await p.locator('#cloudPassword').fill('mock-password');await p.locator('#cloudLoginButton').click();await p.waitForFunction(()=>document.getElementById('cloudDialog').open===false);}
+    await signIn(a);await a.waitForFunction(()=>document.getElementById('cloudStatus').textContent.startsWith('Синхронизировано'));assert(cloudRow);
+    await b.evaluate(()=>{state.weeks[1].weight=99;saveToStorage();});await signIn(b);await b.waitForFunction(()=>!document.getElementById('cloudConflict').hidden);
+    assert.equal(cloudRow.data.weeks[1].weight,100);assert(await b.evaluate(()=>!!JSON.parse(localStorage.getItem('metajhim_cloud_backup_v1')).local));
+    await b.getByRole('button',{name:'Использовать облачный дневник',exact:true}).click();await b.waitForFunction(()=>document.getElementById('cloudConflict').hidden);assert.equal(await b.locator('#factWeight').inputValue(),'100');
+    await a.evaluate(()=>{state.weeks[1].notes='Заметка с телефона';saveToStorage();});await a.evaluate(()=>MetaJhimCloud.sync());await b.evaluate(()=>MetaJhimCloud.sync());assert.equal(await b.locator('#weekNotes').inputValue(),'Заметка с телефона');
+    // Distinct edits merge; conflicting edits pause and leave the server version intact.
+    await a.evaluate(()=>{state.weeks[1].notes='Запись A';saveToStorage();});await b.evaluate(()=>{state.weeks[1].weight=98.5;saveToStorage();});await a.evaluate(()=>MetaJhimCloud.sync());await b.evaluate(()=>MetaJhimCloud.sync());assert.equal(cloudRow.data.weeks[1].notes,'Запись A');assert.equal(cloudRow.data.weeks[1].weight,98.5);
+    await a.evaluate(()=>MetaJhimCloud.sync());await a.evaluate(()=>{state.weeks[1].notes='Конфликт A';saveToStorage();});await b.evaluate(()=>{state.weeks[1].notes='Конфликт B';saveToStorage();});await a.evaluate(()=>MetaJhimCloud.sync());await b.evaluate(()=>MetaJhimCloud.sync());assert(await b.locator('#cloudConflict').isVisible());assert.equal(cloudRow.data.weeks[1].notes,'Конфликт A');
+    await b.getByRole('button',{name:'Использовать облачный дневник',exact:true}).click();await b.waitForFunction(()=>document.getElementById('cloudConflict').hidden);
+    networkDown=true;await b.evaluate(()=>{state.weeks[1].notes='Запись без сети';saveToStorage();});await b.evaluate(()=>MetaJhimCloud.sync());assert.equal(await b.evaluate(()=>JSON.parse(localStorage.getItem('metajhim_dmitry_v2')).weeks[1].notes),'Запись без сети');assert.equal(cloudRow.data.weeks[1].notes,'Конфликт A');
+    networkDown=false;await b.evaluate(()=>MetaJhimCloud.sync());assert.equal(cloudRow.data.weeks[1].notes,'Запись без сети');await b.reload();await b.waitForFunction(()=>document.getElementById('cloudStatus').textContent.startsWith('Синхронизировано'));assert.equal(await b.locator('#weekNotes').inputValue(),'Запись без сети');
+    assert.equal(await b.evaluate(()=>localStorage.getItem('metajhim_dmitry_v2').includes('mock-access')),false);await b.evaluate(()=>MetaJhimCloud.logout());assert.equal(await b.evaluate(()=>localStorage.getItem('metajhim_cloud_session_v1')),null);assert(await b.evaluate(()=>!!localStorage.getItem('metajhim_dmitry_v2')));
+    await ca.close();await cb.close();assert.deepEqual(errors,[]);console.log('PASS: cloud login, first sync choice, cross-device pull, merge, conflict backup, offline queue, session restore, logout');
     console.log('ALL CHECKS PASSED');
   } finally {await browser.close();server.close();}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1;});

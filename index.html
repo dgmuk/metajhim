@@ -96,6 +96,7 @@
     .chart-legend{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px;min-height:32px}.legend-button,.legend-label{display:inline-flex;align-items:center;gap:7px;padding:6px 9px;border-radius:8px;border:1px solid var(--border);background:#1c1c1c;color:#e0e5dc;font-size:11px;line-height:1.4}.legend-button{cursor:pointer}.legend-button[aria-pressed="false"]{opacity:.45;text-decoration:line-through}.legend-swatch{width:17px;height:0;border-top:3px solid var(--line);flex-shrink:0}.legend-swatch.dashed{border-top-style:dashed}.legend-swatch.dot{height:8px;width:8px;border:0;background:var(--line);border-radius:50%}.chart-shell{position:relative;flex:1;margin-top:4px}.chart-shell svg{margin-top:0}.charts .chart-axis-title{font-size:12px;fill:#b1b9aa}.charts .chart-hit{cursor:pointer;outline:none}.chart-hit rect{fill:transparent}.chart-hit:hover rect,.chart-hit:focus rect{fill:#ffffff08}.chart-hit:focus rect{stroke:var(--accent);stroke-width:1}.chart-selected{stroke:#c4dc83;stroke-width:1;stroke-dasharray:3 4;opacity:.5;pointer-events:none}
     .chart-readout{display:grid;grid-template-columns:1fr auto;gap:9px 16px;background:var(--card-alt);border:1px solid var(--border);border-radius:11px;padding:12px 14px;margin-top:2px;min-height:77px;font-size:12px}.chart-readout-title{color:#b5beb0;grid-column:1/-1}.chart-readout-values{display:flex;flex-wrap:wrap;gap:6px 18px}.chart-readout-values span{color:var(--muted)}.chart-readout-values b{color:var(--text);font-weight:650}.chart-readout-diff{font-size:11px;color:var(--accent);align-self:center;text-align:right}.chart-help{color:#929d8c;font-size:11px;margin-top:11px;line-height:1.65}.health-tabs{display:flex;gap:3px;padding:3px;background:#0e100d;border:1px solid var(--border);border-radius:10px;margin-top:17px}.health-tab{flex:1;border:0;background:none;padding:8px;border-radius:7px;color:#9da795;font-size:12px;font-weight:600}.health-tab[aria-selected="true"]{background:#293323;color:#d9e8bc}.health-card .progress-headline{margin-top:15px}.health-card .chart-legend{margin-top:10px}
     @media(max-width:540px){.progress-card{padding:17px}.progress-card h2{font-size:17px}.progress-value{font-size:27px}.chart-readout{padding:11px;font-size:11px;gap:7px}.chart-readout-diff{grid-column:1/-1;text-align:left}.charts .chart-tick-minor{display:none}.chart-help{font-size:10px}.legend-button,.legend-label{font-size:11px}}
+    .cloud-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;margin-bottom:22px;border:1px solid var(--border);border-radius:12px;background:var(--card);font-size:12px;color:var(--muted)}.cloud-bar .actions{margin:0}.cloud-bar .btn{font-size:11px;padding:7px 10px}#cloudConflict[hidden],#cloudAccount[hidden],#cloudLoginForm[hidden]{display:none}
   </style>
 </head>
 <body>
@@ -103,6 +104,7 @@
   <div id="appRoot"></div>
   <div class="toast" id="toastBox" role="status"></div>
 
+  <script src="./cloud-sync.js"></script>
   <script>
     const defaultPlan = [
   {
@@ -321,6 +323,9 @@
             <button class="btn btn-secondary" onclick="exportJSON()">Скачать JSON-архив</button>
           </div>
         </header>
+        <section class="cloud-bar" aria-label="Облачное сохранение"><span id="cloudStatus" role="status">Сохранение на этом устройстве</span><div class="actions"><button class="btn btn-secondary" id="cloudOpenButton" type="button" onclick="MetaJhimCloud.open()">Войти и синхронизировать</button><button class="btn btn-secondary" type="button" onclick="MetaJhimCloud.sync()">Обновить</button></div></section>
+        <div class="notice" id="cloudConflict" hidden><p id="cloudConflictText"></p><div class="actions"><button class="btn" onclick="MetaJhimCloud.resolve('remote')">Использовать облачный дневник</button><button class="btn btn-secondary" onclick="MetaJhimCloud.resolve('local')">Загрузить дневник с этого устройства</button><button class="btn btn-secondary" onclick="MetaJhimCloud.downloadBackup()">Скачать обе версии</button></div></div>
+        <dialog id="cloudDialog" aria-labelledby="cloudTitle"><div class="section-title"><h2 id="cloudTitle">Один дневник на всех устройствах</h2><button type="button" class="btn btn-secondary" onclick="document.getElementById('cloudDialog').close()">Закрыть</button></div><form id="cloudLoginForm" onsubmit="MetaJhimCloud.login(event)"><p class="subtitle">Войдите в один и тот же аккаунт на телефоне и компьютере.</p><label for="cloudEmail" style="display:block;margin-top:16px">Email</label><input id="cloudEmail" type="email" autocomplete="username" required><label for="cloudPassword" style="display:block;margin-top:12px">Пароль дневника</label><input id="cloudPassword" type="password" autocomplete="current-password" required><p id="cloudLoginError" class="error" role="alert" style="margin-top:12px"></p><button id="cloudLoginButton" class="btn" type="submit" style="margin-top:16px">Войти</button></form><div id="cloudAccount" hidden><p id="cloudAccountEmail"></p><p class="subtitle" style="margin:12px 0">Записи сохраняются автоматически. При отсутствии сети они остаются на устройстве.</p><button type="button" class="btn btn-secondary" onclick="MetaJhimCloud.logout()">Выйти из облака</button></div></dialog>
         <p id="pwaOfflineStatus" class="notice" role="status" hidden>Нет интернета. Записи сохраняются на этом устройстве.</p>
         <dialog id="pwaInstallDialog" aria-labelledby="pwaInstallTitle"><div class="section-title"><span id="pwaInstallTitle">Установка на телефон</span><button class="btn btn-secondary" type="button" onclick="document.getElementById('pwaInstallDialog').close()">Закрыть</button></div><p id="pwaInstallHelp" class="subtitle"></p><div id="pwaRepairHelp" class="notice"><p>Chrome пишет «Уже установлено», но приложение не открывается?</p><p class="subtitle" style="margin:8px 0 12px">Попробуйте повторную установку с отдельным идентификатором. Записи дневника и настройки не сбрасываются.</p><a id="pwaRepairLink" class="btn btn-secondary" style="display:inline-block;text-decoration:none" href="./?install=repair">Повторить установку</a></div><p class="subtitle" style="margin-top:12px">Открывайте приложение с его иконки на главном экране. <a href="https://dgmuk.github.io/metajhim/" target="_blank" rel="noopener">Открыть сайт на телефоне</a></p></dialog>
 
@@ -554,7 +559,7 @@
     function storageWarning(message){$('storageWarning').hidden=false;$('storageWarning').textContent=message;}
     function saveToStorage(next=state){
       if(storageProblem){storageWarning(storageProblem);return false;}
-      try{localStorage.setItem(STORAGE_KEY,JSON.stringify(next));$('storageWarning').hidden=true;return true;}
+      try{localStorage.setItem(STORAGE_KEY,JSON.stringify(next));$('storageWarning').hidden=true;window.MetaJhimCloud?.changed();return true;}
       catch(e){storageWarning('Сохранение недоступно. Скачайте JSON-архив перед закрытием страницы. '+e.message);return false;}
     }
     function getActivePlan(){return state.customPlan||defaultPlan;}
@@ -570,6 +575,7 @@
       if(storageProblem)storageWarning(storageProblem);else if(migrationSource)showToast('Найден дневник v4. Дальнейшие изменения сохранятся под ключом v2.');
       $('supplementsContainer').addEventListener('change',e=>{if(e.target.matches('input[data-supp-key]'))toggleSupp(e.target.dataset.suppKey,e.target.checked);});
       initPwa();
+      window.MetaJhimCloud?.init({read:()=>{if(storageProblem)throw Error('Сначала восстановите локальное сохранение из архива.');return clone(state);},validate:data=>normalizeState(data),apply:data=>{const next=normalizeState({...data,activeWeek:state.activeWeek});localStorage.setItem(STORAGE_KEY,JSON.stringify(next));state=next;fillSettings();renderAll();renderSupplements();updatePctCountdown();},download:downloadJSON});
       // Calendar refresh on midnight in Moscow, including tabs that were suspended overnight.
       setInterval(refreshDate,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDate();});
       for(const id of ['divisionSelect','compDate','weekSelect','factWeight','factReps100','factRIR','factShoulder','factShoulderRight','weekNotes','importJsonArea']){const label=$(id).previousElementSibling;if(label?.tagName==='LABEL')label.htmlFor=id;}
@@ -831,7 +837,7 @@
     function restoreBackup(){
       try{const p=readImport();if(p.schema!=='metajhim.backup.v2'&&!(p.version&&obj(p.weeks)))throw Error('Вставьте JSON-архив MetaJhim.');const restored=normalizeState(p);delete restored.schema;delete restored.exportedAt;
         if(!confirm('Заменить весь дневник и отметки добавок данными архива? Сначала скачайте текущий архив.'))return;
-        try{localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));}catch(e){throw Error('Не удалось восстановить архив: '+e.message);}state=restored;storageProblem='';$('storageWarning').hidden=true;closeImportModal();fillSettings();renderAll();renderSupplements();updatePctCountdown();showToast('Дневник и трекер восстановлены из архива.');
+        try{localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));}catch(e){throw Error('Не удалось восстановить архив: '+e.message);}state=restored;storageProblem='';window.MetaJhimCloud?.changed();$('storageWarning').hidden=true;closeImportModal();fillSettings();renderAll();renderSupplements();updatePctCountdown();showToast('Дневник и трекер восстановлены из архива.');
       }catch(e){$('patchPreview').className='notice error';$('patchPreview').textContent=e.message;}
     }
     let installPrompt=null;
