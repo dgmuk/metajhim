@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
 const { chromium } = require('playwright');
-async function unfold(page,id){const panel=page.locator('#'+id);if(await panel.getAttribute('open')===null)await panel.locator(':scope > summary').click();}
+async function unfold(page,id){const panel=page.locator('#'+id);if(await panel.getAttribute('open')===null){if(['repsPanel','healthPanel'].includes(id))await panel.evaluate(el=>{el.open=true;});else await panel.locator(':scope > summary').click();}}
 
 const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
@@ -31,18 +31,17 @@ const server = http.createServer((req,res) => {
     page.on('pageerror',e=>errors.push(e.message));
     await page.clock.install({time:new Date('2026-10-19T12:00:00Z')});
     await page.goto(url);
-    assert.equal(await page.locator('.section-fold').count(),5);
-    for(const id of ['pctPanel','repsPanel','healthPanel','supplementsPanel','cyclePanel']){assert.equal(await page.locator('#'+id).getAttribute('open'),null);assert(await page.locator('#'+id+' > summary').isVisible());}
+    assert.equal(await page.locator('.section-fold').count(),4);
+    for(const id of ['pctPanel','repsPanel','healthPanel','cyclePanel']){assert.equal(await page.locator('#'+id).getAttribute('open'),null);assert(await page.locator('#'+id+' > summary').isVisible());}
     await page.locator('#pctPanel > summary').focus();await page.locator('#pctPanel > summary').press('Enter');assert(await page.locator('#pctDaysCount').isVisible());await page.locator('#pctPanel > summary').press('Enter');assert.equal(await page.locator('#pctDaysCount').isVisible(),false);
     await unfold(page,'pctPanel');
     assert.equal(await page.locator('#weekSelect option').count(),16);
     assert.equal(await page.locator('#cycleTableBody tr').count(),16);
     assert.equal(await page.locator('.charts svg').count(),2);
-    assert.equal(await page.locator('.supp-table input').count(),42);
+    assert.equal(await page.locator('#supplementsPanel').count(),0);
     assert.equal(await page.locator('#pctDaysCount').innerText(),'1 день');
     assert.equal(await page.locator('.pct-details').getAttribute('open'),null);
     assert.equal(await page.locator('#pctStatusBadge').innerText(),'Через 20 дней');
-    assert.equal(await page.locator('#suppDateInput').inputValue(),'2026-10-19');
     assert.equal(await page.evaluate(()=>protectedThrough()),1);
     const dates = [
       ['2026-10-17','before',0,null,-1],['2026-10-18','before',0,null,0],
@@ -64,23 +63,10 @@ const server = http.createServer((req,res) => {
     await page.evaluate(()=>updatePctCountdown());
     console.log('PASS: UTF-8, 16 weeks, SVG charts, PCT boundary dates');
 
-    await unfold(page,'supplementsPanel');await page.locator('[data-supp-key="2026-10-19_zinc"]').check();
-    await page.reload();
-    assert.equal(await page.locator('[data-supp-key="2026-10-19_zinc"]').isChecked(),true);
-    await unfold(page,'supplementsPanel');await page.locator('#suppDateInput').fill('2026-11-23');
-    await page.locator('#suppDateInput').dispatchEvent('change');
-    await page.locator('[data-supp-key="2026-11-23_clomid"]').check();
-    assert.match(await page.locator('[data-supp-key="2026-11-23_clomid"]').locator('..').innerText(),/25 мг/);
-    await page.evaluate(()=>shiftSuppWeek(-7));
-    assert.equal(await page.locator('[data-supp-key="2026-11-16_clomid"]').isChecked(),false);
-    assert.match(await page.locator('[data-supp-key="2026-11-16_clomid"]').locator('..').innerText(),/50 мг/);
-    await page.evaluate(()=>shiftSuppWeek(21));
-    assert.equal(await page.locator('[data-supp-key="2026-12-07_clomid"]').isDisabled(),true);
-    await page.locator('#suppDateInput').fill('2027-01-01');
-    await page.locator('#suppDateInput').dispatchEvent('change');
-    await page.locator('[data-supp-key="2027-01-01_creatine"]').check();
-    assert.match(await page.locator('#suppRange').innerText(),/28\.12\.2026.*03\.01\.2027/);
-    console.log('PASS: daily supplement persistence, dose by date, year boundary');
+    // Existing supplement history survives the removed UI and remains exportable.
+    await page.evaluate(()=>{state.suppChecks={'2026-10-19_zinc':true,'2026-11-23_clomid':true,'2027-01-01_creatine':true};saveToStorage();});await page.reload();
+    assert.equal(await page.evaluate(()=>state.suppChecks['2026-10-19_zinc']),true);
+    console.log('PASS: removed supplement UI retains legacy data');
 
     await page.locator('#factRIR').fill('0');
     await page.locator('#factShoulder').fill('0');
@@ -148,7 +134,7 @@ const server = http.createServer((req,res) => {
     await legacyPage.addInitScript(()=>localStorage.setItem('metajhim_dmitry_v4',JSON.stringify({version:4,targetReps:24,compDate:'2027-02-21',activeWeek:1,suppChecks:{'2026-10-19_zinc':true},customPlan:null,weeks:{1:{reps100:'16',shoulder:'0',d1_fact:'legacy'}}})));
     await legacyPage.goto(url);
     assert.equal(await legacyPage.evaluate(()=>state.weeks[1].shoulderLeft),'0');
-    assert.equal(await legacyPage.locator('[data-supp-key="2026-10-19_zinc"]').isChecked(),true);
+    assert.equal(await legacyPage.evaluate(()=>state.suppChecks['2026-10-19_zinc']),true);
     await legacyPage.locator('#factShoulderRight').fill('0');
     assert.equal(await legacyPage.evaluate(()=>JSON.parse(localStorage.getItem('metajhim_dmitry_v2')).weeks[1].d1_fact),'legacy');
     const bad=await browser.newContext();const badPage=await bad.newPage();await badPage.addInitScript(()=>localStorage.setItem('metajhim_dmitry_v2','broken JSON'));await badPage.goto(url);
@@ -290,11 +276,21 @@ const server = http.createServer((req,res) => {
     await ca.close();await cb.close();assert.deepEqual(errors,[]);console.log('PASS: cloud login, first sync choice, cross-device pull, merge, conflict backup, offline queue, session restore, logout, targeted week reset, one-button phone refresh');
     const compactContext=await browser.newContext({viewport:{width:1440,height:1000}}),compact=await compactContext.newPage();await compact.goto(url);
     assert.equal(await compact.locator('.section-fold[open]').count(),0);
-    await unfold(compact,'supplementsPanel');const zinc=compact.locator('.supp-table input').first();await zinc.check();await compact.locator('#supplementsPanel > summary').click();await unfold(compact,'supplementsPanel');assert(await zinc.isChecked());
+    await compact.locator('#repsPanel > summary').click();assert(await compact.locator('#chartDialog').isVisible());assert.equal(await compact.locator('#chartDialog #repsPanel').count(),1);
+    assert.equal(await compact.locator('#repsChart').count(),1);await compact.locator('#chartZoom').press('End');assert.equal(await compact.locator('#chartZoomValue').innerText(),'200%');
+    await compact.locator('#legend-plan').click();assert.equal(await compact.locator('#repsChart [data-series="plan"]').count(),0);
+    await compact.locator('#chartDialog').getByRole('button',{name:'Закрыть',exact:true}).click();await compact.waitForFunction(()=>document.getElementById('repsPanel').parentElement.classList.contains('charts'));
+    assert.equal(await compact.locator('#repsPanel').getAttribute('open'),null);assert.equal(await compact.evaluate(()=>document.body.style.overflow),'');
+    await compact.locator('#healthPanel > summary').click();await compact.locator('#healthShoulderTab').click();assert.equal(await compact.locator('#healthShoulderTab').getAttribute('aria-selected'),'true');
+    await compact.locator('#chartDialog').press('Escape');await compact.waitForFunction(()=>document.getElementById('healthPanel').parentElement.classList.contains('charts'));
     await compact.reload();assert.equal(await compact.locator('.section-fold[open]').count(),0);
     await compact.screenshot({path:path.join(root,'test-results','collapsed-desktop.png'),fullPage:true});
     await compact.setViewportSize({width:390,height:844});assert(await compact.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await compact.screenshot({path:path.join(root,'test-results','collapsed-mobile.png'),fullPage:true});
-    await compactContext.close();console.log('PASS: all five sections collapsed on launch/reload; toggling retains supplement checks; compact mobile layout');
+    await compact.locator('#repsPanel > summary').click();const bounds=await compact.locator('#chartDialog').boundingBox();assert.equal(bounds.width,390);assert.equal(Math.round(bounds.height),844);
+    assert(await compact.locator('#chartDialog .chart-shell').evaluate(el=>el.scrollWidth>el.clientWidth));
+    await compact.locator('#chartDialog').screenshot({path:path.join(root,'test-results','chart-fullscreen-mobile.png')});
+    await compact.locator('#chartDialog').getByRole('button',{name:'Закрыть',exact:true}).click();await compact.waitForFunction(()=>!document.getElementById('chartDialog').open);
+    await compactContext.close();console.log('PASS: default folds, fullscreen graphs, zoom, live controls, close/Escape restore and mobile scroll');
     console.log('ALL CHECKS PASSED');
   } finally {await browser.close();server.close();}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1;});

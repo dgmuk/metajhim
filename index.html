@@ -69,13 +69,11 @@
     th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
     th { color: var(--muted); font-weight: 600; background: var(--card-alt); }
     tr.active-row { background: rgba(56, 189, 248, 0.12); }
-    .supp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
-    .supp-item { background: var(--card-alt); padding: 10px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; }
     .toast { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: #052e16; padding: 12px 20px; border-radius: 8px; font-weight: 700; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 100; }
 
-    :root{color-scheme:dark;--muted:#acbcd0}h2{font-size:1.1rem}.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px}.charts svg{width:100%;height:auto;display:block;margin-top:12px}.charts text{font:11px system-ui;fill:var(--muted)}.table-wrap{overflow-x:auto}.supp-table{min-width:760px}.supp-table th,.supp-table td{text-align:center;padding:10px 6px}.supp-table th:first-child{text-align:left;min-width:240px}.supp-table input{width:20px;height:20px;accent-color:var(--accent);cursor:pointer}.supp-table small{display:block;color:var(--muted);font-weight:400}.today{background:#143c50}.actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.notice{background:var(--card-alt);border-radius:8px;padding:12px;margin:12px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.85rem}.error{color:#fda4af}.notice[hidden]{display:none}dialog{width:min(760px,calc(100% - 24px));max-height:90vh;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:20px}dialog::backdrop{background:#000b}dialog .modal-box{padding:0!important;border:0!important;max-width:none!important}#patchPreview{max-height:240px;overflow:auto}a,summary{color:var(--accent)}summary{cursor:pointer}details,footer{margin-top:16px}footer{font-size:12px;color:var(--muted);padding:16px 0}textarea{resize:vertical}button:disabled,input:disabled{opacity:.45;cursor:not-allowed}input:invalid{border-color:var(--danger)}:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.day-header{flex-wrap:wrap;gap:8px}
+    :root{color-scheme:dark;--muted:#acbcd0}h2{font-size:1.1rem}.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px}.charts svg{width:100%;height:auto;display:block;margin-top:12px}.charts text{font:11px system-ui;fill:var(--muted)}.table-wrap{overflow-x:auto}.today{background:#143c50}.actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.notice{background:var(--card-alt);border-radius:8px;padding:12px;margin:12px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.85rem}.error{color:#fda4af}.notice[hidden]{display:none}dialog{width:min(760px,calc(100% - 24px));max-height:90vh;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:20px}dialog::backdrop{background:#000b}dialog .modal-box{padding:0!important;border:0!important;max-width:none!important}#patchPreview{max-height:240px;overflow:auto}a,summary{color:var(--accent)}summary{cursor:pointer}details,footer{margin-top:16px}footer{font-size:12px;color:var(--muted);padding:16px 0}textarea{resize:vertical}button:disabled,input:disabled{opacity:.45;cursor:not-allowed}input:invalid{border-color:var(--danger)}:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.day-header{flex-wrap:wrap;gap:8px}
     @media(max-width:800px){.charts{grid-template-columns:1fr}}@media(max-width:540px){body{padding:12px}.workout-grid{grid-template-columns:minmax(0,1fr)}.control-group{min-width:0;flex-basis:100%}.modal-box{padding:12px}dialog{padding:14px}}
-    #cycleTableBody{vertical-align:top}table:has(#cycleTableBody){min-width:1050px}.supp-table th:first-child{position:sticky;left:0;background:var(--card-alt);z-index:1}.supp-table thead th:first-child{z-index:2}
+    #cycleTableBody{vertical-align:top}table:has(#cycleTableBody){min-width:1050px}
     .pct-card{margin-bottom:24px;padding:26px 28px;background:linear-gradient(125deg,#1c2c40 0%,#182438 70%);border:1px solid #35485f;border-radius:18px;overflow:hidden}
     .pct-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.pct-eyebrow{font-size:10px;letter-spacing:.13em;font-weight:700;color:#9cb5d0;margin-bottom:8px}.pct-title{font-size:23px;line-height:1.25;letter-spacing:-.025em;font-weight:700}.pct-description{font-size:13px;color:#acbcd0;margin-top:7px;max-width:540px}.pct-status{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;background:#243e51;border:1px solid #36566d;color:#bcdef3;font-size:12px;font-weight:600;padding:7px 11px;border-radius:999px}.pct-status::before{content:'';width:6px;height:6px;border-radius:50%;background:#79c8f3}
     .pct-facts{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:26px}.pct-label{font-size:12px;color:#a6b9ce;margin-bottom:6px}.pct-number{font-size:29px;line-height:1.25;letter-spacing:-.025em;font-weight:650;color:#f4f8fc}.pct-note{font-size:12px;color:#a6b9ce;margin-top:6px}.pct-facts>div+div{border-left:1px solid #35475e;padding-left:24px}
@@ -100,6 +98,8 @@
     .section-fold{padding:0!important;margin-top:0;overflow:hidden}.section-fold.progress-card{display:block}.charts{align-items:start}.fold-summary{display:flex;align-items:center;gap:14px;padding:20px 22px;list-style:none;cursor:pointer;min-height:68px}.fold-summary::-webkit-details-marker{display:none}.fold-summary h2{flex:1;min-width:0;font-size:17px;line-height:1.4;letter-spacing:-.02em;margin:0}.fold-summary::after{content:'⌄';font-size:20px;line-height:1;color:var(--muted);flex-shrink:0}.section-fold[open]>.fold-summary::after{content:'⌃'}.section-fold[open]>.fold-summary{border-bottom:1px solid var(--border)}.fold-body{padding:18px 22px 22px}.fold-summary .pct-status,.fold-summary .badge{flex-shrink:0}.fold-summary .subtitle{margin:0;font-size:11px}.section-fold .pct-description,.section-fold .progress-intro{margin-top:0}
     @media(max-width:540px){.fold-summary{padding:17px 16px;gap:9px}.fold-summary h2{font-size:15px}.fold-body{padding:16px}.fold-summary .pct-status{font-size:10px;padding:5px 7px}.fold-summary .subtitle{display:none}}
     .fold-summary{color:var(--text)}.section-fold:not([open])>.fold-summary .badge,.section-fold:not([open])>.fold-summary .pct-status,.section-fold:not([open])>.fold-summary .subtitle{display:none}
+    #repsPanel>.fold-summary::after,#healthPanel>.fold-summary::after{content:'⛶';font-size:23px}#chartDialog{inset:0;width:100vw;max-width:none;height:100vh;height:100dvh;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:var(--bg);overflow:hidden}#chartDialog[open]{display:flex;flex-direction:column}#chartDialog::backdrop{background:#000d}.chart-full-header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;border-bottom:1px solid var(--border);background:var(--card)}.chart-full-header h2{font-size:19px}.chart-full-header .btn{min-height:42px}.chart-full-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:9px 16px;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--card);font-size:12px}.chart-full-toolbar label{display:flex;align-items:center;gap:10px;margin:0;font-size:12px}.chart-full-toolbar input{width:140px;padding:0;accent-color:var(--accent)}.chart-full-toolbar output{width:42px;color:var(--text)}.chart-full-toolbar span{color:var(--muted)}#chartFullContent{overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1;padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}#chartDialog .progress-card{border:0;border-radius:0;margin:0}#chartDialog .fold-summary{display:none}#chartDialog .fold-body{padding:20px}#chartDialog .chart-shell{overflow-x:auto;overscroll-behavior-x:contain;touch-action:pan-x pan-y pinch-zoom;margin:16px 0;flex:initial}#chartDialog .chart-shell svg{display:block;width:calc(var(--chart-base-width,760px) * var(--chart-zoom,1));max-width:none;height:auto}#chartDialog svg text{font:12px system-ui;fill:var(--muted)}#chartDialog .chart-axis-title{font-size:13px}#chartDialog .chart-hit{cursor:pointer;outline:none}#chartDialog .chart-tick-minor{display:block}#chartDialog .legend-button,#chartDialog .legend-label{font-size:13px;min-height:40px}#chartDialog .health-tab{font-size:14px;min-height:42px}#chartDialog .chart-readout{font-size:14px}#chartDialog .chart-help{font-size:12px}#chartDialog .progress-intro{font-size:14px}
+    @media(max-width:540px){.chart-full-header{padding-left:14px;padding-right:14px}.chart-full-header h2{font-size:16px}.chart-full-toolbar{padding:10px 14px}.chart-full-toolbar span{font-size:11px}#chartDialog .fold-body{padding:16px}#chartDialog .chart-readout{font-size:13px}}
   </style>
 </head>
 <body>
@@ -302,15 +302,6 @@
       weeks: {}
     };
 
-    const supplementsConfig = [
-      {id:'zinc',name:'Цинк (глицинат / пиколинат)',dose:'25–30 мг',timing:'на ночь'},
-      {id:'d3',name:'Витамин D3',dose:'2000–5000 МЕ',timing:'утром с жиросодержащей пищей'},
-      {id:'magnesium',name:'Магний (цитрат / глицинат)',dose:'300–400 мг',timing:'на ночь'},
-      {id:'omega',name:'Омега-3 (EPA/DHA)',dose:'2000–3000 мг',timing:'во время еды'},
-      {id:'creatine',name:'Креатин моногидрат',dose:'5 г',timing:'ежедневно'},
-      {id:'clomid',name:'Кломид · пользовательский график',dose:'по дате',timing:'утром'}
-    ];
-
     function buildLayout() {
       const root = document.getElementById("appRoot");
       root.innerHTML = `
@@ -344,20 +335,10 @@
           </div>
         </details>
         <section class="charts" style="margin-bottom:24px" aria-label="Ваш прогресс">
-          <details class="card progress-card section-fold" id="repsPanel"><summary class="fold-summary"><h2>Ваш прогресс · жим 100 кг</h2></summary><div class="fold-body"><p class="progress-intro">План подготовки и результаты из дневника</p><div class="progress-headline"><div class="progress-value" id="repsBestValue"></div><span class="progress-context">лучший подход</span></div><p class="progress-meta" id="repsTargetSummary"></p><div class="chart-legend" id="repsLegend" aria-label="Линии графика"></div><div class="chart-shell" id="repsChart"></div><div class="chart-readout" id="repsReadout" aria-live="polite"></div><p class="chart-help" id="repsChartHelp"></p></div></details>
-          <details class="card progress-card health-card section-fold" id="healthPanel"><summary class="fold-summary"><h2>Вес и самочувствие</h2></summary><div class="fold-body"><p class="progress-intro">Два показателя — каждый на своей шкале</p><div class="health-tabs" role="tablist" aria-label="Показатель самочувствия" onkeydown="healthTabKeys(event)"><button type="button" role="tab" id="healthWeightTab" class="health-tab" aria-controls="healthChart" aria-selected="true" onclick="selectHealthMode('weight')">Вес тела</button><button type="button" role="tab" id="healthShoulderTab" class="health-tab" aria-controls="healthChart" aria-selected="false" tabindex="-1" onclick="selectHealthMode('shoulder')">Левое плечо</button></div><div class="progress-headline"><div class="progress-value" id="healthLatestValue"></div><span class="progress-context" id="healthLatestCaption"></span></div><p class="progress-meta" id="healthSummary"></p><div class="chart-legend" id="healthLegend"></div><div class="chart-shell" id="healthChart" role="tabpanel" aria-labelledby="healthWeightTab"></div><div class="chart-readout" id="healthReadout" aria-live="polite"></div><p class="chart-help" id="healthChartHelp"></p></div></details>
+          <details class="card progress-card section-fold" id="repsPanel"><summary class="fold-summary" onclick="openChart('reps',event)"><h2>Ваш прогресс · жим 100 кг</h2></summary><div class="fold-body"><p class="progress-intro">План подготовки и результаты из дневника</p><div class="progress-headline"><div class="progress-value" id="repsBestValue"></div><span class="progress-context">лучший подход</span></div><p class="progress-meta" id="repsTargetSummary"></p><div class="chart-legend" id="repsLegend" aria-label="Линии графика"></div><div class="chart-shell" id="repsChart"></div><div class="chart-readout" id="repsReadout" aria-live="polite"></div><p class="chart-help" id="repsChartHelp"></p></div></details>
+          <details class="card progress-card health-card section-fold" id="healthPanel"><summary class="fold-summary" onclick="openChart('health',event)"><h2>Вес и самочувствие</h2></summary><div class="fold-body"><p class="progress-intro">Два показателя — каждый на своей шкале</p><div class="health-tabs" role="tablist" aria-label="Показатель самочувствия" onkeydown="healthTabKeys(event)"><button type="button" role="tab" id="healthWeightTab" class="health-tab" aria-controls="healthChart" aria-selected="true" onclick="selectHealthMode('weight')">Вес тела</button><button type="button" role="tab" id="healthShoulderTab" class="health-tab" aria-controls="healthChart" aria-selected="false" tabindex="-1" onclick="selectHealthMode('shoulder')">Левое плечо</button></div><div class="progress-headline"><div class="progress-value" id="healthLatestValue"></div><span class="progress-context" id="healthLatestCaption"></span></div><p class="progress-meta" id="healthSummary"></p><div class="chart-legend" id="healthLegend"></div><div class="chart-shell" id="healthChart" role="tabpanel" aria-labelledby="healthWeightTab"></div><div class="chart-readout" id="healthReadout" aria-live="polite"></div><p class="chart-help" id="healthChartHelp"></p></div></details>
         </section>
-        <details class="card section-fold" id="supplementsPanel" style="margin-bottom:24px">
-          <summary class="fold-summary"><h2>Ежедневный стек добавок и нутриентов</h2><span class="badge badge-ok">Отметки по датам</span></summary>
-          <div class="fold-body">
-          <div style="margin-bottom: 10px; display:flex; align-items:center; gap:10px;">
-            <label for="suppDateInput">Дата в неделе:</label>
-            <input type="date" id="suppDateInput" style="width: auto;" onchange="renderSupplements()" />
-          </div>
-          <div class="actions"><button class="btn btn-secondary" onclick="shiftSuppWeek(-7)">← Неделя</button><button class="btn btn-secondary" onclick="suppToday()">Сегодня</button><button class="btn btn-secondary" onclick="shiftSuppWeek(7)">Неделя →</button></div>
-          <p class="subtitle" id="suppRange"></p><div class="table-wrap" id="supplementsContainer"></div><p class="subtitle" id="suppSaveStatus" role="status"></p>
-          </div>
-        </details>
+
 
         <div class="controls-bar">
           <div class="control-group">
@@ -464,6 +445,7 @@
           </div>
         </details>
 
+        <dialog id="chartDialog" aria-labelledby="chartFullTitle" onclose="restoreChart()"><div class="chart-full-header"><h2 id="chartFullTitle">График</h2><button type="button" class="btn btn-secondary" onclick="document.getElementById('chartDialog').close()">Закрыть</button></div><div class="chart-full-toolbar"><label for="chartZoom">Масштаб <input id="chartZoom" type="range" min="100" max="200" step="25" value="100" oninput="setChartZoom(this.value)"><output id="chartZoomValue" for="chartZoom">100%</output></label><span>Прокручивайте график влево и вправо, чтобы рассмотреть недели</span></div><div id="chartFullContent"></div></dialog>
         <dialog id="importModal" aria-label="Импорт JSON">
           <div class="modal-box" style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; max-width:640px; width:100%;">
             <div class="section-title">
@@ -573,16 +555,15 @@
       try{let saved=localStorage.getItem(STORAGE_KEY);if(saved===null){saved=localStorage.getItem('metajhim_dmitry_v4');if(saved!==null)migrationSource='metajhim_dmitry_v4';}if(saved!==null)state=normalizeState(JSON.parse(saved));else state=normalizeState(state);}
       catch(e){storageProblem='Не удалось прочитать сохранение. Оригинал не перезаписан. Скачайте его кнопкой архива. '+e.message;state=normalizeState(clone(INITIAL_STATE));}
       if(!own(state.weeks,'1')&&Object.keys(state.weeks).length===0&&!storageProblem){state.weeks[1]={weight:100,reps100:15,rir:2,shoulder:2,shoulderLeft:2,shoulderRight:'',d1_fact:'100 кг × 15 (RIR 2) + 3×5',d2_fact:'',d3_fact:'',notes:'19.10.2026: 100 кг × 15, запас 2 повтора. Контроль левого плеча.'};}
-      fillSettings();$('suppDateInput').value=todayDate();lastToday=todayDate();renderAll();renderSupplements();updatePctCountdown();
+      fillSettings();lastToday=todayDate();renderAll();updatePctCountdown();
       if(storageProblem)storageWarning(storageProblem);else if(migrationSource)showToast('Найден дневник v4. Дальнейшие изменения сохранятся под ключом v2.');
-      $('supplementsContainer').addEventListener('change',e=>{if(e.target.matches('input[data-supp-key]'))toggleSupp(e.target.dataset.suppKey,e.target.checked);});
       initPwa();
-      window.MetaJhimCloud?.init({read:()=>{if(storageProblem)throw Error('Сначала восстановите локальное сохранение из архива.');return clone(state);},validate:data=>normalizeState(data),apply:(data,options={})=>{const markerChanged=data.planUpdate?.id&&data.planUpdate.id!==state.planUpdate?.id;const week=(options.focus||markerChanged)?cloudPlanWeek(data):state.activeWeek;const next=normalizeState({...data,activeWeek:week});localStorage.setItem(STORAGE_KEY,JSON.stringify(next));state=next;if(options.focus||markerChanged){activeWorkoutDay=1;openExercises.clear();}fillSettings();renderAll();renderSupplements();updatePctCountdown();},download:downloadJSON});
+      window.MetaJhimCloud?.init({read:()=>{if(storageProblem)throw Error('Сначала восстановите локальное сохранение из архива.');return clone(state);},validate:data=>normalizeState(data),apply:(data,options={})=>{const markerChanged=data.planUpdate?.id&&data.planUpdate.id!==state.planUpdate?.id;const week=(options.focus||markerChanged)?cloudPlanWeek(data):state.activeWeek;const next=normalizeState({...data,activeWeek:week});localStorage.setItem(STORAGE_KEY,JSON.stringify(next));state=next;if(options.focus||markerChanged){activeWorkoutDay=1;openExercises.clear();}fillSettings();renderAll();updatePctCountdown();},download:downloadJSON});
       // Calendar refresh on midnight in Moscow, including tabs that were suspended overnight.
       setInterval(refreshDate,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDate();});
       for(const id of ['divisionSelect','compDate','weekSelect','factWeight','factReps100','factRIR','factShoulder','factShoulderRight','weekNotes','importJsonArea']){const label=$(id).previousElementSibling;if(label?.tagName==='LABEL')label.htmlFor=id;}
     }
-    function refreshDate(){const today=todayDate();if(today!==lastToday){if($('suppDateInput').value===lastToday)$('suppDateInput').value=today;lastToday=today;renderSupplements();updatePctCountdown();updateSummaryCards();}}
+    function refreshDate(){const today=todayDate();if(today!==lastToday){lastToday=today;updatePctCountdown();updateSummaryCards();}}
     function fillSettings(){
       $('weekSelect').innerHTML=getActivePlan().slice().sort((a,b)=>a.w-b.w).map(p=>`<option value="${p.w}">Неделя ${p.w} · ${p.isDeload?'разгрузка':p.target100+' повторений'}</option>`).join('');
       $('weekSelect').value=state.activeWeek;$('divisionSelect').value=state.targetReps;$('compDate').value=state.compDate;
@@ -594,7 +575,7 @@
       const longDate=d=>new Intl.DateTimeFormat('ru-RU',{timeZone:'UTC',day:'numeric',month:'long'}).format(new Date(epoch(d)));
       $('pctDaysCount').textContent=p.daysSince<0?'Ещё впереди':`${p.daysSince} ${dayWord(p.daysSince)}`;
       $('pctHeading').textContent=p.stage==='before'?'Подготовка к ПКТ':p.stage==='active'?`ПКТ · неделя ${p.week} из 4`:'График ПКТ завершён';
-      $('pctDescription').textContent=p.stage==='before'?'Следующий этап — начало ПКТ по вашему графику.':p.stage==='active'?'Сейчас идёт приём по вашему графику. Отметки — в трекере добавок ниже.':'Последний день в вашем графике — 5 декабря 2026 года.';
+      $('pctDescription').textContent=p.stage==='before'?'Следующий этап — начало ПКТ по вашему графику.':p.stage==='active'?'Сейчас идёт приём по вашему графику.':'Последний день в вашем графике — 5 декабря 2026 года.';
       $('pctStatusBadge').textContent=p.stage==='before'?`Через ${p.daysToStart} ${dayWord(p.daysToStart)}`:p.stage==='active'?'По графику':'Завершено';
       $('pctNextLabel').textContent=p.stage==='before'?'Начало ПКТ':p.stage==='active'?'Текущая неделя':'Последний день графика';
       $('pctNextDate').textContent=p.stage==='before'?'8 ноября':p.stage==='active'?`${p.dose} мг в день`:'5 декабря';
@@ -605,24 +586,6 @@
       $('pctProgress').setAttribute('aria-valuetext',`${Math.max(0,Math.min(max,elapsed))} из ${max} дней`);
       $('pctTimelineStart').textContent=active?'8 ноября · начало ПКТ':'18 октября · последний укол';$('pctTimelineEnd').textContent=active?'5 декабря · конец графика':'8 ноября · начало ПКТ';
       $('pctSchedule').innerHTML=[1,2,3,4].map(w=>{const start=addDays(PCT_START,(w-1)*7),end=addDays(start,6);return `<div class="pct-week${p.week===w?' is-current':''}"><strong>Неделя ${w}${p.week===w?' · сейчас':''}</strong><time datetime="${start}">${longDate(start)} — ${longDate(end)}</time><strong>Кломид · ${w<=2?'50':'25'} мг/день</strong></div>`;}).join('');
-    }
-    function suppToday(){$('suppDateInput').value=todayDate();renderSupplements();}
-    function shiftSuppWeek(days){const d=$('suppDateInput').value;if(!validDate(d))return;$('suppDateInput').value=addDays(d,days);renderSupplements();}
-    function renderSupplements(){
-      const selected=$('suppDateInput').value;if(!validDate(selected)){$('suppRange').textContent='Выберите корректную дату.';$('supplementsContainer').innerHTML='';return;}
-      const weekday=(new Date(epoch(selected)).getUTCDay()+6)%7,monday=addDays(selected,-weekday),dates=Array.from({length:7},(_,i)=>addDays(monday,i)),names=['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'];
-      $('suppRange').textContent=`${dateLabel(dates[0])} — ${dateLabel(dates[6])} · каждая отметка сохраняется отдельно по дате`;
-      let html='<table class="supp-table"><caption class="subtitle" style="text-align:left">Отметки приёма за неделю</caption><thead><tr><th scope="col">Добавка / время</th>'+dates.map((d,i)=>`<th scope="col" class="${d===todayDate()?'today':''}">${names[i]}<small>${dateLabel(d).slice(0,5)}</small></th>`).join('')+'</tr></thead><tbody>';
-      for(const s of supplementsConfig){html+=`<tr><th scope="row">${esc(s.name)}<small>${s.id==='clomid'?'Доза по дате · утром':esc(s.dose+' · '+s.timing)}</small></th>`;
-        for(const d of dates){const key=d+'_'+s.id,p=pctForDate(d),checked=state.suppChecks[key]===true,scheduled=s.id!=='clomid'||p.stage==='active';
-          html+=`<td class="${d===todayDate()?'today':''}"><input type="checkbox" data-supp-key="${key}" aria-label="${esc(s.name+' · '+dateLabel(d))}" ${checked?'checked':''} ${!scheduled?'disabled':''}><small>${s.id==='clomid'?(p.dose===null?'вне графика':p.dose+' мг'):''}${checked&&!scheduled?' · запись из архива':''}</small></td>`;
-        }html+='</tr>';
-      }$('supplementsContainer').innerHTML=html+'</tbody></table>';
-    }
-    function toggleSupp(key,checked){
-      const match=key.match(/^(\d{4}-\d{2}-\d{2})_(zinc|d3|magnesium|omega|creatine|clomid)$/);if(!match||!validDate(match[1]))return;
-      if(match[2]==='clomid'&&pctForDate(match[1]).stage!=='active')return;
-      state.suppChecks[key]=checked;const saved=saveToStorage();$('suppSaveStatus').textContent=saved?'Отметка сохранена на этом устройстве.':'Отметка только в памяти — скачайте архив.';
     }
     let activeWorkoutDay=1;
     const openExercises=new Set();
@@ -712,6 +675,19 @@
       $('cycleTableBody').innerHTML=getActivePlan().slice().sort((a,b)=>a.w-b.w).map(p=>{p=getWeekPlan(p.w);const d=state.weeks[p.w]||{},result=workoutBest(d);return `<tr class="${p.w===state.activeWeek?'active-row':''}"><td><button class="btn btn-secondary" onclick="selectWeek(${p.w})" aria-label="Открыть неделю ${p.w}">${p.w}</button></td><td>${esc(p.phase)}</td><td>${esc(p.d1_main)}</td><td>${esc(p.d3_main)}</td><td>${p.target100}</td><td>${esc(show(result.reps100))} / ${esc(show(result.rir))}</td><td>${esc(show(d.weight,' кг'))}</td><td>${esc(show(d.shoulderLeft))} / ${esc(show(d.shoulderRight))}</td></tr>`;}).join('');
     }
     function selectWeek(w){$('weekSelect').value=w;changeWeek();$('currentWeekHeader').scrollIntoView({block:'center'});}
+    let expandedChart=null;
+    function openChart(kind,event){
+      event?.preventDefault();if(!['reps','health'].includes(kind))return;
+      const dialog=$('chartDialog');if(expandedChart)restoreChart(false);
+      const panel=$(kind+'Panel'),placeholder=document.createComment('chart position');
+      expandedChart={panel,placeholder,wasOpen:panel.open,scroll:window.scrollY,overflow:document.body.style.overflow};
+      panel.replaceWith(placeholder);$('chartFullContent').append(panel);panel.open=true;
+      $('chartFullTitle').textContent=panel.querySelector('h2').textContent;document.body.style.overflow='hidden';
+      if(!dialog.open)dialog.showModal();dialog.style.setProperty('--chart-base-width',Math.max(760,dialog.clientWidth-40)+'px');
+      $('chartZoom').value=100;setChartZoom(100);$('chartFullContent').scrollTop=0;
+    }
+    function setChartZoom(value){const zoom=Math.max(100,Math.min(200,Number(value)||100));$('chartDialog').style.setProperty('--chart-zoom',zoom/100);$('chartZoomValue').textContent=zoom+'%';}
+    function restoreChart(focus=true){if(!expandedChart)return;const saved=expandedChart;expandedChart=null;saved.placeholder.replaceWith(saved.panel);saved.panel.open=saved.wasOpen;document.body.style.overflow=saved.overflow;if(focus){saved.panel.querySelector('summary').focus({preventScroll:true});window.scrollTo(0,saved.scroll);}}
     const chartSeries={plan:true,fact:true,target:true};
     let healthMode='weight',repsInspectWeek=null,healthInspectWeek=null;
     const chartX=w=>48+(w-1)*32.8;
@@ -835,7 +811,7 @@
     }
     function applyImportedJson(){
       if(!pendingPatch)return;
-      try{const p=preparePatch(importWithReset());if(!p.changes.length)throw Error('Нет изменений. Проверьте патч заново.');if(JSON.stringify(p.changes)!==JSON.stringify(pendingPatch.changes)){previewPatch();throw Error('Предпросмотр обновился. Проверьте его перед применением.');}if(p.resets.length)localStorage.setItem('metajhim_plan_reset_backup_v1',JSON.stringify({...clone(state),customPlan:clone(getActivePlan()),schema:'metajhim.backup.v2'}));if(!saveToStorage(p.next))throw Error('Патч не применён: недоступно сохранение.');state=p.next;if(p.resets.length){activeWorkoutDay=1;openExercises.clear();}closeImportModal();fillSettings();renderAll();renderSupplements();updatePctCountdown();showToast(p.resets.length?'Неделя обновлена. Подходы пустые; изменения отправляются в облако.':'Патч применён. История и отметки добавок сохранены.');}
+      try{const p=preparePatch(importWithReset());if(!p.changes.length)throw Error('Нет изменений. Проверьте патч заново.');if(JSON.stringify(p.changes)!==JSON.stringify(pendingPatch.changes)){previewPatch();throw Error('Предпросмотр обновился. Проверьте его перед применением.');}if(p.resets.length)localStorage.setItem('metajhim_plan_reset_backup_v1',JSON.stringify({...clone(state),customPlan:clone(getActivePlan()),schema:'metajhim.backup.v2'}));if(!saveToStorage(p.next))throw Error('Патч не применён: недоступно сохранение.');state=p.next;if(p.resets.length){activeWorkoutDay=1;openExercises.clear();}closeImportModal();fillSettings();renderAll();updatePctCountdown();showToast(p.resets.length?'Неделя обновлена. Подходы пустые; изменения отправляются в облако.':'Патч применён. История и отметки добавок сохранены.');}
       catch(e){$('patchPreview').className='notice error';$('patchPreview').textContent=e.message;}
     }
     function downloadJSON(payload,name){const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
@@ -849,7 +825,7 @@
     function restoreBackup(){
       try{const p=readImport();if(p.schema!=='metajhim.backup.v2'&&!(p.version&&obj(p.weeks)))throw Error('Вставьте JSON-архив MetaJhim.');const restored=normalizeState(p);delete restored.schema;delete restored.exportedAt;
         if(!confirm('Заменить весь дневник и отметки добавок данными архива? Сначала скачайте текущий архив.'))return;
-        try{localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));}catch(e){throw Error('Не удалось восстановить архив: '+e.message);}state=restored;storageProblem='';window.MetaJhimCloud?.changed();$('storageWarning').hidden=true;closeImportModal();fillSettings();renderAll();renderSupplements();updatePctCountdown();showToast('Дневник и трекер восстановлены из архива.');
+        try{localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));}catch(e){throw Error('Не удалось восстановить архив: '+e.message);}state=restored;storageProblem='';window.MetaJhimCloud?.changed();$('storageWarning').hidden=true;closeImportModal();fillSettings();renderAll();updatePctCountdown();showToast('Дневник восстановлен из архива.');
       }catch(e){$('patchPreview').className='notice error';$('patchPreview').textContent=e.message;}
     }
     let installPrompt=null;
