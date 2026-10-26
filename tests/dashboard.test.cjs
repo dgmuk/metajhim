@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
 const { chromium } = require('playwright');
+async function unfold(page,id){const panel=page.locator('#'+id);if(await panel.getAttribute('open')===null)await panel.locator(':scope > summary').click();}
 
 const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
@@ -30,6 +31,10 @@ const server = http.createServer((req,res) => {
     page.on('pageerror',e=>errors.push(e.message));
     await page.clock.install({time:new Date('2026-10-19T12:00:00Z')});
     await page.goto(url);
+    assert.equal(await page.locator('.section-fold').count(),5);
+    for(const id of ['pctPanel','repsPanel','healthPanel','supplementsPanel','cyclePanel']){assert.equal(await page.locator('#'+id).getAttribute('open'),null);assert(await page.locator('#'+id+' > summary').isVisible());}
+    await page.locator('#pctPanel > summary').focus();await page.locator('#pctPanel > summary').press('Enter');assert(await page.locator('#pctDaysCount').isVisible());await page.locator('#pctPanel > summary').press('Enter');assert.equal(await page.locator('#pctDaysCount').isVisible(),false);
+    await unfold(page,'pctPanel');
     assert.equal(await page.locator('#weekSelect option').count(),16);
     assert.equal(await page.locator('#cycleTableBody tr').count(),16);
     assert.equal(await page.locator('.charts svg').count(),2);
@@ -59,10 +64,10 @@ const server = http.createServer((req,res) => {
     await page.evaluate(()=>updatePctCountdown());
     console.log('PASS: UTF-8, 16 weeks, SVG charts, PCT boundary dates');
 
-    await page.locator('[data-supp-key="2026-10-19_zinc"]').check();
+    await unfold(page,'supplementsPanel');await page.locator('[data-supp-key="2026-10-19_zinc"]').check();
     await page.reload();
     assert.equal(await page.locator('[data-supp-key="2026-10-19_zinc"]').isChecked(),true);
-    await page.locator('#suppDateInput').fill('2026-11-23');
+    await unfold(page,'supplementsPanel');await page.locator('#suppDateInput').fill('2026-11-23');
     await page.locator('#suppDateInput').dispatchEvent('change');
     await page.locator('[data-supp-key="2026-11-23_clomid"]').check();
     assert.match(await page.locator('[data-supp-key="2026-11-23_clomid"]').locator('..').innerText(),/25 мг/);
@@ -130,7 +135,7 @@ const server = http.createServer((req,res) => {
     await page.clock.setSystemTime(new Date('2026-10-20T12:00:00Z'));
     await page.evaluate(()=>updatePctCountdown());
     await page.locator('.pct-card').screenshot({path:path.join(root,'test-results','pct-desktop.png')});
-    await page.locator('.pct-details summary').click();
+    await unfold(page,'pctPanel');await page.locator('.pct-details summary').click();
     assert(await page.locator('#pctSchedule').isVisible());
     await page.locator('.pct-card').screenshot({path:path.join(root,'test-results','pct-expanded.png')});
     await page.locator('.pct-details summary').click();
@@ -162,7 +167,7 @@ const server = http.createServer((req,res) => {
     await first().locator('.set-row').first().locator('input').nth(2).fill('0');
     await first().locator('.exercise-comment').fill(attack);
     assert.match(await diary.locator('#metricReps').innerText(),/^17/);
-    assert.match(await diary.locator('#repsReadout').innerText(),/17 повт/);
+    await unfold(diary,'repsPanel');await unfold(diary,'healthPanel');assert.match(await diary.locator('#repsReadout').innerText(),/17 повт/);
     await diary.locator('#repsWeek3').hover();assert.match(await diary.locator('#repsReadout').innerText(),/нет записи/);
     await diary.locator('#repsWeek1').focus();await diary.locator('#repsWeek1').press('ArrowRight');assert.match(await diary.locator('#repsReadout').innerText(),/Неделя 2/);
     await diary.locator('#legend-plan').click();assert.equal(await diary.locator('#repsChart [data-series="plan"]').count(),0);assert.equal(await diary.locator('#repsChart [data-series="fact"]').count(),1);
@@ -170,11 +175,11 @@ const server = http.createServer((req,res) => {
     await first().getByRole('button',{name:'+ Добавить подход',exact:true}).click();assert.equal(await first().locator('.set-row').count(),5);
     await diary.getByRole('tab',{name:/Среда/}).click();await openFirst();await first().locator('.set-row').first().locator('input').nth(0).fill('80');
     await diary.locator('#diaryWeekSelect').selectOption('2');await openFirst();await first().locator('.set-row').first().locator('input').nth(0).fill('90');
-    await diary.reload();assert.equal(await first().locator('.set-row').first().locator('input').nth(0).inputValue(),'90');assert.equal(await first().locator('.exercise-toggle').getAttribute('aria-expanded'),'false');await openFirst();
+    await diary.reload();assert.equal(await first().locator('.set-row').first().locator('input').nth(0).inputValue(),'90');assert.equal(await first().locator('.exercise-toggle').getAttribute('aria-expanded'),'false');await openFirst();await unfold(diary,'repsPanel');await unfold(diary,'healthPanel');
     await first().locator('.set-row').first().locator('input').nth(0).fill('100');await first().locator('.set-row').first().locator('input').nth(1).fill('19');
     assert.equal(await diary.locator('#repsChart [data-series="fact"] polyline').count(),1);assert.match(await diary.locator('#repsBestValue').innerText(),/19/);
     await diary.locator('#factWeight').fill('98.2');await diary.locator('#factShoulder').fill('0');
-    await diary.locator('#healthWeightTab').click();assert.match(await diary.locator('#healthLatestValue').innerText(),/98.2/);assert.match(await diary.locator('#healthChart svg').getAttribute('aria-label'),/килограммах/);
+    await unfold(diary,'repsPanel');await unfold(diary,'healthPanel');await diary.locator('#healthWeightTab').click();assert.match(await diary.locator('#healthLatestValue').innerText(),/98.2/);assert.match(await diary.locator('#healthChart svg').getAttribute('aria-label'),/килограммах/);
     await diary.locator('#healthShoulderTab').click();assert.match(await diary.locator('#healthLatestValue').innerText(),/0.*\/ 10/);assert.match(await diary.locator('#healthReadout').innerText(),/Без дискомфорта/);
     await diary.locator('#healthWeek3').hover();assert.match(await diary.locator('#healthReadout').innerText(),/нет записи/);
     await diary.locator('#healthShoulderTab').press('ArrowLeft');assert.equal(await diary.locator('#healthWeightTab').getAttribute('aria-selected'),'true');
@@ -283,6 +288,13 @@ const server = http.createServer((req,res) => {
     await b.evaluate(()=>selectDiaryWeek(1));await b.locator('#cloudOpenButton').click();await b.waitForFunction(()=>document.getElementById('weekSelect').value==='2');
     assert.equal(await a.evaluate(()=>{const snapshot=JSON.stringify(state);try{preparePatch({resetWeeks:[2],plan:[{w:2,target100:1}]});return false;}catch{return JSON.stringify(state)===snapshot;}}),true);
     await ca.close();await cb.close();assert.deepEqual(errors,[]);console.log('PASS: cloud login, first sync choice, cross-device pull, merge, conflict backup, offline queue, session restore, logout, targeted week reset, one-button phone refresh');
+    const compactContext=await browser.newContext({viewport:{width:1440,height:1000}}),compact=await compactContext.newPage();await compact.goto(url);
+    assert.equal(await compact.locator('.section-fold[open]').count(),0);
+    await unfold(compact,'supplementsPanel');const zinc=compact.locator('.supp-table input').first();await zinc.check();await compact.locator('#supplementsPanel > summary').click();await unfold(compact,'supplementsPanel');assert(await zinc.isChecked());
+    await compact.reload();assert.equal(await compact.locator('.section-fold[open]').count(),0);
+    await compact.screenshot({path:path.join(root,'test-results','collapsed-desktop.png'),fullPage:true});
+    await compact.setViewportSize({width:390,height:844});assert(await compact.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await compact.screenshot({path:path.join(root,'test-results','collapsed-mobile.png'),fullPage:true});
+    await compactContext.close();console.log('PASS: all five sections collapsed on launch/reload; toggling retains supplement checks; compact mobile layout');
     console.log('ALL CHECKS PASSED');
   } finally {await browser.close();server.close();}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1;});

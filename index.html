@@ -97,6 +97,9 @@
     .chart-readout{display:grid;grid-template-columns:1fr auto;gap:9px 16px;background:var(--card-alt);border:1px solid var(--border);border-radius:11px;padding:12px 14px;margin-top:2px;min-height:77px;font-size:12px}.chart-readout-title{color:#b5beb0;grid-column:1/-1}.chart-readout-values{display:flex;flex-wrap:wrap;gap:6px 18px}.chart-readout-values span{color:var(--muted)}.chart-readout-values b{color:var(--text);font-weight:650}.chart-readout-diff{font-size:11px;color:var(--accent);align-self:center;text-align:right}.chart-help{color:#929d8c;font-size:11px;margin-top:11px;line-height:1.65}.health-tabs{display:flex;gap:3px;padding:3px;background:#0e100d;border:1px solid var(--border);border-radius:10px;margin-top:17px}.health-tab{flex:1;border:0;background:none;padding:8px;border-radius:7px;color:#9da795;font-size:12px;font-weight:600}.health-tab[aria-selected="true"]{background:#293323;color:#d9e8bc}.health-card .progress-headline{margin-top:15px}.health-card .chart-legend{margin-top:10px}
     @media(max-width:540px){.progress-card{padding:17px}.progress-card h2{font-size:17px}.progress-value{font-size:27px}.chart-readout{padding:11px;font-size:11px;gap:7px}.chart-readout-diff{grid-column:1/-1;text-align:left}.charts .chart-tick-minor{display:none}.chart-help{font-size:10px}.legend-button,.legend-label{font-size:11px}}
     .cloud-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;margin-bottom:22px;border:1px solid var(--border);border-radius:12px;background:var(--card);font-size:12px;color:var(--muted)}.cloud-bar .actions{margin:0}.cloud-bar .btn{font-size:11px;padding:7px 10px}#cloudConflict[hidden],#cloudAccount[hidden],#cloudLoginForm[hidden]{display:none}
+    .section-fold{padding:0!important;margin-top:0;overflow:hidden}.section-fold.progress-card{display:block}.charts{align-items:start}.fold-summary{display:flex;align-items:center;gap:14px;padding:20px 22px;list-style:none;cursor:pointer;min-height:68px}.fold-summary::-webkit-details-marker{display:none}.fold-summary h2{flex:1;min-width:0;font-size:17px;line-height:1.4;letter-spacing:-.02em;margin:0}.fold-summary::after{content:'⌄';font-size:20px;line-height:1;color:var(--muted);flex-shrink:0}.section-fold[open]>.fold-summary::after{content:'⌃'}.section-fold[open]>.fold-summary{border-bottom:1px solid var(--border)}.fold-body{padding:18px 22px 22px}.fold-summary .pct-status,.fold-summary .badge{flex-shrink:0}.fold-summary .subtitle{margin:0;font-size:11px}.section-fold .pct-description,.section-fold .progress-intro{margin-top:0}
+    @media(max-width:540px){.fold-summary{padding:17px 16px;gap:9px}.fold-summary h2{font-size:15px}.fold-body{padding:16px}.fold-summary .pct-status{font-size:10px;padding:5px 7px}.fold-summary .subtitle{display:none}}
+    .fold-summary{color:var(--text)}.section-fold:not([open])>.fold-summary .badge,.section-fold:not([open])>.fold-summary .pct-status,.section-fold:not([open])>.fold-summary .subtitle{display:none}
   </style>
 </head>
 <body>
@@ -329,34 +332,32 @@
         <p id="pwaOfflineStatus" class="notice" role="status" hidden>Нет интернета. Записи сохраняются на этом устройстве.</p>
         <dialog id="pwaInstallDialog" aria-labelledby="pwaInstallTitle"><div class="section-title"><span id="pwaInstallTitle">Установка на телефон</span><button class="btn btn-secondary" type="button" onclick="document.getElementById('pwaInstallDialog').close()">Закрыть</button></div><p id="pwaInstallHelp" class="subtitle"></p><div id="pwaRepairHelp" class="notice"><p>Chrome пишет «Уже установлено», но приложение не открывается?</p><p class="subtitle" style="margin:8px 0 12px">Попробуйте повторную установку с отдельным идентификатором. Записи дневника и настройки не сбрасываются.</p><a id="pwaRepairLink" class="btn btn-secondary" style="display:inline-block;text-decoration:none" href="./?install=repair">Повторить установку</a></div><p class="subtitle" style="margin-top:12px">Открывайте приложение с его иконки на главном экране. <a href="https://dgmuk.github.io/metajhim/" target="_blank" rel="noopener">Открыть сайт на телефоне</a></p></dialog>
 
-        <section class="pct-card" aria-labelledby="pctHeading">
-          <div class="pct-top">
-            <div><div class="pct-eyebrow">ЛИЧНЫЙ КАЛЕНДАРЬ</div><h2 class="pct-title" id="pctHeading">Подготовка к ПКТ</h2><p class="pct-description" id="pctDescription"></p></div>
-            <span class="pct-status" id="pctStatusBadge"></span>
-          </div>
+        <details class="pct-card section-fold" id="pctPanel">
+          <summary class="fold-summary"><h2 class="pct-title" id="pctHeading">Подготовка к ПКТ</h2><span class="pct-status" id="pctStatusBadge"></span></summary>
+          <div class="fold-body"><p class="pct-description" id="pctDescription"></p>
           <div class="pct-facts">
             <div><div class="pct-label">С последнего укола</div><div class="pct-number" id="pctDaysCount">—</div><div class="pct-note">Последний укол · 18 октября 2026</div></div>
             <div><div class="pct-label" id="pctNextLabel">Начало ПКТ</div><div class="pct-number" id="pctNextDate">8 ноября</div><div class="pct-note" id="pctNextNote">2026 год · по вашему графику</div></div>
           </div>
           <div class="pct-timeline"><progress class="pct-progress" id="pctProgress" max="21" value="0" aria-label="Дни между последним уколом и началом ПКТ"></progress><div class="pct-timeline-labels"><span id="pctTimelineStart">18 октября · последний укол</span><span id="pctTimelineEnd">8 ноября · начало ПКТ</span></div></div>
           <details class="pct-details"><summary>Посмотреть график</summary><div class="pct-schedule" id="pctSchedule"></div></details>
-        </section>
-        <section class="charts" style="margin-bottom:24px" aria-label="Ваш прогресс">
-          <article class="card progress-card"><h2>Ваш прогресс · жим 100 кг</h2><p class="progress-intro">План подготовки и результаты из дневника</p><div class="progress-headline"><div class="progress-value" id="repsBestValue"></div><span class="progress-context">лучший подход</span></div><p class="progress-meta" id="repsTargetSummary"></p><div class="chart-legend" id="repsLegend" aria-label="Линии графика"></div><div class="chart-shell" id="repsChart"></div><div class="chart-readout" id="repsReadout" aria-live="polite"></div><p class="chart-help" id="repsChartHelp"></p></article>
-          <article class="card progress-card health-card"><h2>Вес и самочувствие</h2><p class="progress-intro">Два показателя — каждый на своей шкале</p><div class="health-tabs" role="tablist" aria-label="Показатель самочувствия" onkeydown="healthTabKeys(event)"><button type="button" role="tab" id="healthWeightTab" class="health-tab" aria-controls="healthChart" aria-selected="true" onclick="selectHealthMode('weight')">Вес тела</button><button type="button" role="tab" id="healthShoulderTab" class="health-tab" aria-controls="healthChart" aria-selected="false" tabindex="-1" onclick="selectHealthMode('shoulder')">Левое плечо</button></div><div class="progress-headline"><div class="progress-value" id="healthLatestValue"></div><span class="progress-context" id="healthLatestCaption"></span></div><p class="progress-meta" id="healthSummary"></p><div class="chart-legend" id="healthLegend"></div><div class="chart-shell" id="healthChart" role="tabpanel" aria-labelledby="healthWeightTab"></div><div class="chart-readout" id="healthReadout" aria-live="polite"></div><p class="chart-help" id="healthChartHelp"></p></article>
-        </section>
-        <div class="card" style="margin-bottom: 24px;">
-          <div class="section-title">
-            <span>Ежедневный стек добавок и нутриентов</span>
-            <span class="badge badge-ok">Отметки по датам</span>
           </div>
+        </details>
+        <section class="charts" style="margin-bottom:24px" aria-label="Ваш прогресс">
+          <details class="card progress-card section-fold" id="repsPanel"><summary class="fold-summary"><h2>Ваш прогресс · жим 100 кг</h2></summary><div class="fold-body"><p class="progress-intro">План подготовки и результаты из дневника</p><div class="progress-headline"><div class="progress-value" id="repsBestValue"></div><span class="progress-context">лучший подход</span></div><p class="progress-meta" id="repsTargetSummary"></p><div class="chart-legend" id="repsLegend" aria-label="Линии графика"></div><div class="chart-shell" id="repsChart"></div><div class="chart-readout" id="repsReadout" aria-live="polite"></div><p class="chart-help" id="repsChartHelp"></p></div></details>
+          <details class="card progress-card health-card section-fold" id="healthPanel"><summary class="fold-summary"><h2>Вес и самочувствие</h2></summary><div class="fold-body"><p class="progress-intro">Два показателя — каждый на своей шкале</p><div class="health-tabs" role="tablist" aria-label="Показатель самочувствия" onkeydown="healthTabKeys(event)"><button type="button" role="tab" id="healthWeightTab" class="health-tab" aria-controls="healthChart" aria-selected="true" onclick="selectHealthMode('weight')">Вес тела</button><button type="button" role="tab" id="healthShoulderTab" class="health-tab" aria-controls="healthChart" aria-selected="false" tabindex="-1" onclick="selectHealthMode('shoulder')">Левое плечо</button></div><div class="progress-headline"><div class="progress-value" id="healthLatestValue"></div><span class="progress-context" id="healthLatestCaption"></span></div><p class="progress-meta" id="healthSummary"></p><div class="chart-legend" id="healthLegend"></div><div class="chart-shell" id="healthChart" role="tabpanel" aria-labelledby="healthWeightTab"></div><div class="chart-readout" id="healthReadout" aria-live="polite"></div><p class="chart-help" id="healthChartHelp"></p></div></details>
+        </section>
+        <details class="card section-fold" id="supplementsPanel" style="margin-bottom:24px">
+          <summary class="fold-summary"><h2>Ежедневный стек добавок и нутриентов</h2><span class="badge badge-ok">Отметки по датам</span></summary>
+          <div class="fold-body">
           <div style="margin-bottom: 10px; display:flex; align-items:center; gap:10px;">
             <label for="suppDateInput">Дата в неделе:</label>
             <input type="date" id="suppDateInput" style="width: auto;" onchange="renderSupplements()" />
           </div>
           <div class="actions"><button class="btn btn-secondary" onclick="shiftSuppWeek(-7)">← Неделя</button><button class="btn btn-secondary" onclick="suppToday()">Сегодня</button><button class="btn btn-secondary" onclick="shiftSuppWeek(7)">Неделя →</button></div>
           <p class="subtitle" id="suppRange"></p><div class="table-wrap" id="supplementsContainer"></div><p class="subtitle" id="suppSaveStatus" role="status"></p>
-        </div>
+          </div>
+        </details>
 
         <div class="controls-bar">
           <div class="control-group">
@@ -440,10 +441,9 @@
           <textarea id="weekNotes" rows="3" oninput="saveWeekData()"></textarea>
         </div>
 
-        <div class="card">
-          <div class="section-title">
-            <span>Весь 16-недельный цикл · план и факт</span><span class="subtitle">На телефоне прокручивайте таблицу вбок →</span>
-          </div>
+        <details class="card section-fold" id="cyclePanel">
+          <summary class="fold-summary"><h2>Весь 16-недельный цикл · план и факт</h2><span class="subtitle">На телефоне прокручивайте таблицу вбок →</span></summary>
+          <div class="fold-body">
           <div style="overflow-x: auto;">
             <table>
               <thead>
@@ -461,7 +461,8 @@
               <tbody id="cycleTableBody"></tbody>
             </table>
           </div>
-        </div>
+          </div>
+        </details>
 
         <dialog id="importModal" aria-label="Импорт JSON">
           <div class="modal-box" style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; max-width:640px; width:100%;">
