@@ -31,8 +31,10 @@ const server = http.createServer((req,res) => {
     page.on('pageerror',e=>errors.push(e.message));
     await page.clock.install({time:new Date('2026-10-19T12:00:00Z')});
     await page.goto(url);
-    assert.equal(await page.locator('.section-fold').count(),4);
-    for(const id of ['pctPanel','repsPanel','healthPanel','cyclePanel']){assert.equal(await page.locator('#'+id).getAttribute('open'),null);assert(await page.locator('#'+id+' > summary').isVisible());}
+    assert.equal(await page.locator('.section-fold').count(),6);
+    for(const id of ['appMenuPanel','weekOverviewPanel','pctPanel','repsPanel','healthPanel','cyclePanel']){assert.equal(await page.locator('#'+id).getAttribute('open'),null);assert(await page.locator('#'+id+' > summary').isVisible());}
+    assert.equal(await page.locator('#factWeight').isVisible(),false);assert.equal(await page.getByRole('button',{name:'Скачать JSON-архив',exact:true}).isVisible(),false);assert(await page.locator('#cloudOpenButton').isVisible());
+    await unfold(page,'weekOverviewPanel');
     await page.locator('#pctPanel > summary').focus();await page.locator('#pctPanel > summary').press('Enter');assert(await page.locator('#pctDaysCount').isVisible());await page.locator('#pctPanel > summary').press('Enter');assert.equal(await page.locator('#pctDaysCount').isVisible(),false);
     await unfold(page,'pctPanel');
     assert.equal(await page.locator('#weekSelect option').count(),16);
@@ -67,7 +69,7 @@ const server = http.createServer((req,res) => {
     await page.evaluate(()=>{state.suppChecks={'2026-10-19_zinc':true,'2026-11-23_clomid':true,'2027-01-01_creatine':true};saveToStorage();});await page.reload();
     assert.equal(await page.evaluate(()=>state.suppChecks['2026-10-19_zinc']),true);
     console.log('PASS: removed supplement UI retains legacy data');
-
+    await unfold(page,'weekOverviewPanel');
     await page.locator('#factRIR').fill('0');
     await page.locator('#factShoulder').fill('0');
     await page.locator('#factShoulderRight').fill('3');
@@ -135,14 +137,16 @@ const server = http.createServer((req,res) => {
     await legacyPage.goto(url);
     assert.equal(await legacyPage.evaluate(()=>state.weeks[1].shoulderLeft),'0');
     assert.equal(await legacyPage.evaluate(()=>state.suppChecks['2026-10-19_zinc']),true);
+    await unfold(legacyPage,'weekOverviewPanel');
     await legacyPage.locator('#factShoulderRight').fill('0');
     assert.equal(await legacyPage.evaluate(()=>JSON.parse(localStorage.getItem('metajhim_dmitry_v2')).weeks[1].d1_fact),'legacy');
     const bad=await browser.newContext();const badPage=await bad.newPage();await badPage.addInitScript(()=>localStorage.setItem('metajhim_dmitry_v2','broken JSON'));await badPage.goto(url);
-    assert(await badPage.locator('#storageWarning').isVisible());await badPage.locator('#factRIR').fill('1');assert.equal(await badPage.evaluate(()=>localStorage.getItem('metajhim_dmitry_v2')),'broken JSON');
+    assert(await badPage.locator('#storageWarning').isVisible());await unfold(badPage,'weekOverviewPanel');await badPage.locator('#factRIR').fill('1');assert.equal(await badPage.evaluate(()=>localStorage.getItem('metajhim_dmitry_v2')),'broken JSON');
     console.log('PASS: v4 migration, legacy shoulder migration, damaged-storage preservation');
     assert.deepEqual(errors,[]);
     const diaryContext=await browser.newContext({viewport:{width:1440,height:1000}}),diary=await diaryContext.newPage();
     diary.on('pageerror',e=>errors.push(e.message));await diary.clock.install({time:new Date('2026-10-20T12:00:00Z')});await diary.goto(url);
+    await unfold(diary,'weekOverviewPanel');
     const first=()=>diary.locator('.exercise-card').first();
     const openFirst=async()=>{if(await first().locator('.exercise-toggle').getAttribute('aria-expanded')==='false')await first().locator('.exercise-toggle').click();};
     assert.equal(await diary.locator('#diaryDays').getByRole('tab').count(),3);assert.equal(await first().locator('.set-row').count(),4);
@@ -164,7 +168,7 @@ const server = http.createServer((req,res) => {
     await diary.reload();assert.equal(await first().locator('.set-row').first().locator('input').nth(0).inputValue(),'90');assert.equal(await first().locator('.exercise-toggle').getAttribute('aria-expanded'),'false');await openFirst();await unfold(diary,'repsPanel');await unfold(diary,'healthPanel');
     await first().locator('.set-row').first().locator('input').nth(0).fill('100');await first().locator('.set-row').first().locator('input').nth(1).fill('19');
     assert.equal(await diary.locator('#repsChart [data-series="fact"] polyline').count(),1);assert.match(await diary.locator('#repsBestValue').innerText(),/19/);
-    await diary.locator('#factWeight').fill('98.2');await diary.locator('#factShoulder').fill('0');
+    await unfold(diary,'weekOverviewPanel');await diary.locator('#factWeight').fill('98.2');await diary.locator('#factShoulder').fill('0');
     await unfold(diary,'repsPanel');await unfold(diary,'healthPanel');await diary.locator('#healthWeightTab').click();assert.match(await diary.locator('#healthLatestValue').innerText(),/98.2/);assert.match(await diary.locator('#healthChart svg').getAttribute('aria-label'),/килограммах/);
     await diary.locator('#healthShoulderTab').click();assert.match(await diary.locator('#healthLatestValue').innerText(),/0.*\/ 10/);assert.match(await diary.locator('#healthReadout').innerText(),/Без дискомфорта/);
     await diary.locator('#healthWeek3').hover();assert.match(await diary.locator('#healthReadout').innerText(),/нет записи/);
@@ -208,11 +212,13 @@ const server = http.createServer((req,res) => {
       await pwa.reload();assert.equal(await card.locator('.exercise-toggle').getAttribute('aria-expanded'),'false');assert.equal(await card.locator('.set-row input').first().inputValue(),'100');
       await pwaContext.setOffline(false);await pwa.reload();assert.equal(await pwa.locator('#pwaOfflineStatus').isVisible(),false);
       await pwa.evaluate(()=>{installPrompt=null;showInstallHelp();});assert(await pwa.locator('#pwaInstallDialog').isVisible());await pwa.locator('#pwaInstallDialog button').click();
+      await unfold(pwa,'appMenuPanel');
       // Accepting a prompt is not proof of completed OS installation.
       await pwa.evaluate(async()=>{installPrompt={prompt:async()=>{},userChoice:Promise.resolve({outcome:'accepted'})};await installPwa();});
       assert(await pwa.locator('#installAppButton').isVisible());assert.equal(await pwa.locator('#installAppButton').isEnabled(),true);
       const oldState=await pwa.evaluate(()=>localStorage.getItem('metajhim_dmitry_v2'));
       await pwa.goto(url+prefix+'?install=repair');
+      await unfold(pwa,'appMenuPanel');
       assert.equal(await pwa.locator('link[rel="manifest"]').getAttribute('href'),'./manifest-repair.webmanifest');
       const repairManifest=await pwa.evaluate(async()=>await (await fetch(document.querySelector('link[rel="manifest"]').href)).json());
       assert.notEqual(repairManifest.id,manifest.id);assert.equal(repairManifest.start_url,'./?install=repair');
@@ -276,6 +282,9 @@ const server = http.createServer((req,res) => {
     await ca.close();await cb.close();assert.deepEqual(errors,[]);console.log('PASS: cloud login, first sync choice, cross-device pull, merge, conflict backup, offline queue, session restore, logout, targeted week reset, one-button phone refresh');
     const compactContext=await browser.newContext({viewport:{width:1440,height:1000}}),compact=await compactContext.newPage();await compact.goto(url);
     assert.equal(await compact.locator('.section-fold[open]').count(),0);
+    assert(await compact.locator('#cloudOpenButton').isVisible());assert.equal(await compact.locator('#factWeight').isVisible(),false);
+    await unfold(compact,'weekOverviewPanel');await compact.locator('#factWeight').fill('98.4');await compact.locator('#weekOverviewPanel > summary').click();await unfold(compact,'weekOverviewPanel');assert.equal(await compact.locator('#factWeight').inputValue(),'98.4');await compact.locator('#weekOverviewPanel > summary').click();
+    await unfold(compact,'appMenuPanel');assert(await compact.getByRole('button',{name:'Скачать JSON-архив',exact:true}).isVisible());await compact.locator('#appMenuPanel > summary').click();
     await compact.locator('#repsPanel > summary').click();assert(await compact.locator('#chartDialog').isVisible());assert.equal(await compact.locator('#chartDialog #repsPanel').count(),1);
     assert.equal(await compact.locator('#repsChart').count(),1);await compact.locator('#chartZoom').press('End');assert.equal(await compact.locator('#chartZoomValue').innerText(),'200%');
     await compact.locator('#legend-plan').click();assert.equal(await compact.locator('#repsChart [data-series="plan"]').count(),0);
