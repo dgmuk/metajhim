@@ -285,7 +285,7 @@ const server = http.createServer((req,res) => {
     assert(await compact.locator('#cloudOpenButton').isVisible());assert.equal(await compact.locator('#factWeight').isVisible(),false);
     await unfold(compact,'weekOverviewPanel');await compact.locator('#factWeight').fill('98.4');await compact.locator('#weekOverviewPanel > summary').click();await unfold(compact,'weekOverviewPanel');assert.equal(await compact.locator('#factWeight').inputValue(),'98.4');await compact.locator('#weekOverviewPanel > summary').click();
     await unfold(compact,'appMenuPanel');assert(await compact.getByRole('button',{name:'Скачать JSON-архив',exact:true}).isVisible());await compact.locator('#appMenuPanel > summary').click();
-    await compact.locator('#repsPanel > summary').click();assert(await compact.locator('#chartDialog').isVisible());assert.equal(await compact.locator('#chartDialog #repsPanel').count(),1);
+    await compact.locator('#repsPanel > summary').click();assert(await compact.locator('#chartDialog').isVisible());assert.equal(await compact.locator('#chartDialog #repsPanel').count(),1);assert(await compact.locator('#chartDialog .chart-shell').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
     assert.equal(await compact.locator('#repsChart').count(),1);await compact.locator('#chartZoom').press('End');assert.equal(await compact.locator('#chartZoomValue').innerText(),'200%');
     await compact.locator('#legend-plan').click();assert.equal(await compact.locator('#repsChart [data-series="plan"]').count(),0);
     await compact.locator('#chartDialog').getByRole('button',{name:'Закрыть',exact:true}).click();await compact.waitForFunction(()=>document.getElementById('repsPanel').parentElement.classList.contains('charts'));
@@ -296,9 +296,11 @@ const server = http.createServer((req,res) => {
     await compact.screenshot({path:path.join(root,'test-results','collapsed-desktop.png'),fullPage:true});
     await compact.setViewportSize({width:390,height:844});assert(await compact.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await compact.screenshot({path:path.join(root,'test-results','collapsed-mobile.png'),fullPage:true});
     await compact.locator('#repsPanel > summary').click();const bounds=await compact.locator('#chartDialog').boundingBox();assert.equal(bounds.width,390);assert.equal(Math.round(bounds.height),844);
-    assert(await compact.locator('#chartDialog .chart-shell').evaluate(el=>el.scrollWidth>el.clientWidth));
+    assert(await compact.locator('#chartDialog .chart-shell').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
     await compact.locator('#chartDialog').screenshot({path:path.join(root,'test-results','chart-fullscreen-mobile.png')});
+    await compact.locator('#chartZoom').press('End');assert(await compact.locator('#chartDialog .chart-shell').evaluate(el=>el.scrollWidth>el.clientWidth));await compact.locator('#chartZoom').press('Home');assert(await compact.locator('#chartDialog .chart-shell').evaluate(el=>el.scrollWidth<=el.clientWidth+1&&el.scrollLeft===0));
     await compact.locator('#chartDialog').getByRole('button',{name:'Закрыть',exact:true}).click();await compact.waitForFunction(()=>!document.getElementById('chartDialog').open);
+    await compact.locator('#healthPanel > summary').click();for(const mode of ['healthWeightTab','healthShoulderTab']){await compact.locator('#'+mode).click();assert(await compact.locator('#chartDialog .chart-shell').evaluate(el=>el.scrollWidth<=el.clientWidth+1));await compact.locator('#chartZoom').press('End');assert(await compact.locator('#chartDialog .chart-shell').evaluate(el=>el.scrollWidth>el.clientWidth));await compact.locator('#chartZoom').press('Home');}await compact.locator('#chartDialog').getByRole('button',{name:'Закрыть',exact:true}).click();
     await compactContext.close();console.log('PASS: default folds, fullscreen graphs, zoom, live controls, close/Escape restore and mobile scroll');
     console.log('ALL CHECKS PASSED');
   } finally {await browser.close();server.close();}
