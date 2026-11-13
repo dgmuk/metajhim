@@ -302,6 +302,29 @@ const server = http.createServer((req,res) => {
     await compact.locator('#chartDialog').getByRole('button',{name:'Закрыть',exact:true}).click();await compact.waitForFunction(()=>!document.getElementById('chartDialog').open);
     await compact.locator('#healthPanel > summary').click();for(const mode of ['healthWeightTab','healthShoulderTab']){await compact.locator('#'+mode).click();assert(await compact.locator('#chartDialog .chart-shell').evaluate(el=>el.scrollWidth<=el.clientWidth+1));await compact.locator('#chartZoom').press('End');assert(await compact.locator('#chartDialog .chart-shell').evaluate(el=>el.scrollWidth>el.clientWidth));await compact.locator('#chartZoom').press('Home');}await compact.locator('#chartDialog').getByRole('button',{name:'Закрыть',exact:true}).click();
     await compactContext.close();console.log('PASS: default folds, fullscreen graphs, zoom, live controls, close/Escape restore and mobile scroll');
+    const four=await browser.newPage({viewport:{width:390,height:844}});
+    await four.clock.install({time:new Date('2026-11-13T12:00:00Z')});await four.goto(url);
+    const example=process.env.TEST_FOUR_DAY_PLAN?JSON.parse(fs.readFileSync(process.env.TEST_FOUR_DAY_PLAN,'utf8')):null;
+    await four.evaluate(imported=>{
+      const old=clone(state.weeks);
+      const p=clone(getWeekPlan(5));p.days=trainingDays(p);
+      p.days.d4=[{id:'sat-row',name:'Тяга блока',prescription:'3×12',setCount:3,unit:'reps'}];p.d4_all='Тяга блока 3×12';
+      const patch=preparePatch(imported||{plan:[{w:4,d4_all:'Не заменять'},p]});
+      if(patch.boundary!==4||!patch.skipped.includes(4)||JSON.stringify(old)!==JSON.stringify(patch.next.weeks))throw Error('History protection failed');
+      state=patch.next;saveToStorage();selectDiaryWeek(5);
+    },example);
+    assert.equal(await four.locator('#diaryDays [role=tab]').count(),4);
+    await four.locator('#diaryDay3').click();await four.locator('#diaryDay3').press('ArrowRight');
+    assert.equal(await four.locator('#diaryDay4').getAttribute('aria-selected'),'true');
+    await four.locator('.exercise-toggle').first().click();await four.locator('.set-row input').first().fill('40');
+    assert.equal(await four.evaluate(()=>weeklyPayload().fact.workouts.d4.date),'2026-11-21');
+    assert.match(await four.evaluate(()=>reportText()),/День 4 · факт:/);
+    await four.reload();await four.locator('#diaryDay4').click();
+    assert.equal(await four.locator('.set-row input').first().inputValue(),'40');
+    await four.locator('#diaryWeekSelect').selectOption('4');assert.equal(await four.locator('#diaryDays [role=tab]').count(),3);
+    assert(await four.evaluate(()=>{const p=clone(getWeekPlan(4));p.days={...trainingDays(p),d4:[]};p.d4_all='Полный отдых';validatePlan(p);const data=clone(state);data.weeks[4]={planSnapshot:p,workouts:{d4:[]}};return !normalizeState(data).weeks[4].workouts.d4&&trainingDays(p).d4.length===0;}));
+    assert(await four.evaluate(()=>{const p={...getWeekPlan(6),days:undefined,d4_all:'Тяга блока 3×12'};return trainingDays(p).d4[0].setCount===3;}));
+    await four.close();console.log('PASS: four-day plan, Saturday persistence and report, protected three-day weeks');
     console.log('ALL CHECKS PASSED');
   } finally {await browser.close();server.close();}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1;});

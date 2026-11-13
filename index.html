@@ -101,6 +101,8 @@
     #repsPanel>.fold-summary::after,#healthPanel>.fold-summary::after{content:'⛶';font-size:23px}#chartDialog{inset:0;width:100vw;max-width:none;height:100vh;height:100dvh;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:var(--bg);overflow:hidden}#chartDialog[open]{display:flex;flex-direction:column}#chartDialog::backdrop{background:#000d}.chart-full-header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;border-bottom:1px solid var(--border);background:var(--card)}.chart-full-header h2{font-size:19px}.chart-full-header .btn{min-height:42px}.chart-full-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:9px 16px;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--card);font-size:12px}.chart-full-toolbar label{display:flex;align-items:center;gap:10px;margin:0;font-size:12px}.chart-full-toolbar input{width:140px;padding:0;accent-color:var(--accent)}.chart-full-toolbar output{width:42px;color:var(--text)}.chart-full-toolbar span{color:var(--muted)}#chartFullContent{overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1;padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}#chartDialog .progress-card{border:0;border-radius:0;margin:0}#chartDialog .fold-summary{display:none}#chartDialog .fold-body{padding:20px}#chartDialog .chart-shell{overflow-x:auto;overscroll-behavior-x:contain;touch-action:pan-x pan-y pinch-zoom;margin:16px 0;flex:initial}#chartDialog .chart-shell svg{display:block;width:calc(100% * var(--chart-zoom,1));max-width:none;height:auto}#chartDialog svg text{font:12px system-ui;fill:var(--muted)}#chartDialog .chart-axis-title{font-size:13px}#chartDialog .chart-hit{cursor:pointer;outline:none}#chartDialog .chart-tick-minor{display:block}#chartDialog .legend-button,#chartDialog .legend-label{font-size:13px;min-height:40px}#chartDialog .health-tab{font-size:14px;min-height:42px}#chartDialog .chart-readout{font-size:14px}#chartDialog .chart-help{font-size:12px}#chartDialog .progress-intro{font-size:14px}
     @media(max-width:540px){.chart-full-header{padding-left:14px;padding-right:14px}.chart-full-header h2{font-size:16px}.chart-full-toolbar{padding:10px 14px}.chart-full-toolbar span{font-size:11px}#chartDialog .fold-body{padding:16px}#chartDialog .chart-readout{font-size:13px}}
     .app-header{display:block;border-bottom:0;padding-bottom:0}.app-header .section-fold{width:100%}.app-header .fold-summary h1{flex:1;font-size:clamp(16px,2vw,21px);line-height:1.4;margin:0}.app-header .fold-body>.subtitle{margin:0 0 16px}.week-overview>.fold-body>.card{margin-bottom:0!important}.week-overview .grid-cards,.week-overview>.fold-body>.controls-bar{margin-bottom:20px}
+    .diary-tabs.four-days{grid-template-columns:repeat(4,minmax(0,1fr))}
+    @media(max-width:540px){.diary-tabs.four-days{grid-template-columns:repeat(2,minmax(0,1fr))}}
   </style>
 </head>
 <body>
@@ -472,7 +474,8 @@
     }
 
     const STORAGE_KEY='metajhim_dmitry_v2', LAST_INJECT='2026-10-18', PCT_START='2026-11-08', PCT_END='2026-12-05';
-    const PLAN_KEYS=['phase','isDeload','target100','d1_main','d1_acc','d2_all','d3_main','d3_acc','days'];
+    const DAY_KEYS=['d1','d2','d3','d4'];
+    const PLAN_KEYS=['phase','isDeload','target100','d1_main','d1_acc','d2_all','d3_main','d3_acc','d4_all','days'];
     const $=id=>document.getElementById(id),clone=v=>JSON.parse(JSON.stringify(v));
     const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k),obj=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
     const has=v=>v!==''&&v!==undefined&&v!==null;
@@ -496,8 +499,9 @@
     function validatePlan(p,partial=false){
       if(!obj(p)||!Number.isInteger(p.w)||p.w<1||p.w>16)throw Error('w должен быть целым числом от 1 до 16.');
       for(const k of Object.keys(p))if(k!=='w'&&!PLAN_KEYS.includes(k))throw Error(`Неизвестное поле плана: ${k}.`);
-      for(const k of PLAN_KEYS){if(!own(p,k)){if(!partial&&k!=='days')throw Error(`Неделя ${p.w}: отсутствует ${k}.`);continue;}
+      for(const k of PLAN_KEYS){if(!own(p,k)){if(!partial&&!['days','d4_all'].includes(k))throw Error(`Неделя ${p.w}: отсутствует ${k}.`);continue;}
         if(k==='days'){validateTrainingDays(p[k]);}
+        else if(k==='d4_all'){if(typeof p[k]!=='string'||p[k].length>10000)throw Error('d4_all: строка до 10000 символов.');}
         else if(k==='isDeload'){if(typeof p[k]!=='boolean')throw Error('isDeload должен быть true или false.');}
         else if(k==='target100'){if(!Number.isInteger(p[k])||p[k]<1||p[k]>100)throw Error('target100: целое 1–100.');}
         else if(typeof p[k]!=='string'||!p[k].trim()||p[k].length>10000)throw Error(`${k}: непустая строка до 10000 символов.`);
@@ -505,8 +509,9 @@
       if(partial&&Object.keys(p).length===1)throw Error(`В неделе ${p.w} не указаны изменения.`);
     }
     function validateTrainingDays(days){
-      if(!obj(days)||Object.keys(days).some(k=>!['d1','d2','d3'].includes(k)))throw Error('days: ожидаются d1, d2, d3.');
-      for(const key of ['d1','d2','d3']){
+      if(!obj(days)||Object.keys(days).some(k=>!DAY_KEYS.includes(k)))throw Error('days: ожидаются d1, d2, d3 и необязательный d4.');
+      for(const key of DAY_KEYS){
+        if(key==='d4'&&!own(days,key))continue;
         if(!Array.isArray(days[key])||days[key].length>30)throw Error(`${key}: массив до 30 упражнений.`);
         const seen=new Set();for(const e of days[key]){
           if(!obj(e)||typeof e.id!=='string'||!/^[a-zA-Z0-9_-]{1,80}$/.test(e.id)||seen.has(e.id))throw Error('Упражнению нужен уникальный id.');seen.add(e.id);
@@ -516,7 +521,8 @@
       }
     }
     function validateWorkouts(workouts){
-      if(!obj(workouts)||Object.keys(workouts).some(k=>!['d1','d2','d3'].includes(k)))throw Error('Неверные дни дневника.');
+      if(!obj(workouts)||Object.keys(workouts).some(k=>!DAY_KEYS.includes(k)))throw Error('Неверные дни дневника.');
+      if(Array.isArray(workouts.d4)&&workouts.d4.length===0)delete workouts.d4;
       for(const day of Object.values(workouts)){
         if(!obj(day)||!validDate(day.date)||!Array.isArray(day.exercises)||day.exercises.length>30)throw Error('Неверная запись тренировки.');
         const seen=new Set();for(const e of day.exercises){
@@ -598,7 +604,7 @@
     let activeWorkoutDay=1;
     const openExercises=new Set();
     const emptySet=()=>({weight:null,reps:null,rir:null});
-    function trainingDate(w,n){return addDays(state.cycleStart,(w-1)*7+[0,2,4][n-1]);}
+    function trainingDate(w,n){return addDays(state.cycleStart,(w-1)*7+[0,2,4,5][n-1]);}
     function parseExercise(text,id,name){
       let setCount=1;
       const match=text.match(/(?:^|[^\d.])(\d{1,2})\s*[×xх]\s*(?:\d|\()/i),series=text.match(/(\d{1,2})\s+сери[йия]/i);
@@ -609,10 +615,11 @@
       return {id,name:title,prescription:name?text:colon>=0?text.slice(colon+1).trim():text,setCount:Math.max(1,Math.min(30,setCount)),unit};
     }
     function trainingDays(plan){
-      if(plan.days)return clone(plan.days);
       const split=text=>text.split(/\s*\|\s*|\s+\+\s+(?=[А-ЯЁA-Za-z])/).map(x=>x.trim()).filter(Boolean);
+      const saturday=()=>split((plan.d4_all||'').replace(/^День\s*4\b[^:]*:\s*/i,'')).map(t=>t.includes(':')?t:t.replace(/\s+(?=\d{1,2}\s*[×xх]\s*\d)/i,': ')).filter(t=>t.includes(':')).map((t,i)=>parseExercise(t,`d4-acc-${i}`));
+      if(plan.days){const days=clone(plan.days);if(!own(days,'d4'))days.d4=saturday();return days;}
       const accessory=(text,day)=>split(text).filter(t=>/:|L-Fly|Y-под|ротатор/i.test(t)).map((t,i)=>parseExercise(t,`d${day}-acc-${i}`));
-      return {d1:[parseExercise(plan.d1_main,'d1-main',/^Разминка:/.test(plan.d1_main)?'Разминка':'Соревновательный жим лёжа'),...accessory(plan.d1_acc,1)],d2:split(plan.d2_all).filter(t=>/:/.test(t)).map((t,i)=>parseExercise(t,`d2-acc-${i}`)),d3:[parseExercise(plan.d3_main,'d3-main','Специальный жим 100 кг'),...accessory(plan.d3_acc,3)]};
+      return {d1:[parseExercise(plan.d1_main,'d1-main',/^Разминка:/.test(plan.d1_main)?'Разминка':'Соревновательный жим лёжа'),...accessory(plan.d1_acc,1)],d2:split(plan.d2_all).filter(t=>/:/.test(t)).map((t,i)=>parseExercise(t,`d2-acc-${i}`)),d3:[parseExercise(plan.d3_main,'d3-main','Специальный жим 100 кг'),...accessory(plan.d3_acc,3)],d4:saturday()};
     }
     function dayExercises(w,n){
       const planned=trainingDays(getWeekPlan(w))['d'+n],saved=state.weeks[w]?.workouts?.['d'+n]?.exercises||[];
@@ -622,16 +629,19 @@
     }
     function selectDiaryWeek(w){if(!Number.isInteger(w)||w<1||w>16)return;$('weekSelect').value=w;activeWorkoutDay=1;changeWeek();}
     function moveDiaryWeek(offset){selectDiaryWeek(state.activeWeek+offset);}
-    function selectWorkoutDay(n){if(n<1||n>3)return;activeWorkoutDay=n;renderDiary();}
-    function diaryDayKeys(event){const keys=['ArrowLeft','ArrowRight','Home','End'];if(!keys.includes(event.key))return;event.preventDefault();selectWorkoutDay(event.key==='Home'?1:event.key==='End'?3:(activeWorkoutDay+(event.key==='ArrowRight'?0:1))%3+1);$('diaryDay'+activeWorkoutDay).focus();}
+    function workoutDayCount(w){return dayExercises(w,4).length||has(state.weeks[w]?.d4_fact)?4:3;}
+    function selectWorkoutDay(n){if(!Number.isInteger(n)||n<1||n>workoutDayCount(state.activeWeek))return;activeWorkoutDay=n;renderDiary();}
+    function diaryDayKeys(event){const keys=['ArrowLeft','ArrowRight','Home','End'];if(!keys.includes(event.key))return;event.preventDefault();const count=workoutDayCount(state.activeWeek);selectWorkoutDay(event.key==='Home'?1:event.key==='End'?count:(activeWorkoutDay-1+count+(event.key==='ArrowRight'?1:-1))%count+1);$('diaryDay'+activeWorkoutDay).focus();}
     function renderDiary(){
-      const w=state.activeWeek,n=activeWorkoutDay,plan=getWeekPlan(w),date=trainingDate(w,n),dateShort=d=>new Intl.DateTimeFormat('ru-RU',{timeZone:'UTC',day:'numeric',month:'short'}).format(new Date(epoch(d)));
+      const w=state.activeWeek,count=workoutDayCount(w);if(activeWorkoutDay>count)activeWorkoutDay=1;
+      const n=activeWorkoutDay,plan=getWeekPlan(w),dateShort=d=>new Intl.DateTimeFormat('ru-RU',{timeZone:'UTC',day:'numeric',month:'short'}).format(new Date(epoch(d)));
       $('diaryWeekSelect').innerHTML=Array.from({length:16},(_,i)=>`<option value="${i+1}">Неделя ${i+1}</option>`).join('');$('diaryWeekSelect').value=w;$('diaryPrevWeek').disabled=w===1;$('diaryNextWeek').disabled=w===16;
       $('diaryWeekRange').textContent=`${dateShort(trainingDate(w,1))} — ${dateShort(addDays(trainingDate(w,1),6))} · сегодня ${dateShort(todayDate())}`;
-      const names=['Понедельник','Среда','Пятница'],titles=['Жим и трицепс','Ноги и спина','Специальный жим'];
-      $('diaryDays').innerHTML=names.map((name,i)=>`<button class="diary-tab" id="diaryDay${i+1}" role="tab" aria-controls="workoutContainer" aria-selected="${n===i+1}" tabindex="${n===i+1?0:-1}" onclick="selectWorkoutDay(${i+1})"><strong>${name}</strong><span>${dateShort(trainingDate(w,i+1))} · день ${i+1}</span></button>`).join('');
+      const names=['Понедельник','Среда','Пятница','Суббота'],titles=['Силовой жим','Ноги','Спец. жим 100 кг','Спина и стабилизаторы плеча'];
+      $('diaryDays').classList.toggle('four-days',count===4);
+      $('diaryDays').innerHTML=names.slice(0,count).map((name,i)=>`<button class="diary-tab" id="diaryDay${i+1}" role="tab" aria-controls="workoutContainer" aria-selected="${n===i+1}" tabindex="${n===i+1?0:-1}" onclick="selectWorkoutDay(${i+1})"><strong>${name}</strong><span>${dateShort(trainingDate(w,i+1))} · день ${i+1}</span></button>`).join('');
       $('workoutContainer').setAttribute('aria-labelledby','diaryDay'+n);$('diaryDayTitle').textContent=titles[n-1];$('diarySaveStatus').textContent='Сохраняется автоматически';
-      const exercises=dayExercises(w,n),note=n===1?plan.d1_acc:n===2?plan.d2_all:plan.d3_acc;
+      const exercises=dayExercises(w,n),note=[plan.d1_acc,plan.d2_all,plan.d3_acc,plan.d4_all||''][n-1];
       $('workoutContainer').innerHTML=`${exercises.length?(n===3&&!/[:]|L-Fly|Молотки/.test(note)?`<p class="diary-plan-note">${esc(note)}</p>`:''):`<p class="diary-plan-note">${esc(note)}</p>`}<div class="diary-exercises">${exercises.map((e,i)=>renderExercise(e,i,n)).join('')}</div>${has(state.weeks[w]?.['d'+n+'_fact'])?`<details class="legacy-note"><summary>Прежняя запись дня</summary><textarea id="d${n}FactInput" rows="3" aria-label="Прежняя запись дня ${n}" oninput="saveLegacyDay(${n},this.value)">${esc(state.weeks[w]['d'+n+'_fact'])}</textarea></details>`:''}`;
     }
     function renderExercise(e,i,n){
@@ -773,7 +783,7 @@
     function reportText(){
       const p=weeklyPayload(),d=p.fact;
       return [`Дмитрий Мухин · неделя ${p.week} (${dateLabel(p.weekStart)}–${dateLabel(p.weekEnd)})`,`${p.phase}\n100 кг: план ${p.plan.target100} / факт ${show(d.reps100)} повт.; RIR ${show(d.rir)}`,`Утренний вес ${show(d.weight,' кг')} · левое плечо ${show(d.shoulderLeft,'/10')} · правое ${show(d.shoulderRight,'/10')}`,
-        ...[1,2,3].flatMap(n=>[`День ${n} · план: ${p.plan.days['d'+n].map(e=>e.name+': '+e.prescription).join(' | ')}`,`День ${n} · факт:\n${dayReport(d,n)}`]),
+        ...Array.from({length:workoutDayCount(p.week)},(_,i)=>i+1).flatMap(n=>[`День ${n} · план: ${p.plan.days['d'+n].map(e=>e.name+': '+e.prescription).join(' | ')||(n===4?p.plan.d4_all||'—':'—')}`,`День ${n} · факт:\n${dayReport(d,n)}`]),
         `Биохимия: ферритин ${show(state.ferritin,' нг/мл')}, железо ${show(state.iron,' мкмоль/л')}. Исходные показатели 18.10.2026 включены в JSON.`,
         `ПКТ: последний укол 18.10.2026, пользовательский график 08.11–05.12.2026. Отметок приёма за неделю: ${Object.values(p.suppChecks).filter(Boolean).length}.`,
         `Заметки: ${show(d.notes)}`,'--- JSON для тренера ---',JSON.stringify(p)].join('\n');
@@ -803,8 +813,8 @@
         const seen=new Set();for(const p of entries){validatePlan(p,true);if(seen.has(p.w))throw Error(`Неделя ${p.w} повторяется.`);seen.add(p.w);}
         for(const w of resets){const replacement=entries.find(p=>p.w===w);if(!replacement)throw Error(`Для очистки недели ${w} нужен её полный новый план.`);validatePlan(replacement);}
         const plan=clone(getActivePlan());let planChanged=false;
-        for(const p of entries){if(p.w<=boundary&&!resets.includes(p.w)){skipped.push(p.w);continue;}const i=plan.findIndex(x=>x.w===p.w),old=plan[i],keys=PLAN_KEYS.filter(k=>own(p,k)&&JSON.stringify(p[k])!==JSON.stringify(old[k]));if(keys.length||resets.includes(p.w)){plan[i]={...old,...p};if(!own(p,'days'))delete plan[i].days;planChanged=true;for(const k of keys)changes.push(k==='days'?`Неделя ${p.w} · обновлён список упражнений и количество подходов`:`Неделя ${p.w} · ${k}: ${old[k]} → ${p[k]}`);}
-          if(resets.includes(p.w)){const d=next.weeks[p.w]||{};for(const k of ['workouts','planSnapshot','d1_fact','d2_fact','d3_fact','d1_done','d2_done','d3_done','reps100','rir'])delete d[k];d.updatedAt=new Date().toISOString();next.weeks[p.w]=d;changes.unshift(`НЕДЕЛЯ ${p.w}: заменить план и очистить все подходы, комментарии упражнений, прежние записи тренировок и результат 100 кг / RIR. Вес, плечи и заметки недели сохранятся.`);}
+        for(const p of entries){if(p.w<=boundary&&!resets.includes(p.w)){skipped.push(p.w);continue;}const i=plan.findIndex(x=>x.w===p.w),old=plan[i],keys=PLAN_KEYS.filter(k=>own(p,k)&&JSON.stringify(p[k])!==JSON.stringify(old[k]));if(keys.length||resets.includes(p.w)){plan[i]={...old,...p};if(!own(p,'days')&&old.days){const days=clone(old.days),fields={d1:['d1_main','d1_acc'],d2:['d2_all'],d3:['d3_main','d3_acc'],d4:['d4_all']};const fallback=trainingDays({...plan[i],days:null});for(const day of DAY_KEYS)if(fields[day].some(k=>keys.includes(k)))days[day]=fallback[day];plan[i].days=days;}planChanged=true;for(const k of keys)changes.push(k==='days'?`Неделя ${p.w} · обновлён список упражнений и количество подходов`:`Неделя ${p.w} · ${k}: ${old[k]} → ${p[k]}`);}
+          if(resets.includes(p.w)){const d=next.weeks[p.w]||{};for(const k of ['workouts','planSnapshot','reps100','rir',...DAY_KEYS.flatMap(day=>[day+'_fact',day+'_done'])])delete d[k];d.updatedAt=new Date().toISOString();next.weeks[p.w]=d;changes.unshift(`НЕДЕЛЯ ${p.w}: заменить план и очистить все подходы, комментарии упражнений, прежние записи тренировок и результат 100 кг / RIR. Вес, плечи и заметки недели сохранятся.`);}
         }
         if(planChanged)next.customPlan=plan;
       }
