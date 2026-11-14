@@ -31,6 +31,7 @@ const server = http.createServer((req,res) => {
     page.on('pageerror',e=>errors.push(e.message));
     await page.clock.install({time:new Date('2026-10-19T12:00:00Z')});
     await page.goto(url);
+    assert.deepEqual(await page.evaluate(()=>{const march={...state,compDate:'2027-03-21'},april={...state,compDate:'2027-04-04'};return [weekStartDate(11,march),weekStartDate(15,march),weekStartDate(16,march),weekStartDate(16,april),weekStartDate(16,{...april,weeks:{16:{calendarStart:'2027-03-15',reps100:20}}})];}),['2026-12-28','2027-01-25','2027-03-15','2027-03-29','2027-03-15']);
     assert.deepEqual(await page.evaluate(()=>{const p=weeklyPayload();return [p.targetRepsKMS,p.targetRepsMS];}),[24,28]);
     assert.match(await page.locator('#repsTargetSummary').textContent(),/КМС: 24.*МС: 28.*26 \/ 30/);
     assert.equal(await page.locator('#repsChart line[data-series="kms"], #repsChart line[data-series="ms"]').count(),2);
