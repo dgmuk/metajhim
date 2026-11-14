@@ -31,6 +31,10 @@ const server = http.createServer((req,res) => {
     page.on('pageerror',e=>errors.push(e.message));
     await page.clock.install({time:new Date('2026-10-19T12:00:00Z')});
     await page.goto(url);
+    assert.deepEqual(await page.evaluate(()=>{const p=weeklyPayload();return [p.targetRepsKMS,p.targetRepsMS];}),[24,28]);
+    assert.match(await page.locator('#repsTargetSummary').textContent(),/КМС: 24.*МС: 28.*26 \/ 30/);
+    assert.equal(await page.locator('#repsChart line[data-series="kms"], #repsChart line[data-series="ms"]').count(),2);
+    assert(await page.evaluate(()=>{const legacy=clone(state);delete legacy.targetRepsKMS;delete legacy.targetRepsMS;legacy.targetReps=27;const migrated=normalizeState(legacy);const next=preparePatch({targetReps:26,targetRepsKMS:24,targetRepsMS:30,protectedThrough:4,plan:[{w:4,target100:50}]});return migrated.targetRepsKMS===24&&migrated.targetRepsMS===28&&next.next.targetReps===24&&next.next.targetRepsMS===30&&next.skipped.includes(4)&&preparePatch({targetReps:26}).next.targetRepsKMS===26;}));
     assert.equal(await page.locator('.section-fold').count(),6);
     for(const id of ['appMenuPanel','weekOverviewPanel','pctPanel','repsPanel','healthPanel','cyclePanel']){assert.equal(await page.locator('#'+id).getAttribute('open'),null);assert(await page.locator('#'+id+' > summary').isVisible());}
     assert.equal(await page.locator('#factWeight').isVisible(),false);assert.equal(await page.getByRole('button',{name:'Скачать JSON-архив',exact:true}).isVisible(),false);assert(await page.locator('#cloudOpenButton').isVisible());

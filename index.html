@@ -103,6 +103,7 @@
     .app-header{display:block;border-bottom:0;padding-bottom:0}.app-header .section-fold{width:100%}.app-header .fold-summary h1{flex:1;font-size:clamp(16px,2vw,21px);line-height:1.4;margin:0}.app-header .fold-body>.subtitle{margin:0 0 16px}.week-overview>.fold-body>.card{margin-bottom:0!important}.week-overview .grid-cards,.week-overview>.fold-body>.controls-bar{margin-bottom:20px}
     .diary-tabs.four-days{grid-template-columns:repeat(4,minmax(0,1fr))}
     @media(max-width:540px){.diary-tabs.four-days{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    .goal-track{position:relative}.goal-mark{position:absolute;top:0;bottom:0;width:2px;transform:translateX(-100%);background:#d6c58e}.goal-mark.ms{background:#8fc9ed}
   </style>
 </head>
 <body>
@@ -294,7 +295,7 @@
     let state = {
       version: 4,
       cycleStart: "2026-10-19",
-      targetReps: 27,
+      targetReps: 24, targetRepsKMS: 24, targetRepsMS: 28,
       compDate: "2027-02-21",
       activeWeek: 1,
       lastInjectDate: "2026-10-18",
@@ -349,13 +350,8 @@
         <div class="fold-body">
         <div class="controls-bar">
           <div class="control-group">
-            <label>Целевой норматив КМС, повторений:</label>
-            <select id="divisionSelect" onchange="saveSettings()">
-              <option value="24">24 повторения</option>
-              <option value="26">26 повторений</option>
-              <option value="27">27 повторений</option>
-              <option value="29">29 повторений</option>
-            </select>
+            <label>НАП / ФРЖ с ДК · до 100 кг</label>
+            <p class="subtitle">Ориентиры по повторениям</p>
           </div>
           <div class="control-group">
             <label>Дата соревнований:</label>
@@ -371,7 +367,7 @@
           <div class="card">
             <div class="card-title">Жим 100 кг · лучший факт / цель</div>
             <div class="card-value" id="metricReps">—</div>
-            <div class="progress-bar-wrap"><div class="progress-bar-fill" id="repsProgress" style="width: 55%;"></div></div>
+            <div class="progress-bar-wrap goal-track" aria-hidden="true"><div class="progress-bar-fill" id="repsProgress" style="width:0"></div><span class="goal-mark" id="kmsMark"></span><span class="goal-mark ms" id="msMark"></span></div>
             <div class="card-sub" id="metricKAResult"></div>
           </div>
           <div class="card">
@@ -531,10 +527,13 @@
         }
       }
     }
+    const validRepGoal=value=>Number.isInteger(value)&&value>=1&&value<=200;
+    function goalCaption(){return `Цель КМС: ${state.targetRepsKMS} повт. | Цель МС: ${state.targetRepsMS} повт. (+2 повт. для WRPF/СПР: ${state.targetRepsKMS+2} / ${state.targetRepsMS+2})`;}
     function normalizeState(raw){
       if(!obj(raw)||!obj(raw.weeks))throw Error('Сохранение должно содержать объект weeks.');
       const next={...clone(INITIAL_STATE),...raw,weeks:clone(raw.weeks),lastInjectDate:LAST_INJECT};
-      if(![24,26,27,29].includes(next.targetReps))next.targetReps=27;
+      next.targetRepsKMS=validRepGoal(raw.targetRepsKMS)?raw.targetRepsKMS:validRepGoal(raw.targetReps)&&raw.targetReps!==27?raw.targetReps:24;
+      next.targetRepsMS=validRepGoal(raw.targetRepsMS)?raw.targetRepsMS:28;next.targetReps=next.targetRepsKMS;
       if(!Number.isInteger(next.activeWeek)||next.activeWeek<1||next.activeWeek>16)next.activeWeek=1;
       if(!validDate(next.cycleStart))next.cycleStart='2026-10-19';
       if(next.compDate!==''&&!validDate(next.compDate))throw Error('Некорректная дата соревнований.');
@@ -575,14 +574,14 @@
       window.MetaJhimCloud?.init({read:()=>{if(storageProblem)throw Error('Сначала восстановите локальное сохранение из архива.');return clone(state);},validate:data=>normalizeState(data),apply:(data,options={})=>{const markerChanged=data.planUpdate?.id&&data.planUpdate.id!==state.planUpdate?.id;const week=(options.focus||markerChanged)?cloudPlanWeek(data):state.activeWeek;const next=normalizeState({...data,activeWeek:week});localStorage.setItem(STORAGE_KEY,JSON.stringify(next));state=next;if(options.focus||markerChanged){activeWorkoutDay=1;openExercises.clear();}fillSettings();renderAll();updatePctCountdown();},download:downloadJSON});
       // Calendar refresh on midnight in Moscow, including tabs that were suspended overnight.
       setInterval(refreshDate,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshDate();});
-      for(const id of ['divisionSelect','compDate','weekSelect','factWeight','factReps100','factRIR','factShoulder','factShoulderRight','weekNotes','importJsonArea']){const label=$(id).previousElementSibling;if(label?.tagName==='LABEL')label.htmlFor=id;}
+      for(const id of ['compDate','weekSelect','factWeight','factReps100','factRIR','factShoulder','factShoulderRight','weekNotes','importJsonArea']){const label=$(id).previousElementSibling;if(label?.tagName==='LABEL')label.htmlFor=id;}
     }
     function refreshDate(){const today=todayDate();if(today!==lastToday){lastToday=today;updatePctCountdown();updateSummaryCards();}}
     function fillSettings(){
       $('weekSelect').innerHTML=getActivePlan().slice().sort((a,b)=>a.w-b.w).map(p=>`<option value="${p.w}">Неделя ${p.w} · ${p.isDeload?'разгрузка':p.target100+' повторений'}</option>`).join('');
-      $('weekSelect').value=state.activeWeek;$('divisionSelect').value=state.targetReps;$('compDate').value=state.compDate;
+      $('weekSelect').value=state.activeWeek;$('compDate').value=state.compDate;
     }
-    function saveSettings(){state.targetReps=Number($('divisionSelect').value);state.compDate=$('compDate').value;saveToStorage();updateSummaryCards();renderCharts();}
+    function saveSettings(){state.compDate=$('compDate').value;saveToStorage();updateSummaryCards();renderCharts();}
     function changeWeek(){state.activeWeek=Number($('weekSelect').value);saveToStorage();renderAll();}
     function updatePctCountdown(){
       const today=todayDate(),p=pctForDate(today),dayWord=n=>{const a=n%10,b=n%100;return a===1&&b!==11?'день':a>=2&&a<=4&&(b<12||b>14)?'дня':'дней';};
@@ -681,9 +680,10 @@
     }
     function getLatestMetrics(){let latestWeight=null,bestReps=null,latestRir=null,latestShoulder=null,right=null;for(let w=1;w<=16;w++){const d=state.weeks[w]||{},result=workoutBest(d);if(num(d.weight)!==null)latestWeight=Number(d.weight);if(result.reps100!==null&&(bestReps===null||result.reps100>=bestReps)){bestReps=result.reps100;latestRir=result.rir;}if(num(d.shoulderLeft)!==null)latestShoulder=Number(d.shoulderLeft);if(num(d.shoulderRight)!==null)right=Number(d.shoulderRight);}return {latestWeight,bestReps,latestRir,latestShoulder,right};}
     function updateSummaryCards(){
-      const {latestWeight:weight,bestReps:best,latestRir:rir,latestShoulder:left,right}=getLatestMetrics(),target=state.targetReps;
-      $('metricReps').textContent=`${show(best)} / ${target} повт.`;$('repsProgress').style.width=`${best===null?0:Math.min(100,best/target*100)}%`;
-      $('metricKAResult').textContent=best===null?'Внесите результат':`До цели: +${Math.max(0,target-best)} повт.`;
+      const {latestWeight:weight,bestReps:best,latestRir:rir,latestShoulder:left,right}=getLatestMetrics(),kms=state.targetRepsKMS,ms=state.targetRepsMS,max=Math.max(kms,ms);
+      $('metricReps').textContent=`${show(best)} повт.`; $('repsProgress').style.width=`${best===null?0:Math.min(100,best/max*100)}%`;
+      $('kmsMark').style.left=(kms/max*100)+'%';$('msMark').style.left=(ms/max*100)+'%';
+      $('metricKAResult').textContent=goalCaption();
       const estimate=best===null?null:100*(1+(best+(rir??0))/30);$('metric1RM').textContent=estimate===null?'—':estimate.toFixed(1)+' кг';$('metricIntensity').textContent=estimate===null?'Нет результата':`100 кг ≈ ${(100/estimate*100).toFixed(1)}% · RIR ${show(rir)}`;
       $('metricWeight').textContent=weight===null?'—':weight.toFixed(1)+' кг';$('metricBarbell').textContent='Соревновательный вес штанги: 100 кг';
       $('metricShoulder').textContent=`${show(left)} / ${show(right)}`;$('metricShoulder').style.color=left===null?'var(--muted)':left>4?'var(--danger)':left>2?'var(--warning)':'var(--success)';
@@ -706,7 +706,7 @@
     }
     function setChartZoom(value){const zoom=Math.max(100,Math.min(200,Number(value)||100));$('chartDialog').style.setProperty('--chart-zoom',zoom/100);$('chartZoomValue').textContent=zoom+'%';if(zoom===100)$('chartFullContent').querySelectorAll('.chart-shell').forEach(el=>{el.scrollLeft=0;});}
     function restoreChart(focus=true){if(!expandedChart)return;const saved=expandedChart;expandedChart=null;saved.placeholder.replaceWith(saved.panel);saved.panel.open=saved.wasOpen;document.body.style.overflow=saved.overflow;if(focus){saved.panel.querySelector('summary').focus({preventScroll:true});window.scrollTo(0,saved.scroll);}}
-    const chartSeries={plan:true,fact:true,target:true};
+    const chartSeries={plan:true,fact:true,kms:true,ms:true};
     let healthMode='weight',repsInspectWeek=null,healthInspectWeek=null;
     const chartX=w=>48+(w-1)*32.8;
     function chartBase(title,ticks,unit){
@@ -750,11 +750,11 @@
     function renderCharts(){
       const plan=Array.from({length:16},(_,i)=>getWeekPlan(i+1).target100),fact=Array.from({length:16},(_,i)=>workoutBest(state.weeks[i+1]||{}).reps100),recorded=fact.filter(v=>v!==null),best=recorded.length?Math.max(...recorded):null;
       $('repsBestValue').innerHTML=best===null?'—':`${best} <small>повторений</small>`;
-      $('repsTargetSummary').innerHTML=`Цель КМС: <strong>${state.targetReps} повторений</strong>${best===null?'':best>=state.targetReps?' · цель достигнута':' · осталось '+(state.targetReps-best)}`;
-      $('repsLegend').innerHTML=[['plan','План','#a4aca0','dashed'],['fact','Мой результат','#c4dc83',''],['target','Цель '+state.targetReps,'#d6c58e','dashed']].map(([key,label,color,style])=>`<button type="button" class="legend-button" id="legend-${key}" aria-pressed="${chartSeries[key]}" onclick="toggleChartSeries('${key}')"><span class="legend-swatch ${style}" style="--line:${color}" aria-hidden="true"></span>${label}</button>`).join('');
-      const max=Math.ceil(Math.max(30,state.targetReps,...plan,...recorded)/5)*5,y=v=>226-v/max*200;
+      $('repsTargetSummary').textContent=goalCaption();
+      $('repsLegend').innerHTML=[['plan','План','#a4aca0','dashed'],['fact','Мой результат','#c4dc83',''],['kms','КМС '+state.targetRepsKMS,'#d6c58e','dashed'],['ms','МС '+state.targetRepsMS,'#8fc9ed','dashed']].map(([key,label,color,style])=>`<button type="button" class="legend-button" id="legend-${key}" aria-pressed="${chartSeries[key]}" onclick="toggleChartSeries('${key}')"><span class="legend-swatch ${style}" style="--line:${color}" aria-hidden="true"></span>${label}</button>`).join('');
+      const max=Math.ceil(Math.max(30,state.targetRepsKMS,state.targetRepsMS,...plan,...recorded)/5)*5,y=v=>226-v/max*200;
       let a=chartBase('Жим 100 кг. План и ваши фактические результаты за 16 недель',Array.from({length:max/5+1},(_,i)=>[i*5,y(i*5)]),'Повторения');
-      if(chartSeries.target)a+=`<line data-series="target" x1="48" x2="540" y1="${y(state.targetReps)}" y2="${y(state.targetReps)}" stroke="#d6c58e" stroke-width="2" stroke-dasharray="7 4"/>`;
+      for(const [key,goal,color] of [['kms',state.targetRepsKMS,'#d6c58e'],['ms',state.targetRepsMS,'#8fc9ed']])if(chartSeries[key])a+=`<line data-series="${key}" x1="48" x2="540" y1="${y(goal)}" y2="${y(goal)}" stroke="${color}" stroke-width="2" stroke-dasharray="7 4"/>`;
       if(chartSeries.plan)a+=`<g data-series="plan">${plot(plan,y,'#a4aca0','План',{dashed:true})}</g>`;
       if(chartSeries.fact)a+=`<g data-series="fact">${plot(fact,y,'#c4dc83','Мой результат',{actual:true})}</g>`;
       $('repsChart').innerHTML=a+chartInteractions('reps')+'</svg>';
@@ -778,7 +778,7 @@
       const w=state.activeWeek,start=addDays(state.cycleStart,(w-1)*7),end=addDays(start,6),checks={};
       for(const [key,value] of Object.entries(state.suppChecks))if(key.slice(0,10)>=start&&key.slice(0,10)<=end)checks[key]=value;
       const plan=getWeekPlan(w),fact=clone(state.weeks[w]||{}),best=workoutBest(fact);
-      return {schema:'metajhim.weekly-report.v1',athlete:'Дмитрий Мухин',week:w,weekStart:start,weekEnd:end,phase:plan.phase,targetRepsKMS:state.targetReps,compDate:state.compDate,plan:{...clone(plan),days:trainingDays(plan)},fact:{...fact,...best},biochemistry:getBio(),recordedBiochemistry:state.weeks[w]?.biochemistry||null,pct:{lastInjectDate:LAST_INJECT,startDate:PCT_START,endDate:PCT_END,userProvidedSchedule:true,today:pctForDate(todayDate())},suppChecks:checks,protectedThrough:protectedThrough()};
+      return {schema:'metajhim.weekly-report.v1',athlete:'Дмитрий Мухин',week:w,weekStart:start,weekEnd:end,phase:plan.phase,targetRepsKMS:state.targetRepsKMS,targetRepsMS:state.targetRepsMS,compDate:state.compDate,plan:{...clone(plan),days:trainingDays(plan)},fact:{...fact,...best},biochemistry:getBio(),recordedBiochemistry:state.weeks[w]?.biochemistry||null,pct:{lastInjectDate:LAST_INJECT,startDate:PCT_START,endDate:PCT_END,userProvidedSchedule:true,today:pctForDate(todayDate())},suppChecks:checks,protectedThrough:protectedThrough()};
     }
     function reportText(){
       const p=weeklyPayload(),d=p.fact;
@@ -796,16 +796,19 @@
     function invalidatePatch(){pendingPatch=null;$('applyPatchButton').disabled=true;$('patchPreview').className='notice';$('patchPreview').textContent=`Патч меняет только недели после ${protectedThrough()}-й и настройки цели / даты старта. Сначала проверьте JSON.`;}
     function readImport(){const text=$('importJsonArea').value.trim();if(!text)throw Error('Вставьте JSON.');if(text.length>500000)throw Error('Максимальный размер — 500 КБ.');let p;try{p=JSON.parse(text);}catch{throw Error('Некорректный JSON: проверьте запятые, скобки и кавычки.');}if(!obj(p))throw Error('Ожидается JSON-объект.');return p;}
     function preparePatch(parsed){
-      const allowed=['schema','version','targetReps','compDate','plan','customPlan','settings','weeks','activeWeek','ferritin','iron','lastInjectDate','suppChecks','cycleStart','exportedAt','resetWeeks'];
+      const allowed=['schema','version','targetReps','targetRepsKMS','targetRepsMS','protectedThrough','compDate','plan','customPlan','settings','weeks','activeWeek','ferritin','iron','lastInjectDate','suppChecks','cycleStart','exportedAt','resetWeeks'];
       for(const k of Object.keys(parsed))if(!allowed.includes(k))throw Error('Неизвестное поле: '+k);
       if(parsed.schema&&!['metajhim.coach-patch.v1','metajhim.backup.v2'].includes(parsed.schema))throw Error('Нужен патч тренера или JSON-архив; отчёт недели не является патчем.');
       if(own(parsed,'plan')&&own(parsed,'customPlan'))throw Error('Укажите только plan или customPlan.');
-      const settings=parsed.settings??{};if(!obj(settings))throw Error('settings должен быть объектом.');for(const k of Object.keys(settings))if(!['targetReps','compDate'].includes(k))throw Error('Настройка не поддерживается: '+k);
-      const next=clone(state),changes=[],skipped=[],boundary=protectedThrough(),merged={};
+      const settings=parsed.settings??{};if(!obj(settings))throw Error('settings должен быть объектом.');for(const k of Object.keys(settings))if(!['targetReps','targetRepsKMS','targetRepsMS','compDate'].includes(k))throw Error('Настройка не поддерживается: '+k);
+      if(own(parsed,'protectedThrough')&&(!Number.isInteger(parsed.protectedThrough)||parsed.protectedThrough<0||parsed.protectedThrough>16))throw Error('protectedThrough: номер недели от 0 до 16.');
+      const next=clone(state),changes=[],skipped=[],boundary=Math.max(protectedThrough(),parsed.protectedThrough??0),merged={};
       const resets=parsed.resetWeeks??[];
       if(!Array.isArray(resets)||resets.some(w=>!Number.isInteger(w)||w<1||w>16)||new Set(resets).size!==resets.length)throw Error('resetWeeks: уникальные номера недель от 1 до 16.');
-      for(const k of ['targetReps','compDate']){if(own(parsed,k))merged[k]=parsed[k];if(own(settings,k))merged[k]=settings[k];}
-      if(own(merged,'targetReps')){if(![24,26,27,29].includes(merged.targetReps))throw Error('targetReps: 24, 26, 27 или 29.');if(merged.targetReps!==state.targetReps){changes.push(`Цель: ${state.targetReps} → ${merged.targetReps}`);next.targetReps=merged.targetReps;}}
+      for(const k of ['targetReps','targetRepsKMS','targetRepsMS','compDate']){if(own(parsed,k))merged[k]=parsed[k];if(own(settings,k))merged[k]=settings[k];}
+      for(const key of ['targetReps','targetRepsKMS','targetRepsMS'])if(own(merged,key)&&!validRepGoal(merged[key]))throw Error(key+': целое число повторений от 1 до 200.');
+      for(const [key,value,label] of [['targetRepsKMS',merged.targetRepsKMS??merged.targetReps,'КМС'],['targetRepsMS',merged.targetRepsMS,'МС']])if(value!==undefined&&value!==state[key]){changes.push(`Цель ${label}: ${state[key]} → ${value}`);next[key]=value;}
+      next.targetReps=next.targetRepsKMS;
       if(own(merged,'compDate')){if(merged.compDate!==''&&!validDate(merged.compDate))throw Error('compDate: существующая дата YYYY-MM-DD или пустая строка.');if(merged.compDate!==state.compDate){changes.push(`Дата соревнований: ${show(state.compDate)} → ${show(merged.compDate)}`);next.compDate=merged.compDate;}}
       const entries=own(parsed,'plan')?parsed.plan:parsed.customPlan;
       if(entries!==undefined&&entries!==null){
