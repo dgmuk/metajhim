@@ -34,7 +34,7 @@ const server = http.createServer((req,res) => {
     assert.deepEqual(await page.evaluate(()=>{const p=weeklyPayload();return [p.targetRepsKMS,p.targetRepsMS];}),[24,28]);
     assert.match(await page.locator('#repsTargetSummary').textContent(),/КМС: 24.*МС: 28.*26 \/ 30/);
     assert.equal(await page.locator('#repsChart line[data-series="kms"], #repsChart line[data-series="ms"]').count(),2);
-    assert(await page.evaluate(()=>{const legacy=clone(state);delete legacy.targetRepsKMS;delete legacy.targetRepsMS;legacy.targetReps=27;const migrated=normalizeState(legacy);const next=preparePatch({targetReps:26,targetRepsKMS:24,targetRepsMS:30,protectedThrough:4,plan:[{w:4,target100:50}]});return migrated.targetRepsKMS===24&&migrated.targetRepsMS===28&&next.next.targetReps===24&&next.next.targetRepsMS===30&&next.skipped.includes(4)&&preparePatch({targetReps:26}).next.targetRepsKMS===26;}));
+    assert(await page.evaluate(()=>{const legacy=clone(state);delete legacy.targetRepsKMS;delete legacy.targetRepsMS;legacy.targetReps=27;const migrated=normalizeState(legacy);const next=preparePatch({targetReps:26,targetRepsKMS:24,targetRepsMS:30,protectedThrough:4,plan:[{w:4,target100:50}]});return migrated.targetRepsKMS===24&&migrated.targetRepsMS===28&&next.next.targetReps===24&&next.next.targetRepsMS===30&&next.next.customPlan[3].target100===50&&preparePatch({targetReps:26}).next.targetRepsKMS===26;}));
     assert.equal(await page.locator('.section-fold').count(),6);
     for(const id of ['appMenuPanel','weekOverviewPanel','pctPanel','repsPanel','healthPanel','cyclePanel']){assert.equal(await page.locator('#'+id).getAttribute('open'),null);assert(await page.locator('#'+id+' > summary').isVisible());}
     assert.equal(await page.locator('#factWeight').isVisible(),false);assert.equal(await page.getByRole('button',{name:'Скачать JSON-архив',exact:true}).isVisible(),false);assert(await page.locator('#cloudOpenButton').isVisible());
@@ -90,14 +90,14 @@ const server = http.createServer((req,res) => {
     const before=await page.evaluate(()=>({weeks:JSON.stringify(state.weeks),supp:JSON.stringify(state.suppChecks),old:getWeekPlan(1).d1_main}));
     await page.evaluate(()=>{document.getElementById('weekSelect').value=16;changeWeek();});
     assert.equal(await page.evaluate(()=>protectedThrough()),1,'navigation must not protect future weeks');
-    const patch={schema:'metajhim.coach-patch.v1',plan:[{w:1,d1_main:'DO NOT CHANGE'},{w:2,d1_main:'107.5 кг: 4×6 (RIR 2)'}],weeks:{1:{reps100:99}},suppChecks:{},lastInjectDate:'2030-01-01'};
+    const patch={schema:'metajhim.coach-patch.v1',plan:[{w:1,d1_main:'Обновлённый план'},{w:2,d1_main:'107.5 кг: 4×6 (RIR 2)'}],weeks:{1:{reps100:99}},suppChecks:{},lastInjectDate:'2030-01-01'};
     await page.evaluate(()=>openImportModal());
     await page.locator('#importJsonArea').fill(JSON.stringify(patch));
     await page.getByRole('button',{name:'Проверить патч',exact:true}).click();
-    assert.match(await page.locator('#patchPreview').innerText(),/Пропущены недели: 1/);
+    assert.match(await page.locator('#patchPreview').innerText(),/Неделя 1 · d1_main/);
     await page.locator('#applyPatchButton').click();
     const after=await page.evaluate(()=>({weeks:JSON.stringify(state.weeks),supp:JSON.stringify(state.suppChecks),old:getWeekPlan(1).d1_main,new:getWeekPlan(2).d1_main,date:state.lastInjectDate}));
-    assert.equal(after.weeks,before.weeks);assert.equal(after.supp,before.supp);assert.equal(after.old,before.old);assert.match(after.new,/107.5/);assert.equal(after.date,'2026-10-18');
+    assert.equal(after.weeks,before.weeks);assert.equal(after.supp,before.supp);assert.equal(after.old,'Обновлённый план');assert.match(after.new,/107.5/);assert.equal(after.date,'2026-10-18');
     assert.equal(await page.evaluate(()=>localStorage.getItem('metajhim_dmitry_v4')),null);
     console.log('PASS: safe coach patch, protected history and supplement marks, zero values, HTML escaping');
 
@@ -314,7 +314,7 @@ const server = http.createServer((req,res) => {
       const p=clone(getWeekPlan(5));p.days=trainingDays(p);
       p.days.d4=[{id:'sat-row',name:'Тяга блока',prescription:'3×12',setCount:3,unit:'reps'}];p.d4_all='Тяга блока 3×12';
       const patch=preparePatch(imported||{plan:[{w:4,d4_all:'Не заменять'},p]});
-      if(patch.boundary!==4||!patch.skipped.includes(4)||JSON.stringify(old)!==JSON.stringify(patch.next.weeks))throw Error('History protection failed');
+      if(patch.boundary!==4||JSON.stringify(old)!==JSON.stringify(patch.next.weeks))throw Error('History protection failed');
       state=patch.next;saveToStorage();selectDiaryWeek(5);
     },example);
     assert.equal(await four.locator('#diaryDays [role=tab]').count(),4);
@@ -328,7 +328,20 @@ const server = http.createServer((req,res) => {
     await four.locator('#diaryWeekSelect').selectOption('4');assert.equal(await four.locator('#diaryDays [role=tab]').count(),3);
     assert(await four.evaluate(()=>{const p=clone(getWeekPlan(4));p.days={...trainingDays(p),d4:[]};p.d4_all='Полный отдых';validatePlan(p);const data=clone(state);data.weeks[4]={planSnapshot:p,workouts:{d4:[]}};return !normalizeState(data).weeks[4].workouts.d4&&trainingDays(p).d4.length===0;}));
     assert(await four.evaluate(()=>{const p={...getWeekPlan(6),days:undefined,d4_all:'Тяга блока 3×12'};return trainingDays(p).d4[0].setCount===3;}));
-    await four.close();console.log('PASS: four-day plan, Saturday persistence and report, protected three-day weeks');
+    console.log('PASS: four-day plan, Saturday persistence and report, three-day compatibility');
+    assert(await four.evaluate(()=>{
+      const original=clone(state);
+      original.weeks[5]={...original.weeks[5],reps100:17,rir:1,weight:97,shoulderLeft:3,shoulderRight:0};
+      const clean=normalizeState(original);
+      if(['reps100','rir','weight','shoulderLeft','shoulderRight'].some(k=>clean.weeks[5][k]!==null)||JSON.stringify(clean.weeks[5].workouts)!==JSON.stringify(original.weeks[5].workouts))return false;
+      const history=trainingDays(getWeekPlan(1)).d1[0];
+      state.weeks[1].workouts={d1:{date:'2026-10-19',exercises:[{...history,sets:[{weight:100,reps:15,rir:2}],comment:''}]}};
+      const patch=preparePatch({protectedThrough:4,plan:[{w:1,phase:'Обновление',d4_all:'Тяга блока: 3×12',target100:18}],factOverrides:{1:{reps100:14,rir:0}}});
+      const preserved=JSON.stringify(patch.next.weeks[1].workouts)===JSON.stringify(state.weeks[1].workouts);
+      state=patch.next;renderAll();
+      return preserved&&workoutBest(state.weeks[1]).reps100===14&&workoutBest(state.weeks[1]).rir===0&&getWeekPlan(1).target100===18&&document.getElementById('cycleTableBody').textContent.includes('Тяга блока: 3×12');
+    }));
+    await four.close();
     console.log('ALL CHECKS PASSED');
   } finally {await browser.close();server.close();}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1;});
