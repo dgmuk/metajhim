@@ -370,7 +370,7 @@
             <p class="subtitle">Ориентиры по повторениям</p>
           </div>
           <div class="control-group">
-            <label>Дата соревнований (ориентир):</label>
+            <label id="compDateLabel" for="compDate">Дата соревнований (ориентир):</label>
             <input type="date" id="compDate" onchange="saveSettings()" />
             <p class="subtitle" id="competitionCalendar"></p>
           </div>
@@ -556,6 +556,7 @@
       if(!Number.isInteger(next.activeWeek)||next.activeWeek<1||next.activeWeek>16)next.activeWeek=1;
       if(!validDate(next.cycleStart))next.cycleStart='2026-10-19';
       if(next.compDate!==''&&!validDate(next.compDate))throw Error('Некорректная дата соревнований.');
+      next.compDateSource=next.compDate&&raw.compDateSource==='patch'?'patch':'manual';
       if(next.customPlan!==null){if(!Array.isArray(next.customPlan)||next.customPlan.length!==16)throw Error('customPlan должен содержать 16 недель.');const seen=new Set();for(const p of next.customPlan){validatePlan(p);if(seen.has(p.w))throw Error('Повтор номера недели.');seen.add(p.w);}}
       if(!obj(next.suppChecks))throw Error('suppChecks должен быть объектом.');
       for(const [key,value] of Object.entries(next.suppChecks)){
@@ -605,7 +606,7 @@
       $('weekSelect').innerHTML=getActivePlan().slice().sort((a,b)=>a.w-b.w).map(p=>`<option value="${p.w}">Неделя ${p.w} · ${p.isDeload?'разгрузка':p.target100+' повторений'}</option>`).join('');
       $('weekSelect').value=state.activeWeek;$('compDate').value=state.compDate;
     }
-    function saveSettings(){state.compDate=$('compDate').value;saveToStorage();renderAll();}
+    function saveSettings(){state.compDate=$('compDate').value;state.compDateSource='manual';saveToStorage();renderAll();}
     function changeWeek(){state.activeWeek=Number($('weekSelect').value);saveToStorage();renderAll();}
     function updatePctCountdown(){
       const today=todayDate(),p=pctForDate(today),dayWord=n=>{const a=n%10,b=n%100;return a===1&&b!==11?'день':a>=2&&a<=4&&(b<12||b>14)?'дня':'дней';};
@@ -641,11 +642,12 @@
       for(let w=16;w>=1;w--)if(weekStartDate(w,data)<=today)return w;
       return 0;
     }
+    function competitionDateLabel(){return state.compDateSource==='patch'?'Дата старта из патча':'Ориентир старта';}
     function competitionCalendarNote(){
       if(!validDate(state.compDate))return '';
       const start=weekStartDate(16),end=addDays(start,6),firstGap=addDays(weekStartDate(15),7);
-      if(state.compDate<start||state.compDate>end)return ' Ориентир старта: '+dateLabel(state.compDate)+' — вне недели 16. Сдвиг пересёк бы предыдущие недели или изменил бы датировку записанного факта.';
-      return ' Ориентир старта: '+dateLabel(state.compDate)+' · неделя 16 ('+dateLabel(start)+' — '+dateLabel(end)+').'+(start>firstGap?' Промежуток без недель плана: '+dateLabel(firstGap)+' — '+dateLabel(addDays(start,-1))+'.':'');
+      if(state.compDate<start||state.compDate>end)return ' '+competitionDateLabel()+': '+dateLabel(state.compDate)+' — вне недели 16. Сдвиг пересёк бы предыдущие недели или изменил бы датировку записанного факта.';
+      return ' '+competitionDateLabel()+': '+dateLabel(state.compDate)+' · неделя 16 ('+dateLabel(start)+' — '+dateLabel(end)+').'+(start>firstGap?' Промежуток без недель плана: '+dateLabel(firstGap)+' — '+dateLabel(addDays(start,-1))+'.':'');
     }
     function trainingDate(w,n){return state.weeks[w]?.workouts?.['d'+n]?.date||addDays(weekStartDate(w),[0,2,4,5][n-1]);}
     function parseExercise(text,id,name){
@@ -710,6 +712,7 @@
       return {reps100:d.summaryOverrides?.reps100===true?num(d.reps100):reps,rir:d.summaryOverrides?.rir===true?num(d.rir):rir};
     }
     function renderAll(){
+      $('compDateLabel').textContent=state.compDateSource==='patch'?'Дата соревнований (из патча):':'Дата соревнований (ориентир):';
       $('competitionCalendar').textContent=competitionCalendarNote().trim();
       const w=state.activeWeek,p=getWeekPlan(w),d=state.weeks[w]||{};$('weekSelect').value=w;
       $('currentWeekHeader').textContent=`Неделя ${w} · цель ${p.target100} повторений`;$('phaseBadge').textContent=p.phase;$('phaseBadge').className='badge '+(p.isDeload?'badge-ok':'badge-info');
@@ -825,7 +828,7 @@
       const w=state.activeWeek,start=weekStartDate(w),end=addDays(start,6),checks={};
       for(const [key,value] of Object.entries(state.suppChecks))if(key.slice(0,10)>=start&&key.slice(0,10)<=end)checks[key]=value;
       const plan=getWeekPlan(w),fact=clone(state.weeks[w]||{}),best=workoutBest(fact);
-      return {schema:'metajhim.weekly-report.v1',athlete:'Дмитрий Мухин',week:w,weekStart:start,weekEnd:end,phase:plan.phase,targetRepsKMS:state.targetRepsKMS,targetRepsMS:state.targetRepsMS,compDate:state.compDate,plan:{...clone(plan),days:trainingDays(plan)},fact:{...fact,...best},biochemistry:getBio(),recordedBiochemistry:state.weeks[w]?.biochemistry||null,pct:{lastInjectDate:LAST_INJECT,startDate:PCT_START,endDate:PCT_END,userProvidedSchedule:true,today:pctForDate(todayDate())},suppChecks:checks,protectedThrough:protectedThrough()};
+      return {schema:'metajhim.weekly-report.v1',athlete:'Дмитрий Мухин',week:w,weekStart:start,weekEnd:end,phase:plan.phase,targetRepsKMS:state.targetRepsKMS,targetRepsMS:state.targetRepsMS,compDate:state.compDate,compDateSource:state.compDateSource,plan:{...clone(plan),days:trainingDays(plan)},fact:{...fact,...best},biochemistry:getBio(),recordedBiochemistry:state.weeks[w]?.biochemistry||null,pct:{lastInjectDate:LAST_INJECT,startDate:PCT_START,endDate:PCT_END,userProvidedSchedule:true,today:pctForDate(todayDate())},suppChecks:checks,protectedThrough:protectedThrough()};
     }
     function reportText(){
       const p=weeklyPayload(),d=p.fact;
@@ -843,7 +846,7 @@
     function invalidatePatch(){pendingPatch=null;$('applyPatchButton').disabled=true;$('patchPreview').className='notice';$('patchPreview').textContent=`Патч обновляет план любой недели. Записанные подходы сохраняются.`;}
     function readImport(){const text=$('importJsonArea').value.trim();if(!text)throw Error('Вставьте JSON.');if(text.length>500000)throw Error('Максимальный размер — 500 КБ.');let p;try{p=JSON.parse(text);}catch{throw Error('Некорректный JSON: проверьте запятые, скобки и кавычки.');}if(!obj(p))throw Error('Ожидается JSON-объект.');return p;}
     function preparePatch(parsed){
-      const allowed=['schema','version','targetReps','targetRepsKMS','targetRepsMS','protectedThrough','compDate','plan','customPlan','settings','weeks','activeWeek','ferritin','iron','lastInjectDate','suppChecks','cycleStart','exportedAt','resetWeeks','factOverrides'];
+      const allowed=['schema','version','targetReps','targetRepsKMS','targetRepsMS','protectedThrough','compDate','compDateSource','plan','customPlan','settings','weeks','activeWeek','ferritin','iron','lastInjectDate','suppChecks','cycleStart','exportedAt','resetWeeks','factOverrides'];
       for(const k of Object.keys(parsed))if(!allowed.includes(k))throw Error('Неизвестное поле: '+k);
       if(parsed.schema&&!['metajhim.coach-patch.v1','metajhim.backup.v2'].includes(parsed.schema))throw Error('Нужен патч тренера или JSON-архив; отчёт недели не является патчем.');
       if(own(parsed,'plan')&&own(parsed,'customPlan'))throw Error('Укажите только plan или customPlan.');
@@ -856,7 +859,7 @@
       for(const key of ['targetReps','targetRepsKMS','targetRepsMS'])if(own(merged,key)&&!validRepGoal(merged[key]))throw Error(key+': целое число повторений от 1 до 200.');
       for(const [key,value,label] of [['targetRepsKMS',merged.targetRepsKMS??merged.targetReps,'КМС'],['targetRepsMS',merged.targetRepsMS,'МС']])if(value!==undefined&&value!==state[key]){changes.push(`Цель ${label}: ${state[key]} → ${value}`);next[key]=value;}
       next.targetReps=next.targetRepsKMS;
-      if(own(merged,'compDate')){if(merged.compDate!==''&&!validDate(merged.compDate))throw Error('compDate: существующая дата YYYY-MM-DD или пустая строка.');if(merged.compDate!==state.compDate){changes.push(`Дата соревнований: ${show(state.compDate)} → ${show(merged.compDate)}`);next.compDate=merged.compDate;}}
+      if(own(merged,'compDate')){if(merged.compDate!==''&&!validDate(merged.compDate))throw Error('compDate: существующая дата YYYY-MM-DD или пустая строка.');if(merged.compDate!==state.compDate||state.compDateSource!=='patch'){changes.push(`Дата соревнований: ${show(state.compDate)} → ${show(merged.compDate)}`);next.compDate=merged.compDate;next.compDateSource=merged.compDate?'patch':'manual';}}
       const entries=own(parsed,'plan')?parsed.plan:parsed.customPlan;
       if(entries!==undefined&&entries!==null){
         if(!Array.isArray(entries)||!entries.length||entries.length>16)throw Error('plan / customPlan: массив из 1–16 недель.');
