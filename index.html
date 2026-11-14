@@ -835,12 +835,19 @@
         if(!obj(parsed.factOverrides))throw Error('factOverrides: объект с номерами недель.');
         for(const [w,fields] of Object.entries(parsed.factOverrides)){
           if(!/^(?:[1-9]|1[0-6])$/.test(w)||!obj(fields))throw Error('Некорректная неделя в factOverrides.');
-          for(const [key,value] of Object.entries(fields)){
-            if(!['reps100','rir'].includes(key)||!(value===null||Number.isInteger(value)&&value>=0&&value<=(key==='rir'?20:100)))throw Error('factOverrides: только reps100 и rir, целые числа или null.');
+          for(const [key,raw] of Object.entries(fields)){
+            const limits={reps100:[0,100,true],rir:[0,20,true],weight:[30,300,false],shoulderLeft:[0,10,true],shoulderRight:[0,10,true]};
+            if(!own(limits,key))throw Error(`factOverrides: поле ${key} не поддерживается.`);
+            const value=raw===''?null:raw,[min,max,integer]=limits[key];
+            if(value!==null&&(!Number.isFinite(value)||value<min||value>max||(integer&&!Number.isInteger(value))))throw Error(`Неделя ${w}: ${key} — ${integer?'целое число':'число'} от ${min} до ${max}, null или пустая строка.`);
             const d=next.weeks[w]??(next.weeks[w]={});
-            if(d[key]!==value||d.summaryOverrides?.[key]!==true){
-              changes.push(`Неделя ${w} · факт ${key}: ${show(workoutBest(d)[key])} → ${show(value)}`);
-              d[key]=value;d.summaryOverrides={...d.summaryOverrides,[key]:true};hasFactChanges=true;
+            const derived=key==='reps100'||key==='rir';
+            if(d[key]!==value||(derived&&d.summaryOverrides?.[key]!==true)||(key==='shoulderLeft'&&d.shoulder!==value)){
+              changes.push(`Неделя ${w} · факт ${key}: ${show(derived?workoutBest(d)[key]:d[key])} → ${show(value)}`);
+              d[key]=value;
+              if(derived)d.summaryOverrides={...d.summaryOverrides,[key]:true};
+              if(key==='shoulderLeft')d.shoulder=value;
+              hasFactChanges=true;
             }
           }
         }
